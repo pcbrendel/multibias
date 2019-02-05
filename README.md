@@ -22,3 +22,9 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Usage
+
+Say you have a data set whose causal relationships can be represented in the following DAG:
+
+[uc_mc_sel_DAG](DAGs/uc_mc_sel_DAG.png)
+
+A simulated data set corresponding to this DAG, `df_uc_mc_sel` can be loaded from the multibias package. 
