@@ -11,7 +11,7 @@
 #' @param outcome The variable corresponding to the outcome in the data.
 #' @param confounders The variable(s) corresponding to the confounder(s) in the data.
 #' A maximum of three confounders are allowed.
-#' @param px1_u0_parameters The regression coefficients corresponding to the model: .
+#' @param px1_u0_parameters The regression coefficients corresponding to the model: test.
 #' @param px0_u1_parameters The regression coefficients corresponding to the model: .
 #' @param px1_u1_parameters The regression coefficients corresponding to the model: .
 #'

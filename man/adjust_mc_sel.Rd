@@ -17,6 +17,8 @@ adjust_mc_sel(data, exposure, outcome, confounders = NULL,
 \item{confounders}{The variable(s) corresponding to the confounder(s) in the data.
 A maximum of three confounders are allowed.}
 
+\item{px1_parameters}{The regression coefficients corresponding to the model:}
+
 \item{ps1_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y +
 &beta;<sub>2+j</sub>C<sub>2+j</sub>, }where S represents (binary) selection, X is the

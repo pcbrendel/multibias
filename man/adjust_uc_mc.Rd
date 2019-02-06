@@ -17,7 +17,7 @@ adjust_uc_mc(data, exposure, outcome, confounders = NULL,
 \item{confounders}{The variable(s) corresponding to the confounder(s) in the data.
 A maximum of three confounders are allowed.}
 
-\item{px1_u0_parameters}{The regression coefficients corresponding to the model: .}
+\item{px1_u0_parameters}{The regression coefficients corresponding to the model: test.}
 
 \item{px0_u1_parameters}{The regression coefficients corresponding to the model: .}
 

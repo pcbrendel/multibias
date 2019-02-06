@@ -8,7 +8,7 @@
 #' @param outcome The variable corresponding to the outcome in the data.
 #' @param confounders The variable(s) corresponding to the confounder(s) in the data.
 #' A maximum of three confounders are allowed.
-#' @param px1_parameters
+#' @param px1_parameters The regression coefficients corresponding to the model:
 #' @param ps1_parameters The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y +
 #' &beta;<sub>2+j</sub>C<sub>2+j</sub>, }where S represents (binary) selection, X is the
