@@ -12,7 +12,7 @@ multibias is a set of functions that provide odds ratio estimates that are adjus
  
  
  
- If you are new to bias analysis, I'd recommend checking out the [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visit my [website](https://pcbrendel.github.io/).
+ If you are new to bias analysis, I'd recommend checking out the [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://pcbrendel.github.io/).
 
 ## Installation
 
@@ -26,6 +26,10 @@ devtools::install_github("pcbrendel/multibias")
 Say you have a data set whose causal relationships can be represented in the following DAG:
 
 ![uc_mc_sel_DAG](DAGs/uc_mc_sel_DAG.png)
+
+The following variables are defined:
+
+It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S, representing selection into the study. The study naturally only examines those who were selected (i.e. those with S=1).
 
 A simulated data set corresponding to this DAG, `df_uc_mc_sel` can be loaded from the multibias package. 
 
