@@ -3,7 +3,7 @@ R package for multi-bias analysis
 
 ## Overview
 
-multibias is a set of functions that provide effect estimates that are adjusted for any combination of uncontrolled confounding, selection bias, and exposure misclassification:
+multibias is a set of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding, selection bias, and exposure misclassification:
 
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
   - `adjust_mc_sel()` adjusts for exposure misclassification and selection bias.
@@ -22,3 +22,21 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Usage
+
+Say you have a data set whose causal relationships can be represented in the following DAG:
+
+![uc_mc_sel_DAG](DAGs/uc_mc_sel_DAG.png)
+
+A simulated data set corresponding to this DAG, `df_uc_mc_sel` can be loaded from the multibias package. 
+
+```{r, eval = TRUE}
+library(multibias)
+head(df_uc_mc_sel)
+#>   Xstar Y C1 C2 C3
+#> 1     0 1  1  0  1
+#> 2     1 0  0  0  1
+#> 3     1 1  0  0  1
+#> 4     0 0  0  1  1
+#> 5     0 0  0  0  0
+#> 6     0 0  0  1  0
+```
