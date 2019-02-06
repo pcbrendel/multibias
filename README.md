@@ -32,4 +32,11 @@ A simulated data set corresponding to this DAG, `df_uc_mc_sel` can be loaded fro
 ```{r, eval = TRUE}
 library(multibias)
 head(df_uc_mc_sel)
+#>   Xstar Y C1 C2 C3
+#> 1     0 1  1  0  1
+#> 2     1 0  0  0  1
+#> 3     1 1  0  0  1
+#> 4     0 0  0  1  1
+#> 5     0 0  0  0  0
+#> 6     0 0  0  1  0
 ```
