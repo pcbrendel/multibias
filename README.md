@@ -3,7 +3,7 @@ R package for multi-bias analysis
 
 ## Overview
 
-multibias is a set of functions that provide effect estimates that are adjusted for any combination of uncontrolled confounding, selection bias, and exposure misclassification:
+multibias is a set of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding, selection bias, and exposure misclassification:
 
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
   - `adjust_mc_sel()` adjusts for exposure misclassification and selection bias.
