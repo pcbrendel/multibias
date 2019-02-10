@@ -28,7 +28,7 @@ Say you have a data set whose causal relationships can be represented in the fol
 The variables are defined:
  - X: true, unmeasured exposure
  - Y: outcome
- - C1, C2, C3: measured confounders
+ - C: measured confounder(s)
  - U: unmeasured confounder
  - X*: misclassified, measured exposure
  - S: selection (into the study)
