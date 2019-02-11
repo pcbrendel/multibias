@@ -17,15 +17,28 @@ adjust_uc_mc(data, exposure, outcome, confounders = NULL,
 \item{confounders}{The variable(s) corresponding to the confounder(s) in the data.
 A maximum of three confounders are allowed.}
 
-\item{px1_u0_parameters}{The regression coefficients corresponding to the model: test.}
+\item{px1_u0_parameters}{The regression coefficients corresponding to the model:
+\ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + 
+&gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the 
+number of measured confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}}
 
-\item{px0_u1_parameters}{The regression coefficients corresponding to the model: .}
+\item{px0_u1_parameters}{The regression coefficients corresponding to the model:
+\ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + 
+&gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
+number of measured confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}}
 
-\item{px1_u1_parameters}{The regression coefficients corresponding to the model: .}
-}
-\value{
-The exposure-outcome odds ratio, adjusted for uncontrolled
-  confounding and exposure misclassification, and its confidence interval.
+\item{px1_u1_parameters}{The regression coefficients corresponding to the model: 
+\ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + 
+&gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
+number of measured confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
+
+\item{level}{Number from 0-1 representing the range of the confidence interval. Default is .95.}
 }
 \description{
 \code{adjust_uc_mc} returns the exposure-outcome odds ratio and confidence
@@ -35,6 +48,6 @@ misclassificaiton.
 \details{
 Details
 }
-\author{
-Paul Brendel
+\examples{
+
 }
