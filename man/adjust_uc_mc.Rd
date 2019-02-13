@@ -42,11 +42,12 @@ number of measured confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
 }
 \description{
 \code{adjust_uc_mc} returns the exposure-outcome odds ratio and confidence
-interval, adjusted for uncontrolled confounding and exposure
-misclassificaiton.
+interval, adjusted for uncontrolled confounding and exposure misclassificaiton.
 }
 \details{
-Details
+This function uses one bias model, a multinomial logistic regression model, to predict 
+the uncontrolled confounder (U) and exposure (X). If separate bias models for X and U 
+are desired, use \code{adjust_uc_mc_2}.
 }
 \examples{
 

@@ -53,6 +53,11 @@ confounders.}{\eqn{logit(P(S=1)) =}}}
 interval, adjusted for uncontrolled confounding, exposure misclassificaiton,
 and selection bias.
 }
+\details{
+This function uses one bias model, a multinomial logistic regression model, to predict 
+the uncontrolled confounder (U) and exposure (X). If separate bias models for X and U 
+are desired, use \code{adjust_uc_mc_2}.
+}
 \examples{
 
 }

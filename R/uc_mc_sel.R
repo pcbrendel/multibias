@@ -3,6 +3,10 @@
 #' \code{adjust_uc_mc_sel} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding, exposure misclassificaiton,
 #' and selection bias.
+#' 
+#' This function uses one bias model, a multinomial logistic regression model, to predict 
+#' the uncontrolled confounder (U) and exposure (X). If separate bias models for X and U 
+#' are desired, use \code{adjust_uc_mc_2}.
 #'
 #' @param data The data set.
 #' @param exposure The variable corresponding to the exposure in the data.

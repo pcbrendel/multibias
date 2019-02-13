@@ -22,12 +22,12 @@ A maximum of three confounders are allowed.}
 &alpha;<sub>2+j</sub>C<sub>2+j</sub>, } where U is the (binary) unmeasured confounder,
 X is the (binary) exposure, Y is the (binary) outcome, C represents the vector of (binary)
 measured confounders (if any), and j corresponds to the number of measured confounders. The number
-of coefficients therefore equals 3 + the number of confounders.}{\eqn{logit(P(U=1)) =}}}
+of parameters therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}}
 
 \item{ps1_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,}
 where S represents (binary) selection, X is the (binary) exposure, and Y is the (binary)
-outcome.}{\eqn{logit(P(S=1)) =}}}
+outcome. The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}}
 
 \item{level}{Number from 0-1 representing the range of the confidence interval. Default is .95.}
 }

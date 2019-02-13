@@ -2,7 +2,9 @@
 
 export(adjust_mc_sel)
 export(adjust_uc_mc)
+export(adjust_uc_mc2)
 export(adjust_uc_mc_sel)
+export(adjust_uc_mc_sel2)
 export(adjust_uc_sel)
 import(dplyr)
 importFrom(magrittr,"%>%")
