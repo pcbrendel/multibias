@@ -32,6 +32,11 @@
 #' @param level Number from 0-1 representing the range of the confidence interval. Default is .95.
 #' 
 #' @examples 
+#' adjust_uc_mc_sel2(df_uc_mc_sel, exposure = "Xstar", outcome = "Y", 
+#' confounders = c("C1", "C2", "C3"), 
+#' pu1_parameters = c(-.40, .38, .46), 
+#' px1_parameters = c(-1.61, 2.71, .62, -.41, -.41, .40),
+#' ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05))
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
