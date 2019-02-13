@@ -63,12 +63,13 @@ exp(coef(biased_model)[2])
 The `adjust` family of functions serves to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
 
 Models for the missing variables (U, X, S) are used to facilitate this data reconstruction. For the above DAG, these models are:
- - $$logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y$$
- - $$logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-#' &delta;<sub>2+j</sub>C<sub>2+j</sub>$$
+ - logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y
+ - logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>2+j</sub>
+ - logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>2+j</sub>
 
+where j indicates the number of measured confounders. 
 
-We will run the analysis over 1,000 bootstrap samples to obtain a valid confidence interval that incorporates uncertainty in the random error and systematic error. To improve performance we will run the analysis in parallel using the doParallel package. 
+We will run the analysis over 1,000 bootstrap samples to obtain a valid confidence interval that incorporates uncertainty in the random error and systematic error. To improve performance we will run the analysis in parallel using the doParallel package. First, we create a cluster, make a seed, and specify the desired number of bootstrap repitions.
 
 ```{r, eval = TRUE}
 library(doParallel)
@@ -82,6 +83,8 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
+Then we run the parallel for loop in which we use the `adjust_uc_mc_sel2()` function.
+
 ```{r, eval = TRUE}
 or <- foreach(i = 1:nreps, .combine = c, .packages = 'dplyr') %dopar% {
   
@@ -94,7 +97,10 @@ or <- foreach(i = 1:nreps, .combine = c, .packages = 'dplyr') %dopar% {
                               ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
                               )[[1]]
 }
+```
+Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval. As expected, OR<sub>YX</sub> ~ 2.
 
+```{r, eval = TRUE}
 median(or)
 quantile(or,c(.025, .975))
 #> 2.031248
