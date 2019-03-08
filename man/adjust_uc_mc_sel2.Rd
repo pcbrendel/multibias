@@ -24,7 +24,7 @@ outcome. The number of parameters therefore equals 3.}{\eqn{logit(P(U=1)) =}}}
 
 \item{px1_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-&delta;<sub>2+j</sub>C<sub>2+j</sub>, }where X represents (binary) true exposure, X* is the
+&delta;<sub>2+j</sub>C<sub>j</sub>, }where X represents (binary) true exposure, X* is the
 (binary) misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary)
 measured confounders (if any), and j corresponds to the number of measured 
 confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}}
@@ -49,5 +49,10 @@ confounder (U) and exposure (X). If a single bias model for jointly modeling X a
 is desired use \code{adjust_uc_mc_sel}.
 }
 \examples{
+adjust_uc_mc_sel2(df_uc_mc_sel, exposure = "Xstar", outcome = "Y", 
+confounders = c("C1", "C2", "C3"), 
+pu1_parameters = c(-.40, .38, .46), 
+px1_parameters = c(-1.61, 2.71, .62, -.41, -.41, .40),
+ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05))
 
 }

@@ -19,21 +19,21 @@ A maximum of three confounders are allowed.}
 
 \item{px1_u0_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + 
-&gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+&gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
 U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
 outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the 
 number of measured confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}}
 
 \item{px0_u1_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + 
-&gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+&gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
 U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
 outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
 number of measured confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}}
 
 \item{px1_u1_parameters}{The regression coefficients corresponding to the model: 
 \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + 
-&gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>2+j</sub>, }where X is the true (binary) exposure,
+&gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
 U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
 outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
 number of measured confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
@@ -50,5 +50,11 @@ the uncontrolled confounder (U) and exposure (X). If separate bias models for X 
 are desired, use \code{adjust_uc_mc_2}.
 }
 \examples{
+adjust_uc_mc(df_uc_mc, exposure = "Xstar", outcome = "Y", 
+confounders = c("C1", "C2", "C3"), 
+px1_u0_parameters = c(-1.37, 1.64, .71, -.43, -.43, .43), 
+px0_u1_parameters = c(-.45, -.05, .50, .12, .10, -.11),
+px1_u1_parameters = c(-1.45, 1.69, 1.20, -.30, -.31, .29)) 
+
 
 }
