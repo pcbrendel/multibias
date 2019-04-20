@@ -3,7 +3,7 @@
 \docType{data}
 \name{df_uc_sel}
 \alias{df_uc_sel}
-\title{Simulated dataset with uncontrolled confounding and selection bias.}
+\title{Simulated dataset with uncontrolled confounding and selection bias}
 \format{A dataframe with 100,000 rows and 5 variables:
 \describe{
     \item{X}{exposure, 1 = present and 0 = absent}

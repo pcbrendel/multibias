@@ -3,7 +3,7 @@
 \docType{data}
 \name{df_uc_mc}
 \alias{df_uc_mc}
-\title{Simulated dataset with uncontrolled confounding and exposure misclassification.}
+\title{Simulated dataset with uncontrolled confounding and exposure misclassification}
 \format{A dataframe with 100,000 rows and 5 variables:
 \describe{
     \item{Xstar}{misclassified exposure, 1 = present and 0 = absent}

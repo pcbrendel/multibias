@@ -1,4 +1,4 @@
-#' Simulated dataset with uncontrolled confounding and selection bias.
+#' Simulated dataset with uncontrolled confounding and selection bias
 #'
 #' A dataset with two sources of bias, three known confounders, and 100,000 observations.
 #' The true, unbiased exposure-outcome odds ratio = 2.

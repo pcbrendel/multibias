@@ -4,7 +4,7 @@
 \name{df_uc_mc_sel}
 \alias{df_uc_mc_sel}
 \title{Simulated dataset with uncontrolled confounding, exposure misclassification, 
-and selection bias.}
+and selection bias}
 \format{A dataframe with 500,000 rows and 5 variables:
 \describe{
     \item{Xstar}{misclassified exposure, 1 = present and 0 = absent}

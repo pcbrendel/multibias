@@ -3,7 +3,7 @@
 \docType{data}
 \name{df_mc_sel}
 \alias{df_mc_sel}
-\title{Simulated dataset with exposure misclassification and selection bias.}
+\title{Simulated dataset with exposure misclassification and selection bias}
 \format{A dataframe with 100,000 rows and 5 variables:
 \describe{
     \item{Xstar}{misclassified exposure, 1 = present and 0 = absent}
