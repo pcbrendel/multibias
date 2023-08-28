@@ -1,5 +1,8 @@
 # multibias
-R package for multi-bias analysis
+An R package for multi-bias analysis corresponding to the article:
+
+Paul Brendel and others, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
+[Link](https://doi.org/10.1093/ije/dyad001)
 
 ## Overview
 

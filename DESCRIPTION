@@ -1,12 +1,20 @@
 Package: multibias
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Type: Package
+Title: Simultaneous Multi-Bias Adjustment
+Version: 0.1.0
+Author: Paul Brendel
+Maintainer: Paul Brendel <pcbrendel@gmail.com>
+Description: A suite of functions for those attempting to quantify the effect of 
+    a binary exposure on a binary outcome. The functions can simultaneously 
+    adjust for any combination of uncontrolled confounding, exposure 
+    misclassification, and selection bias.
+License: none
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
+LazyData: true
 RoxygenNote: 7.2.3
+Imports: 
+    dplyr,
+    magrittr
+Suggests:
+    testthat
+URL: http://github.com/pcbrendel/multibias
