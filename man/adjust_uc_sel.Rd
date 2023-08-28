@@ -4,8 +4,15 @@
 \alias{adjust_uc_sel}
 \title{Adust for uncontrolled confounding and selection bias.}
 \usage{
-adjust_uc_sel(data, exposure, outcome, confounders = NULL,
-  pu1_parameters, ps1_parameters, level = 0.95)
+adjust_uc_sel(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  pu1_parameters,
+  ps1_parameters,
+  level = 0.95
+)
 }
 \arguments{
 \item{data}{The data set.}

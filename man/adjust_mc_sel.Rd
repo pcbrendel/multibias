@@ -4,18 +4,25 @@
 \alias{adjust_mc_sel}
 \title{Adust for exposure misclassification and selection bias.}
 \usage{
-adjust_mc_sel(data, exposure, outcome, confounders = NULL,
-  px1_parameters, ps1_parameters, level = 0.95)
+adjust_mc_sel(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  px1_parameters,
+  ps1_parameters,
+  level = 0.95
+)
 }
 \arguments{
-\item{data}{The data set.}
+\item{data}{Dataframe for analysis.}
 
 \item{exposure}{The variable corresponding to the exposure in the data.}
 
 \item{outcome}{The variable corresponding to the outcome in the data.}
 
-\item{confounders}{The variable(s) corresponding to the confounder(s) in the data.
-A maximum of three confounders are allowed.}
+\item{confounders}{The variable(s) corresponding to the confounder(s) in the
+data. A maximum of three confounders are allowed.}
 
 \item{px1_parameters}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
@@ -31,7 +38,8 @@ misclassified exposure, Y is the (binary) outcome, C represents the vector of (b
 measured confounders (if any), and j corresponds to the number of measured 
 confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
 
-\item{level}{Number from 0-1 representing the range of the confidence interval. Default is .95.}
+\item{level}{Value from 0-1 representing the full range of the confidence 
+interval. Default is .95.}
 }
 \description{
 \code{adjust_mc_sel} returns the exposure-outcome odds ratio and confidence

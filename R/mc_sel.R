@@ -3,11 +3,11 @@
 #' \code{adjust_mc_sel} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
-#' @param data The data set.
+#' @param data Dataframe for analysis.
 #' @param exposure The variable corresponding to the exposure in the data.
 #' @param outcome The variable corresponding to the outcome in the data.
-#' @param confounders The variable(s) corresponding to the confounder(s) in the data.
-#' A maximum of three confounders are allowed.
+#' @param confounders The variable(s) corresponding to the confounder(s) in the
+#' data. A maximum of three confounders are allowed.
 #' @param px1_parameters The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 #' &delta;<sub>2+j</sub>C<sub>j</sub>, }where X represents (binary) true exposure, X* is the
@@ -20,7 +20,8 @@
 #' misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary) 
 #' measured confounders (if any), and j corresponds to the number of measured 
 #' confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}
-#' @param level Number from 0-1 representing the range of the confidence interval. Default is .95.
+#' @param level Value from 0-1 representing the full range of the confidence 
+#' interval. Default is .95.
 #'
 #' @examples
 #' adjust_mc_sel(df_mc_sel, exposure = "Xstar", outcome = "Y",

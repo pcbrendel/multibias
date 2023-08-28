@@ -4,8 +4,15 @@
 \alias{adjust_uc_mc2}
 \title{Adust for uncontrolled confounding and exposure misclassification.}
 \usage{
-adjust_uc_mc2(data, exposure, outcome, confounders = NULL,
-  pu1_parameters, px1_parameters, level = 0.95)
+adjust_uc_mc2(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  pu1_parameters,
+  px1_parameters,
+  level = 0.95
+)
 }
 \arguments{
 \item{data}{The data set.}

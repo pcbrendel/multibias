@@ -4,7 +4,8 @@
 \name{evans}
 \alias{evans}
 \title{Evans County dataset}
-\format{A dataframe with 609 rows and 9 variables:
+\format{
+A dataframe with 609 rows and 9 variables:
 \describe{
     \item{ID}{subject identifiction}
     \item{CHD}{outcome variable; 1 = coronary heart disease}
@@ -15,7 +16,8 @@
     \item{DBP}{diastolic blood pressure, mmHg}
     \item{SBP}{systolic blood pressure, mmHg}
     \item{HPT}{1 = SBP greater than or equal to 160 or DBP greater than or equal to 95}
-}}
+}
+}
 \usage{
 evans
 }

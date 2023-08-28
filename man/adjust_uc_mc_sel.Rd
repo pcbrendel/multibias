@@ -4,9 +4,17 @@
 \alias{adjust_uc_mc_sel}
 \title{Adust for uncontrolled confounding, exposure misclassification, and selection bias.}
 \usage{
-adjust_uc_mc_sel(data, exposure, outcome, confounders = NULL,
-  px1_u0_parameters, px0_u1_parameters, px1_u1_parameters, ps1_parameters,
-  level = 0.95)
+adjust_uc_mc_sel(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  px1_u0_parameters,
+  px0_u1_parameters,
+  px1_u1_parameters,
+  ps1_parameters,
+  level = 0.95
+)
 }
 \arguments{
 \item{data}{The data set.}

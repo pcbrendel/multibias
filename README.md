@@ -12,7 +12,7 @@ multibias is a set of functions that provide odds ratio estimates that are adjus
   - `adjust_uc_mc_sel()` adjusts for all three biases.
   - `adjust_uc_mc_sel2()` adjusts for all three biases.
  
-If you are new to bias analysis, I'd recommend checking out the [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://pcbrendel.github.io/).
+If you are new to bias analysis, I'd recommend checking out the [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://www.paulbrendel.com/).
 
 ## Installation
 

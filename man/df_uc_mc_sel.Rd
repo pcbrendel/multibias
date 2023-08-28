@@ -5,14 +5,16 @@
 \alias{df_uc_mc_sel}
 \title{Simulated dataset with uncontrolled confounding, exposure misclassification, 
 and selection bias}
-\format{A dataframe with 500,000 rows and 5 variables:
+\format{
+A dataframe with 500,000 rows and 5 variables:
 \describe{
     \item{Xstar}{misclassified exposure, 1 = present and 0 = absent}
     \item{Y}{outcome, 1 = present and 0 = absent}
     \item{C1}{1st confounder, 1 = present and 0 = absent}
     \item{C2}{2nd confounder, 1 = present and 0 = absent}
     \item{C3}{3rd confounder, 1 = present and 0 = absent}
-}}
+}
+}
 \usage{
 df_uc_mc_sel
 }
