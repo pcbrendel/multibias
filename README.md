@@ -8,11 +8,11 @@ Paul Brendel and others, Simultaneous adjustment of uncontrolled confounding, se
 The `multibias` package includes a suite of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emis):
 
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
-  - `adjust_emis_sel()` adjusts for exposure misclassification and selection bias.
-  - `adjust_uc_emis()` adjusts for uncontrolled confounding and exposure misclassificaiton.
-  - `adjust_uc_emis2()` adjusts for uncontrolled confounding and exposure misclassificaiton.
-  - `adjust_uc_emis_sel()` adjusts for all three biases.
-  - `adjust_uc_emis_sel2()` adjusts for all three biases.
+  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
+  - `adjust_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton.
+  - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
+  - `adjust_uc_emc_sel()` adjusts for all three biases.
+  - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
  
 If you are new to bias analysis, I'd suggest reading [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://www.paulbrendel.com/).
 
@@ -39,7 +39,7 @@ The variables are defined:
 
 It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only examines those who were selected (i.e. those with S=1).
 
-A simulated data set corresponding to this DAG, `df_uc_emis_sel` can be loaded from the multibias package. 
+A simulated data set corresponding to this DAG, `df_uc_emc_sel` can be loaded from the multibias package. 
 
 ```{r, eval = TRUE}
 library(multibias)
@@ -91,7 +91,7 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
-Then we run the parallel for loop in which we apply the `adjust_uc_emis_sel2()` function to bootstrap samples of the `df_uc_emis_sel` data. In this function we specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the parameters in the U model, the parameters in the X model, and the parameters in the S model. Since knowledge of the complete data was known, the correct bias parameters were known in advance. The bias parameters can be provided as fixed values, as seen in this example, or values from a probability distribution. This latter strategy is referred to as probabilistic bias analysis.
+Then we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. In this function we specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the parameters in the U model, the parameters in the X model, and the parameters in the S model. Since knowledge of the complete data was known, the correct bias parameters were known in advance. The bias parameters can be provided as fixed values, as seen in this example, or values from a probability distribution. This latter strategy is referred to as probabilistic bias analysis.
 
 ```{r, eval = TRUE}
 # create triple-bias dataframe
@@ -101,12 +101,15 @@ or <- foreach(i = 1:nreps, .combine = c, .packages = 'dplyr') %dopar% {
   # bootstrap sample
   bdf <- df[sample(1:nrow(df), nrow(df), replace = TRUE),]
   # adjust for biases
-  est[i] <- adjust_uc_emis_sel2(bdf, exposure = "Xstar", outcome = "Y",
-                                confounders = c("C1", "C2", "C3"),
-                                pu1_parameters = c(-.40, .38, .46),
-                                px1_parameters = c(-1.61, 2.71, .62, -.41, -.41, .40), 
-                                ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
-                                )[[1]]
+  est[i] <- adjust_uc_emc_sel(
+    bdf, 
+    exposure = "Xstar", 
+    outcome = "Y",
+    confounders = c("C1", "C2", "C3"),
+    pu1_parameters = c(-.40, .38, .46),
+    px1_parameters = c(-1.61, 2.71, .62, -.41, -.41, .40), 
+    ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
+  )[[1]]
 }
 ```
 Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 bootstrap odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
