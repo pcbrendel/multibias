@@ -1,17 +1,25 @@
 library(devtools)
 library(tidyverse)
-library(multibias)
 library(available)
+library(roxygen2)
+
+use_data_raw()
 
 # check package with 'available'
 available("multibias")
+
+# document
+roxygenize()
+document()
 
 # check and create the package
 check()
 create_package("C:/Users/brend/Desktop/folder/multibias")
 
-head(df_uc_mc_sel)
+# release to CRAN
+use_release_issue()
 
-install.packages('jsonlite')
-install.packages("tidyverse")
 
+install.packages("languageserver")
+
+c(1, 2, 3)

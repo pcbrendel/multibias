@@ -1,16 +1,17 @@
 #' Adust for uncontrolled confounding and exposure misclassification.
 #'
-#' \code{adjust_uc_mc} returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for uncontrolled confounding and exposure misclassificaiton.
+#' \code{adjust_multinom_uc_emc} returns the exposure-outcome odds ratio and
+#' confidence interval, adjusted for uncontrolled confounding and exposure
+#' misclassificaiton.
 #'
-#' This function uses one bias model, a multinomial logistic regression model, to predict 
-#' the uncontrolled confounder (U) and exposure (X). If separate bias models for X and U 
-#' are desired, use \code{adjust_uc_mc_2}. 
+#' This function uses one bias model, a multinomial logistic regression model,
+#' to predict the uncontrolled confounder (U) and exposure (X). If separate bias
+#' models for X and U are desired, use \code{adjust_uc_emc_2}.
 #'
 #' @param data The data set.
-#' @param exposure The variable corresponding to the exposure in the data.
-#' @param outcome The variable corresponding to the outcome in the data.
-#' @param confounders The variable(s) corresponding to the confounder(s) in the data.
+#' @param exposure The name of the exposure variable in the data.
+#' @param outcome The name of the outcome variable in the data.
+#' @param confounders The variable name(s) of the confounder(s) in the data.
 #' A maximum of three confounders are allowed.
 #' @param px1_u0_parameters The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + 
@@ -30,23 +31,38 @@
 #' U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
 #' outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
 #' number of measured confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}
-#' @param level Number from 0-1 representing the range of the confidence interval. Default is .95.
+#' @param level Numeric value from 0-1 representing the range of the confidence
+#' interval. The default value is 0.95.
 #'
-#' @examples 
-#' adjust_uc_mc(df_uc_mc, exposure = "Xstar", outcome = "Y", 
-#' confounders = c("C1", "C2", "C3"), 
-#' px1_u0_parameters = c(-1.37, 1.64, .71, -.43, -.43, .43), 
-#' px0_u1_parameters = c(-.45, -.05, .50, .12, .10, -.11),
-#' px1_u1_parameters = c(-1.45, 1.69, 1.20, -.30, -.31, .29)) 
-#'
+#' @examples
+#' adjust_multinom_uc_emc(
+#'  df_uc_mc,
+#'  exposure = "Xstar",
+#'  outcome = "Y",
+#'  confounders = c("C1", "C2", "C3"),
+#'  px1_u0_parameters = c(-1.37, 1.64, .71, -.43, -.43, .43),
+#'  px0_u1_parameters = c(-.45, -.05, .50, .12, .10, -.11),
+#'  px1_u1_parameters = c(-1.45, 1.69, 1.20, -.30, -.31, .29)
+#' )
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats qnorm
 #'
 #' @export
 
-adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_parameters,
-                          px0_u1_parameters, px1_u1_parameters, level = .95) {
+adjust_multinom_uc_emc <- function(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  px1_u0_parameters,
+  px0_u1_parameters,
+  px1_u1_parameters,
+  level = 0.95
+) {
 
   n <- nrow(data)
   c <- length(confounders)
@@ -54,14 +70,24 @@ adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_pa
   p2 <- length(px0_u1_parameters)
   p3 <- length(px1_u1_parameters)
 
-  Xstar <- data[,exposure]
-  Y <- data[,outcome]
+  Xstar <- data[, exposure]
+  Y <- data[, outcome]
 
-  if (sum(Xstar %in% c(0, 1)) != n) {stop('Exposure must be binary')}
-  if (sum(Y %in% c(0, 1)) != n) {stop('Outcome must be binary')}
-  if (p1 != c + 3) {stop('Incorrect X1_U0 parameter length')}
-  if (p2 != c + 3) {stop('Incorrect X0_U1 parameter length')}
-  if (p3 != c + 3) {stop('Incorrect X1_U1 parameter length')}
+  if (sum(Xstar %in% c(0, 1)) != n) {
+    stop("Exposure must be binary.")
+  }
+  if (sum(Y %in% c(0, 1)) != n) {
+    stop("Outcome must be binary.")
+  }
+  if (p1 != c + 3) {
+    stop("Incorrect X1_U0 parameter length.")
+  }
+  if (p2 != c + 3) {
+    stop("Incorrect X0_U1 parameter length.")
+  }
+  if (p3 != c + 3) {
+    stop("Incorrect X1_U1 parameter length.")
+  }
 
   x1u0_0 <- px1_u0_parameters[1]
   x1u0_xstar <- px1_u0_parameters[2]
@@ -100,17 +126,27 @@ adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_pa
                              Xbar == 0 & Ubar == 1 ~ XUpred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ XUpred4[, 4]))
 
-    Final <- glm(Y ~ Xbar + Ubar, family = binomial(link = "logit"), weights = pXU, data = combined)
-    est <- summary(Final)$coef[2, 1]
-    se <- summary(Final)$coef[2, 2]
+    final <- glm(
+      Y ~ Xbar + Ubar,
+      family = binomial(link = "logit"),
+      weights = combined$pXU,
+      data = combined
+    )
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
-    return(list(exp(est), c(exp(est + se * qnorm(alpha / 2)), exp(est + se * qnorm(1 - alpha / 2)))))
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2)))
+      )
+    )
 
-  }
+  } else if (c == 1) {
 
-  if (c == 1) {
-
-    C <- data[,confounders]
+    C <- data[, confounders]
 
     df <- data.frame(Xstar, Y, C)
 
@@ -139,18 +175,31 @@ adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_pa
                              Xbar == 0 & Ubar == 1 ~ XUpred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ XUpred4[, 4]))
 
-    Final <- glm(Y ~ Xbar + C + Ubar, family = binomial(link = "logit"), weights = pXU, data = combined)
-    est <- summary(Final)$coef[2, 1]
-    se <- summary(Final)$coef[2, 2]
+    final <- glm(
+      Y ~ Xbar + C + Ubar,
+      family = binomial(link = "logit"),
+      weights = combined$pXU,
+      data = combined
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
-    return(list(exp(est), c(exp(est + se * qnorm(alpha / 2)), exp(est + se * qnorm(1 - alpha / 2)))))
 
-  }
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
 
-  else if (c == 2) {
+  } else if (c == 2) {
 
-    C1 <- data[,confounders[1]]
-    C2 <- data[,confounders[2]]
+    C1 <- data[, confounders[1]]
+    C2 <- data[, confounders[2]]
 
     df <- data.frame(Xstar, Y, C1, C2)
 
@@ -184,18 +233,32 @@ adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_pa
                              Xbar == 0 & Ubar == 1 ~ XUpred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ XUpred4[, 4]))
 
-    Final <- glm(Y ~ Xbar + C1 + C2 + Ubar, family = binomial(link = "logit"), weights = pXU, data = combined)
-    est <- summary(Final)$coef[2, 1]
-    se <- summary(Final)$coef[2, 2]
+    final <- glm(
+      Y ~ Xbar + C1 + C2 + Ubar,
+      family = binomial(link = "logit"),
+      weights = combined$pXU,
+      data = combined
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
-    return(list(exp(est), c(exp(est + se * qnorm(alpha / 2)), exp(est + se * qnorm(1 - alpha / 2)))))
 
-  }
-  else if (c == 3) {
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
 
-    C1 <- data[,confounders[1]]
-    C2 <- data[,confounders[2]]
-    C3 <- data[,confounders[3]]
+  } else if (c == 3) {
+
+    C1 <- data[, confounders[1]]
+    C2 <- data[, confounders[2]]
+    C3 <- data[, confounders[3]]
 
     df <- data.frame(Xstar, Y, C1, C2, C3)
 
@@ -232,20 +295,28 @@ adjust_uc_mc <- function (data, exposure, outcome, confounders = NULL, px1_u0_pa
                              Xbar == 0 & Ubar == 1 ~ XUpred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ XUpred4[, 4]))
 
-    Final <- glm(Y ~ Xbar + C1 + C2 + C3 + Ubar, family = binomial(link = "logit"), weights = pXU, data = combined)
-    est <- summary(Final)$coef[2, 1]
-    se <- summary(Final)$coef[2, 2]
+    final <- glm(
+      Y ~ Xbar + C1 + C2 + C3 + Ubar,
+      family = binomial(link = "logit"),
+      weights = combined$pXU,
+      data = combined
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
-    return(list(exp(est), c(exp(est + se * qnorm(alpha / 2)), exp(est + se * qnorm(1 - alpha / 2)))))
 
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
+
+  } else if (c > 3) {
+    stop("This function is currently not compatible with >3 confounders.")
   }
-
-  if (c > 3) {
-
-    stop('This function is currently not compatible with >3 confounders')
-
-  }
-
 }
-
-

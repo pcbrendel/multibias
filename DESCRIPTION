@@ -11,6 +11,7 @@ Description: A suite of functions for those attempting to quantify the effect of
 License: none
 Encoding: UTF-8
 LazyData: true
+R: >= 2.10
 RoxygenNote: 7.2.3
 Imports: 
     dplyr,

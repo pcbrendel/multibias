@@ -1,6 +1,6 @@
 #' Adust for exposure misclassification and selection bias.
 #'
-#' \code{adjust_mc_sel} returns the exposure-outcome odds ratio and confidence
+#' \code{adjust_emc_sel} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
 #' @param data Dataframe for analysis.
@@ -21,21 +21,24 @@
 #' measured confounders (if any), and j corresponds to the number of measured 
 #' confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}
 #' @param level Value from 0-1 representing the full range of the confidence 
-#' interval. Default is .95.
+#' interval. Default is 0.95.
 #'
 #' @examples
-#' adjust_mc_sel(df_mc_sel, exposure = "Xstar", outcome = "Y",
+#' adjust_emc_sel(df_mc_sel, exposure = "Xstar", outcome = "Y",
 #' confounders = c("C1", "C2", "C3"),px1_parameters =
 #' c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40), ps1_parameters =
 #' c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15))
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats qnorm
 #'
 #' @export
 
-adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
-                           px1_parameters, ps1_parameters, level = .95) {
+adjust_emc_sel <- function (data, exposure, outcome, confounders = NULL,
+                            px1_parameters, ps1_parameters, level = 0.95) {
 
   n <- nrow(data)
   c <- length(confounders)
@@ -71,7 +74,7 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
              pX = case_when(Xbar == 1 ~ x1_pred,
                             Xbar == 0 ~ 1 - x1_pred))
 
-    final <- glm(Y ~ Xbar, family = binomial(link = "logit"), weights = (pX / pS), data = combined)
+    final <- glm(Y ~ Xbar, family = binomial(link = "logit"), weights = (combined$pX / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -81,7 +84,7 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
 
   if (c == 1) {
 
-    C <- data[,confounders]
+    C <- data[, confounders]
     df <- data.frame(Xstar, Y, C)
     x1_c <- px1_parameters[4]
 
@@ -94,7 +97,7 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
              pX = case_when(Xbar == 1 ~ x1_pred,
                             Xbar == 0 ~ 1 - x1_pred))
 
-    final <- glm(Y ~ Xbar + C, family = binomial(link = "logit"), weights = (pX / pS), data = combined)
+    final <- glm(Y ~ Xbar + C, family = binomial(link = "logit"), weights = (combined$pX / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -121,7 +124,7 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
              pX = case_when(Xbar == 1 ~ x1_pred,
                             Xbar == 0 ~ 1 - x1_pred))
 
-    final <- glm(Y ~ Xbar + C1 + C2, family = binomial(link = "logit"), weights = (pX / pS), data = combined)
+    final <- glm(Y ~ Xbar + C1 + C2, family = binomial(link = "logit"), weights = (combined$pX / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -154,7 +157,7 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
              pX = case_when(Xbar == 1 ~ x1_pred,
                             Xbar == 0 ~ 1 - x1_pred))
 
-    final <- glm(Y ~ Xbar + C1 + C2 + C3, family = binomial(link = "logit"), weights = (pX / pS), data = combined)
+    final <- glm(Y ~ Xbar + C1 + C2 + C3, family = binomial(link = "logit"), weights = (combined$pX / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -163,11 +166,6 @@ adjust_mc_sel <- function (data, exposure, outcome, confounders = NULL,
   }
 
   if (c > 3) {
-
-    stop('This function is currently not compatible with >3 confounders')
-
+    stop("This function is currently not compatible with >3 confounders.")
   }
-
 }
-
-

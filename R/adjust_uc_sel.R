@@ -21,7 +21,7 @@
 #' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,}
 #' where S represents (binary) selection, X is the (binary) exposure, and Y is the (binary)
 #' outcome. The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}
-#' @param level Number from 0-1 representing the range of the confidence interval. Default is .95.
+#' @param level Number from 0-1 representing the range of the confidence interval. Default is 0.95.
 #'
 #' @examples
 #' adjust_uc_sel(df_uc_sel, exposure = "X", outcome = "Y",
@@ -31,24 +31,35 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats qnorm
 #'
 #' @export
 
-adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
-                           pu1_parameters, ps1_parameters, level = .95) {
+adjust_uc_sel <- function(data, exposure, outcome, confounders = NULL,
+                          pu1_parameters, ps1_parameters, level = 0.95) {
 
   n  <- nrow(data)
   c  <- length(confounders)
   p1 <- length(pu1_parameters)
   p2 <- length(ps1_parameters)
 
-  X <- data[,exposure]
-  Y <- data[,outcome]
+  X <- data[, exposure]
+  Y <- data[, outcome]
 
-  if (sum(X %in% c(0, 1)) != n) {stop('Exposure must be binary')}
-  if (sum(Y %in% c(0, 1)) != n) {stop('Outcome must be binary')}
-  if (p1 != c + 3) {stop('Incorrect U1 parameter length')}
-  if (p2 != 3) {stop('Incorrect S1 parameter length')}
+  if (sum(X %in% c(0, 1)) != n) {
+    stop("Exposure must be binary.")
+  }
+  if (sum(Y %in% c(0, 1)) != n) {
+    stop("Outcome must be binary.")
+  }
+  if (p1 != 3 + c) {
+    stop("Incorrect U1 parameter length. U1 parameter length should equal 3 + length(confounders)")
+  }
+  if (p2 != 3) {
+    stop("Incorrect S1 parameter length. S1 parameter length should equal 3.")
+  }
 
   s1_0 <- ps1_parameters[1]
   s1_x <- ps1_parameters[2]
@@ -71,7 +82,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(Y ~ X + Ubar, family = binomial(link = "logit"), weights = (pU / pS), data = combined)
+    final <- glm(Y ~ X + Ubar, family = binomial(link = "logit"), weights = (combined$pU / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -81,7 +92,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
 
   if (c == 1) {
 
-    C <- data[,confounders]
+    C <- data[, confounders]
     df <- data.frame(X, Y, C)
     u1_c <- pu1_parameters[4]
 
@@ -94,7 +105,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(Y ~ X + C + Ubar, family = binomial(link = "logit"), weights = (pU / pS), data = combined)
+    final <- glm(Y ~ X + C + Ubar, family = binomial(link = "logit"), weights = (combined$pU / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -104,8 +115,8 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
 
   if (c == 2) {
 
-    C1 <- data[,confounders[1]]
-    C2 <- data[,confounders[2]]
+    C1 <- data[, confounders[1]]
+    C2 <- data[, confounders[2]]
 
     df <- data.frame(X, Y, C1, C2)
 
@@ -122,7 +133,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
                             Ubar == 0 ~ 1 - u1_pred))
 
     final <- glm(Y ~ X + C1 + C2 + Ubar, family = binomial(link = "logit"),
-                 weights = (pU / pS), data = combined)
+                 weights = (combined$pU / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -132,9 +143,9 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
 
   if (c == 3) {
 
-    C1 <- data[,confounders[1]]
-    C2 <- data[,confounders[2]]
-    C3 <- data[,confounders[3]]
+    C1 <- data[, confounders[1]]
+    C2 <- data[, confounders[2]]
+    C3 <- data[, confounders[3]]
 
     df <- data.frame(X, Y, C1, C2, C3)
 
@@ -152,7 +163,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
                             Ubar == 0 ~ 1 - u1_pred))
 
     final <- glm(Y ~ X + C1 + C2 + C3 + Ubar, family = binomial(link = "logit"),
-                 weights = (pU / pS), data = combined)
+                 weights = (combined$pU / combined$pS), data = combined)
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
@@ -162,7 +173,7 @@ adjust_uc_sel <- function (data, exposure, outcome, confounders = NULL,
 
   if (c > 3) {
 
-    stop('This function is currently not compatible with >3 confounders')
+    stop("This function is currently not compatible with >3 confounders")
 
   }
 
