@@ -25,30 +25,42 @@ adjust_emc_sel(
 data. A maximum of three confounders are allowed.}
 
 \item{px1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-&delta;<sub>2+j</sub>C<sub>j</sub>, }where X represents (binary) true exposure, X* is the
-(binary) misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary)
-measured confounders (if any), and j corresponds to the number of measured 
-confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}}
+\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
+&delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
+&delta;<sub>2+j</sub>C<sub>j</sub>, }
+where X represents (binary) true exposure, X* is the (binary) misclassified
+exposure, Y is the (binary) outcome, C represents the vector of (binary)
+measured confounders (if any), and j corresponds to the number of measured
+confounders. The number of parameters is therefore
+3 + j.}{\eqn{logit(P(X=1)) =}}}
 
 \item{ps1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-&beta;<sub>2+j</sub>C<sub>j</sub>, }where S represents (binary) selection, X* is the (binary) 
-misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary) 
-measured confounders (if any), and j corresponds to the number of measured 
-confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
+\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
+&beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
+&beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
+X* is the (binary) misclassified exposure, Y is the (binary) outcome,
+C represents the vector of (binary) measured confounders (if any), and j
+corresponds to the number of measured confounders. The number of
+parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
 
-\item{level}{Value from 0-1 representing the full range of the confidence 
+\item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
 \description{
 \code{adjust_emc_sel} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for exposure misclassification and selection bias.
 }
+\details{
+Details
+}
 \examples{
-adjust_emc_sel(df_mc_sel, exposure = "Xstar", outcome = "Y",
-confounders = c("C1", "C2", "C3"),px1_parameters =
-c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40), ps1_parameters =
-c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15))
+adjust_emc_sel(
+ df_mc_sel,
+ exposure = "Xstar",
+ outcome = "Y",
+ confounders = c("C1", "C2", "C3"),
+ px1_parameters = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
+ ps1_parameters = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
+)
 
 }

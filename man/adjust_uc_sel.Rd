@@ -17,26 +17,30 @@ adjust_uc_sel(
 \arguments{
 \item{data}{The data set.}
 
-\item{exposure}{The exposure variable in the data.}
+\item{exposure}{The name of the exposure variable in the data.}
 
-\item{outcome}{The outcome variable in the data.}
+\item{outcome}{The name of the outcome variable in the data.}
 
-\item{confounders}{The variable(s) corresponding to the confounder(s) in the data, if any.
+\item{confounders}{The variable name(s) of the confounder(s) in the data.
 A maximum of three confounders are allowed.}
 
 \item{pu1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y +
-&alpha;<sub>2+j</sub>C<sub>j</sub>, } where U is the (binary) unmeasured confounder,
-X is the (binary) exposure, Y is the (binary) outcome, C represents the vector of (binary)
-measured confounders (if any), and j corresponds to the number of measured confounders. The number
-of parameters therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}}
+\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
+&alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y +
+&alpha;<sub>2+j</sub>C<sub>j</sub>, } where U is the (binary) unmeasured
+confounder, X is the (binary) exposure, Y is the (binary) outcome, C
+represents the vector of (binary) measured confounders (if any), and j
+corresponds to the number of measured confounders. The number of parameters
+therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}}
 
 \item{ps1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,}
-where S represents (binary) selection, X is the (binary) exposure, and Y is the (binary)
-outcome. The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}}
+\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
+&beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,} where S represents (binary)
+selection, X is the (binary) exposure, and Y is the (binary) outcome.
+The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}}
 
-\item{level}{Number from 0-1 representing the range of the confidence interval. Default is 0.95.}
+\item{level}{Number from 0-1 representing the range of the confidence
+interval. Default is 0.95.}
 }
 \description{
 \code{adjust_uc_sel} returns the exposure-outcome odds ratio and confidence
@@ -44,12 +48,16 @@ interval, adjusted for uncontrolled confounding and exposure
 misclassificaiton.
 }
 \details{
-Details.
+Details
 }
 \examples{
-adjust_uc_sel(df_uc_sel, exposure = "X", outcome = "Y",
-confounders = c("C1", "C2", "C3"),pu1_parameters =
-c(-.48, .41, .52, .12, .12, -.12), ps1_parameters =
-c(-.52, 2.01, 2.00))
+adjust_uc_sel(
+ df_uc_sel,
+ exposure = "X",
+ outcome = "Y",
+ confounders = c("C1", "C2", "C3"),
+ pu1_parameters = c(-.48, .41, .52, .12, .12, -.12),
+ ps1_parameters = c(-.52, 2.01, 2.00)
+)
 
 }

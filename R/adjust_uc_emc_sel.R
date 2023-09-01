@@ -105,9 +105,10 @@ adjust_uc_emc_sel <- function(
     df <- data.frame(Xstar, Y)
 
     df2 <- df %>%
-      mutate(Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y)),
-             Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y)
+      mutate(
+        Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y)),
+        Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
+        pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y)
       )
 
     final <- glm(
@@ -132,16 +133,18 @@ adjust_uc_emc_sel <- function(
 
   } else if (c == 1) {
 
-    C <- data[,confounders]
+    C <- data[, confounders]
     df <- data.frame(Xstar, Y, C)
 
     x1_c <- px1_parameters[4]
     s1_c <- ps1_parameters[4]
 
-    df2 <- df %>% 
-      mutate(Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y + x1_c * C)),
-             Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c * C)
+    df2 <- df %>%
+      mutate(
+        Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar +
+                                     x1_y * Y + x1_c * C)),
+        Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
+        pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c * C)
       )
 
     final <- glm(
@@ -150,9 +153,11 @@ adjust_uc_emc_sel <- function(
       weights = (1 / df2$pS),
       data = df2
     )
+
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
+
     return(
       list(
         exp(est),
@@ -177,16 +182,19 @@ adjust_uc_emc_sel <- function(
     s1_c2 <- ps1_parameters[5]
 
     df2 <- df %>%
-      mutate(Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y + x1_c1 * C1 + x1_c2 * C2)),
-             Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 + s1_c2 * C2)
+      mutate(
+        Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y +
+                                     x1_c1 * C1 + x1_c2 * C2)),
+        Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
+        pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 + s1_c2 * C2)
       )
 
     final <- glm(
       Y ~ Xpred + C1 + C2 + Upred,
       family = binomial(link = "logit"),
       weights = (1 / df2$pS),
-      data = df2)
+      data = df2
+    )
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -219,10 +227,15 @@ adjust_uc_emc_sel <- function(
     s1_c3 <- ps1_parameters[6]
 
     df2 <- df %>%
-      mutate(Xpred = rbinom(n, 1, expit(x1_0 + x1_xstar * Xstar + x1_y * Y + x1_c1 * C1 
-                                        + x1_c2 * C2 + x1_c3 * C3)),
-             Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 + s1_c2 * C2 + s1_c3 * C3)
+      mutate(
+        Xpred = rbinom(
+          n, 1,
+          expit(x1_0 + x1_xstar * Xstar + x1_y * Y + x1_c1 * C1 +
+                  x1_c2 * C2 + x1_c3 * C3)
+        ),
+        Upred = rbinom(n, 1, expit(u1_0 + u1_x * Xpred + u1_y * Y)),
+        pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 +
+                     s1_c2 * C2 + s1_c3 * C3)
       )
 
     final <- glm(
@@ -240,7 +253,7 @@ adjust_uc_emc_sel <- function(
       list(
         exp(est),
         c(
-          exp(est + se * qnorm(alpha / 2)), 
+          exp(est + se * qnorm(alpha / 2)),
           exp(est + se * qnorm(1 - alpha / 2))
         )
       )
@@ -251,5 +264,4 @@ adjust_uc_emc_sel <- function(
   if (c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
   }
-
 }

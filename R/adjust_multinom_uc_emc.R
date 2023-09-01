@@ -212,9 +212,12 @@ adjust_multinom_uc_emc <- function(
     x1u1_c1 <- px1_u1_parameters[4]
     x1u1_c2 <- px1_u1_parameters[5]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y + x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y + x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y + x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
+    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+               x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
+    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+               x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
+    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+               x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
 
     denom <- (1 + A + B + C)
 
@@ -274,9 +277,12 @@ adjust_multinom_uc_emc <- function(
     x1u1_c2 <- px1_u1_parameters[5]
     x1u1_c3 <- px1_u1_parameters[6]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y + x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y + x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y + x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
+    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+               x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
+    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+               x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
+    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+               x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
 
     denom <- (1 + A + B + C)
 

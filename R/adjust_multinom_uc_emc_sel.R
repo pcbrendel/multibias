@@ -196,12 +196,26 @@ adjust_multinom_uc_emc_sel <- function(
                              Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
              pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c * C))
 
-    final <- glm(Y ~ Xbar + C + Ubar, family = binomial(link = "logit"), weights = (combined$pXU / combined$pS), data = combined)
+    final <- glm(
+      Y ~ Xbar + C + Ubar,
+      family = binomial(link = "logit"),
+      weights = (combined$pXU / combined$pS),
+      data = combined
+    )
+
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
     alpha <- 1 - level
 
-    return(list(exp(est), c(exp(est + se * qnorm(alpha / 2)), exp(est + se * qnorm(1 - alpha / 2)))))
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
 
   } else if (c == 2) {
 
@@ -222,9 +236,12 @@ adjust_multinom_uc_emc_sel <- function(
     x1u1_c1 <- px1_u1_parameters[4]
     x1u1_c2 <- px1_u1_parameters[5]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y + x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y + x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y + x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
+    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+               x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
+    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+               x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
+    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+               x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
 
     denom <- (1 + A + B + C)
 
@@ -242,7 +259,8 @@ adjust_multinom_uc_emc_sel <- function(
                              Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
                              Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 + s1_c2 * C2))
+             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y +
+                          s1_c1 * C1 + s1_c2 * C2))
 
     final <- glm(
       Y ~ Xbar + C1 + C2 + Ubar,
@@ -289,9 +307,12 @@ adjust_multinom_uc_emc_sel <- function(
     x1u1_c2 <- px1_u1_parameters[5]
     x1u1_c3 <- px1_u1_parameters[6]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y + x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y + x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y + x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
+    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+               x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
+    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+               x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
+    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+               x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
 
     denom <- (1 + A + B + C)
 
@@ -310,7 +331,8 @@ adjust_multinom_uc_emc_sel <- function(
                              Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
                              Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
                              Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 + s1_c2 * C2 + s1_c3 * C3))
+             pS = expit(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 +
+                          s1_c2 * C2 + s1_c3 * C3))
 
     final <- glm(
       Y ~ Xbar + C1 + C2 + C3 + Ubar,

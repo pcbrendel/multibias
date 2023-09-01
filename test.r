@@ -4,6 +4,7 @@ library(available)
 library(roxygen2)
 
 use_data_raw()
+use_mit_license()
 
 # check package with 'available'
 available("multibias")

@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^multibias\.Rproj$
 ^data-raw$
+^LICENSE\.md$
+^DAGs$
+^test\.R$

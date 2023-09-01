@@ -8,14 +8,15 @@ Description: A suite of functions for those attempting to quantify the effect of
     a binary exposure on a binary outcome. The functions can simultaneously 
     adjust for any combination of uncontrolled confounding, exposure 
     misclassification, and selection bias.
-License: none
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-R: >= 2.10
+Depends: R (>= 2.10)
 RoxygenNote: 7.2.3
 Imports: 
     dplyr,
-    magrittr
+    magrittr,
+    rlang
 Suggests:
     testthat
 URL: http://github.com/pcbrendel/multibias
