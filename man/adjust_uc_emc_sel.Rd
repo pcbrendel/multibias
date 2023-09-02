@@ -27,25 +27,33 @@ adjust_uc_emc_sel(
 A maximum of three confounders are allowed.}
 
 \item{pu1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, } 
-where U is the (binary) unmeasured confounder, X is the (binary) true exposure, Y is the (binary) 
-outcome. The number of parameters therefore equals 3.}{\eqn{logit(P(U=1)) =}}}
+\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
+&alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, } where U is the (binary)
+unmeasured confounder, X is the (binary) true exposure, Y is the (binary)
+outcome. The number of parameters therefore
+equals 3.}{\eqn{logit(P(U=1)) =}}}
 
 \item{px1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-&delta;<sub>2+j</sub>C<sub>j</sub>, }where X represents (binary) true exposure, X* is the
-(binary) misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary)
-measured confounders (if any), and j corresponds to the number of measured 
-confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}}
+\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
+&delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
+&delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents (binary) true
+exposure, X* is the (binary) misclassified exposure, Y is the
+(binary) outcome, C represents the vector of (binary)
+measured confounders (if any), and j corresponds to the number of measured
+confounders. The number of parameters is therefore
+3 + j.}{\eqn{logit(P(X=1)) =}}}
 
 \item{ps1_parameters}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-&beta;<sub>2+j</sub>C<sub>2+j</sub>, }where S represents (binary) selection, X* is the (binary) 
-misclassified exposure, Y is the (binary) outcome, C represents the vector of (binary) 
-measured confounders (if any), and j corresponds to the number of measured 
-confounders. The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
+\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
+&beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
+&beta;<sub>2+j</sub>C<sub>2+j</sub>, } where S represents (binary)
+selection, X* is the (binary) misclassified exposure, Y is the (binary)
+outcome, C represents the vector of (binary) measured confounders (if any),
+and j corresponds to the number of measured confounders.
+The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
 
-\item{level}{Number from 0-1 representing the range of the confidence interval. Default is 0.95.}
+\item{level}{Number from 0-1 representing the range of the confidence
+interval. Default is 0.95.}
 }
 \description{
 \code{adjust_uc_emc_sel} returns the exposure-outcome odds ratio and

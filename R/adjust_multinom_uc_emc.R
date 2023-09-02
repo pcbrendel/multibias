@@ -13,24 +13,33 @@
 #' @param outcome The name of the outcome variable in the data.
 #' @param confounders The variable name(s) of the confounder(s) in the data.
 #' A maximum of three confounders are allowed.
-#' @param px1_u0_parameters The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + 
-#' &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
-#' U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
-#' outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the 
-#' number of measured confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}
-#' @param px0_u1_parameters The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + 
-#' &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
-#' U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
-#' outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
-#' number of measured confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}
-#' @param px1_u1_parameters The regression coefficients corresponding to the model: 
-#' \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + 
-#' &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }where X is the true (binary) exposure,
-#' U is the (binary) unmeasured confounder, X* is the (binary) misclassified exposure, Y is the (binary)
-#' outcome, C represents the vector of (binary) measured confounders (if any), and j corresponds to the
-#' number of measured confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}
+#' @param px1_u0_parameters The regression coefficients corresponding to the
+#'  model: \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) =
+#'  &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* +
+#'  &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }
+#'  where X is the true (binary) exposure, U is the (binary) unmeasured
+#'  confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  and j corresponds to the number of measured
+#'  confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}
+#' @param px0_u1_parameters The regression coefficients corresponding to the
+#'  model: \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) =
+#'  &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* +
+#'  &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }
+#'  where X is the true (binary) exposure, U is the (binary) unmeasured
+#'  confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  and j corresponds to the number of measured
+#'  confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}
+#' @param px1_u1_parameters The regression coefficients corresponding to the
+#'  model: \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) =
+#'  &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* +
+#'  &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }
+#'  where X is the true (binary) exposure, U is the (binary) unmeasured
+#'  confounder, X* is the (binary) misclassified exposure, Y is the (binary)
+#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  and j corresponds to the number of measured
+#'  confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}
 #' @param level Numeric value from 0-1 representing the range of the confidence
 #' interval. The default value is 0.95.
 #'
@@ -105,16 +114,16 @@ adjust_multinom_uc_emc <- function(
 
     df <- data.frame(Xstar, Y)
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y)
+    p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y)
+    p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y)
+    p_x1u1 <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y)
 
-    denom <- (1 + A + B + C)
+    denom <- (1 + p_x1u0 + p_x0u1 + p_x1u1)
 
     x0u0_pred <- 1 / denom
-    x1u0_pred <- A / denom
-    x0u1_pred <- B / denom
-    x1u1_pred <- C / denom
+    x1u0_pred <- p_x1u0 / denom
+    x0u1_pred <- p_x0u1 / denom
+    x1u1_pred <- p_x1u1 / denom
     XUpred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
     XUpred4 <- bind_rows(XUpred, XUpred, XUpred, XUpred)
 
@@ -154,16 +163,19 @@ adjust_multinom_uc_emc <- function(
     x0u1_c <- px0_u1_parameters[4]
     x1u1_c <- px1_u1_parameters[4]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y + x1u0_c * df$C)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y + x0u1_c * df$C)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y + x1u1_c * df$C)
+    p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+                    x1u0_c * df$C)
+    p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+                    x0u1_c * df$C)
+    p_x1u1 <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+                    x1u1_c * df$C)
 
-    denom <- (1 + A + B + C)
+    denom <- (1 + p_x1u0 + p_x0u1 + p_x1u1)
 
     x0u0_pred <- 1 / denom
-    x1u0_pred <- A / denom
-    x0u1_pred <- B / denom
-    x1u1_pred <- C / denom
+    x1u0_pred <- p_x1u0 / denom
+    x0u1_pred <- p_x0u1 / denom
+    x1u1_pred <- p_x1u1 / denom
     XUpred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
     XUpred4 <- bind_rows(XUpred, XUpred, XUpred, XUpred)
 
@@ -212,19 +224,19 @@ adjust_multinom_uc_emc <- function(
     x1u1_c1 <- px1_u1_parameters[4]
     x1u1_c2 <- px1_u1_parameters[5]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
-               x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
-               x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
-               x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
+    p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+                    x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
+    p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+                    x0u1_c1 * df$C1 + x0u1_c2 * df$C2)
+    p_x1u1 <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+                    x1u1_c1 * df$C1 + x1u1_c2 * df$C2)
 
-    denom <- (1 + A + B + C)
+    denom <- (1 + p_x1u0 + p_x0u1 + p_x1u1)
 
     x0u0_pred <- 1 / denom
-    x1u0_pred <- A / denom
-    x0u1_pred <- B / denom
-    x1u1_pred <- C / denom
+    x1u0_pred <- p_x1u0 / denom
+    x0u1_pred <- p_x0u1 / denom
+    x1u1_pred <- p_x1u1 / denom
     XUpred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
     XUpred4 <- bind_rows(XUpred, XUpred, XUpred, XUpred)
 
@@ -277,19 +289,19 @@ adjust_multinom_uc_emc <- function(
     x1u1_c2 <- px1_u1_parameters[5]
     x1u1_c3 <- px1_u1_parameters[6]
 
-    A <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
-               x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
-    B <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
-               x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
-    C <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
-               x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
+    p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
+                    x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)
+    p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
+                    x0u1_c1 * df$C1 + x0u1_c2 * df$C2 + x0u1_c3 * df$C3)
+    p_x1u1 <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
+                    x1u1_c1 * df$C1 + x1u1_c2 * df$C2 + x1u1_c3 * df$C3)
 
-    denom <- (1 + A + B + C)
+    denom <- (1 + p_x1u0 + p_x0u1 + p_x1u1)
 
     x0u0_pred <- 1 / denom
-    x1u0_pred <- A / denom
-    x0u1_pred <- B / denom
-    x1u1_pred <- C / denom
+    x1u0_pred <- p_x1u0 / denom
+    x0u1_pred <- p_x0u1 / denom
+    x1u1_pred <- p_x1u1 / denom
     XUpred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
     XUpred4 <- bind_rows(XUpred, XUpred, XUpred, XUpred)
 
