@@ -86,31 +86,31 @@ adjust_multinom_uc_emc_sel <- function(
 ) {
 
   n <- nrow(data)
-  c <- length(confounders)
-  p1 <- length(px1_u0_parameters)
-  p2 <- length(px0_u1_parameters)
-  p3 <- length(px1_u1_parameters)
-  p4 <- length(ps1_parameters)
+  len_c <- length(confounders)
+  len_p1 <- length(px1_u0_parameters)
+  len_p2 <- length(px0_u1_parameters)
+  len_p3 <- length(px1_u1_parameters)
+  len_p4 <- length(ps1_parameters)
 
-  Xstar <- data[, exposure]
-  Y <- data[, outcome]
+  xstar <- data[, exposure]
+  y <- data[, outcome]
 
-  if (sum(Xstar %in% c(0, 1)) != n) {
+  if (sum(xstar %in% c(0, 1)) != n) {
     stop("Exposure must be binary.")
   }
-  if (sum(Y %in% c(0, 1)) != n) {
+  if (sum(y %in% c(0, 1)) != n) {
     stop("Outcome must be binary.")
   }
-  if (p1 != c + 3) {
+  if (len_p1 != len_c + 3) {
     stop("Incorrect X1_U0 parameter length.")
   }
-  if (p2 != c + 3) {
+  if (len_p2 != len_c + 3) {
     stop("Incorrect X0_U1 parameter length.")
   }
-  if (p3 != c + 3) {
+  if (len_p3 != len_c + 3) {
     stop("Incorrect X1_U1 parameter length.")
   }
-  if (p4 != c + 3) {
+  if (len_p4 != len_c + 3) {
     stop("Incorrect S1 parameter length.")
   }
 
@@ -132,7 +132,7 @@ adjust_multinom_uc_emc_sel <- function(
 
   if (is.null(confounders)) {
 
-    df <- data.frame(Xstar, Y)
+    df <- data.frame(Xstar = xstar, Y = y)
 
     p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y)
     p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y)
@@ -145,17 +145,23 @@ adjust_multinom_uc_emc_sel <- function(
     x0u1_pred <- p_x0u1 / denom
     x1u1_pred <- p_x1u1 / denom
 
-    xu_pred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
-    xu_pred4 <- bind_rows(xu_pred, xu_pred, xu_pred, xu_pred)
+    df_xu_pred <- data.frame(
+      X0U0 = x0u0_pred,
+      X1U0 = x1u0_pred,
+      X0U1 = x0u1_pred,
+      X1U1 = x1u1_pred
+    )
+    df_xu_pred4 <- bind_rows(df_xu_pred, df_xu_pred, df_xu_pred, df_xu_pred)
 
     combined <- bind_rows(df, df, df, df) %>%
+      bind_cols(df_xu_pred4) %>%
       mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
              Ubar = rep(c(1, 1, 0, 0), each = n),
-             pXU = case_when(Xbar == 0 & Ubar == 0 ~ xu_pred4[, 1],
-                             Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
-                             Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
-                             Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = plogis(s1_0 + s1_xstar * Xstar + s1_y * Y))
+             pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                             Xbar == 1 & Ubar == 0 ~ X1U0,
+                             Xbar == 0 & Ubar == 1 ~ X0U1,
+                             Xbar == 1 & Ubar == 1 ~ X1U1),
+             pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y))
 
     final <- glm(
       Y ~ Xbar + Ubar,
@@ -177,22 +183,22 @@ adjust_multinom_uc_emc_sel <- function(
       )
     )
 
-  }else if (c == 1) {
+  }else if (len_c == 1) {
 
-    C <- data[, confounders]
-    df <- data.frame(Xstar, Y, C)
+    c1 <- data[, confounders]
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
 
-    s1_c   <- ps1_parameters[4]
-    x1u0_c <- px1_u0_parameters[4]
-    x0u1_c <- px0_u1_parameters[4]
-    x1u1_c <- px1_u1_parameters[4]
+    s1_c1   <- ps1_parameters[4]
+    x1u0_c1 <- px1_u0_parameters[4]
+    x0u1_c1 <- px0_u1_parameters[4]
+    x1u1_c1 <- px1_u1_parameters[4]
 
     p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
-                    x1u0_c * df$C)
+                    x1u0_c1 * df$C1)
     p_x0u1 <- exp(x0u1_0 + x0u1_xstar * df$Xstar + x0u1_y * df$Y +
-                    x0u1_c * df$C)
+                    x0u1_c1 * df$C1)
     p_x1u1 <- exp(x1u1_0 + x1u1_xstar * df$Xstar + x1u1_y * df$Y +
-                    x1u1_c * df$C)
+                    x1u1_c1 * df$C1)
 
     denom <- (1 + p_x1u0 + p_x0u1 + p_x1u1)
 
@@ -201,20 +207,27 @@ adjust_multinom_uc_emc_sel <- function(
     x0u1_pred <- p_x0u1 / denom
     x1u1_pred <- p_x1u1 / denom
 
-    xu_pred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
-    xu_pred4 <- bind_rows(xu_pred, xu_pred, xu_pred, xu_pred)
+    df_xu_pred <- data.frame(
+      X0U0 = x0u0_pred,
+      X1U0 = x1u0_pred,
+      X0U1 = x0u1_pred,
+      X1U1 = x1u1_pred
+    )
+    df_xu_pred4 <- bind_rows(df_xu_pred, df_xu_pred, df_xu_pred, df_xu_pred)
 
     combined <- bind_rows(df, df, df, df) %>%
+      bind_cols(df_xu_pred4) %>%
       mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
              Ubar = rep(c(1, 1, 0, 0), each = n),
-             pXU = case_when(Xbar == 0 & Ubar == 0 ~ xu_pred4[, 1],
-                             Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
-                             Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
-                             Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = plogis(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c * C))
+             pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                             Xbar == 1 & Ubar == 0 ~ X1U0,
+                             Xbar == 0 & Ubar == 1 ~ X0U1,
+                             Xbar == 1 & Ubar == 1 ~ X1U1),
+             pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                           s1_c1 * .data$C1))
 
     final <- glm(
-      Y ~ Xbar + C + Ubar,
+      Y ~ Xbar + C1 + Ubar,
       family = binomial(link = "logit"),
       weights = (combined$pXU / combined$pS),
       data = combined
@@ -234,12 +247,12 @@ adjust_multinom_uc_emc_sel <- function(
       )
     )
 
-  } else if (c == 2) {
+  } else if (len_c == 2) {
 
-    C1 <- data[, confounders[1]]
-    C2 <- data[, confounders[2]]
+    c1 <- data[, confounders[1]]
+    c2 <- data[, confounders[2]]
 
-    df <- data.frame(Xstar, Y, C1, C2)
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
 
     s1_c1 <- ps1_parameters[4]
     s1_c2 <- ps1_parameters[5]
@@ -267,18 +280,24 @@ adjust_multinom_uc_emc_sel <- function(
     x0u1_pred <- p_x0u1 / denom
     x1u1_pred <- p_x1u1 / denom
 
-    xu_pred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
-    xu_pred4 <- bind_rows(xu_pred, xu_pred, xu_pred, xu_pred)
+    df_xu_pred <- data.frame(
+      X0U0 = x0u0_pred,
+      X1U0 = x1u0_pred,
+      X0U1 = x0u1_pred,
+      X1U1 = x1u1_pred
+    )
+    df_xu_pred4 <- bind_rows(df_xu_pred, df_xu_pred, df_xu_pred, df_xu_pred)
 
     combined <- bind_rows(df, df, df, df) %>%
+      bind_cols(df_xu_pred4) %>%
       mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
              Ubar = rep(c(1, 1, 0, 0), each = n),
-             pXU = case_when(Xbar == 0 & Ubar == 0 ~ xu_pred4[, 1],
-                             Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
-                             Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
-                             Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = plogis(s1_0 + s1_xstar * Xstar + s1_y * Y +
-                           s1_c1 * C1 + s1_c2 * C2))
+             pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                             Xbar == 1 & Ubar == 0 ~ X1U0,
+                             Xbar == 0 & Ubar == 1 ~ X0U1,
+                             Xbar == 1 & Ubar == 1 ~ X1U1),
+             pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                           s1_c1 * .data$C1 + s1_c2 * .data$C2))
 
     final <- glm(
       Y ~ Xbar + C1 + C2 + Ubar,
@@ -301,13 +320,13 @@ adjust_multinom_uc_emc_sel <- function(
       )
     )
 
-  } else if (c == 3) {
+  } else if (len_c == 3) {
 
-    C1 <- data[, confounders[1]]
-    C2 <- data[, confounders[2]]
-    C3 <- data[, confounders[3]]
+    c1 <- data[, confounders[1]]
+    c2 <- data[, confounders[2]]
+    c3 <- data[, confounders[3]]
 
-    df <- data.frame(Xstar, Y, C1, C2, C3)
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
 
     s1_c1 <- ps1_parameters[4]
     s1_c2 <- ps1_parameters[5]
@@ -339,18 +358,25 @@ adjust_multinom_uc_emc_sel <- function(
     x0u1_pred <- p_x0u1 / denom
     x1u1_pred <- p_x1u1 / denom
 
-    xu_pred <- data.frame(x0u0_pred, x1u0_pred, x0u1_pred, x1u1_pred)
-    xu_pred4 <- bind_rows(xu_pred, xu_pred, xu_pred, xu_pred)
+    df_xu_pred <- data.frame(
+      X0U0 = x0u0_pred,
+      X1U0 = x1u0_pred,
+      X0U1 = x0u1_pred,
+      X1U1 = x1u1_pred
+    )
+    df_xu_pred4 <- bind_rows(df_xu_pred, df_xu_pred, df_xu_pred, df_xu_pred)
 
     combined <- bind_rows(df, df, df, df) %>%
+      bind_cols(df_xu_pred4) %>%
       mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
              Ubar = rep(c(1, 1, 0, 0), each = n),
-             pXU = case_when(Xbar == 0 & Ubar == 0 ~ xu_pred4[, 1],
-                             Xbar == 1 & Ubar == 0 ~ xu_pred4[, 2],
-                             Xbar == 0 & Ubar == 1 ~ xu_pred4[, 3],
-                             Xbar == 1 & Ubar == 1 ~ xu_pred4[, 4]),
-             pS = plogis(s1_0 + s1_xstar * Xstar + s1_y * Y + s1_c1 * C1 +
-                           s1_c2 * C2 + s1_c3 * C3))
+             pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                             Xbar == 1 & Ubar == 0 ~ X1U0,
+                             Xbar == 0 & Ubar == 1 ~ X0U1,
+                             Xbar == 1 & Ubar == 1 ~ X1U1),
+             pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                           s1_c1 * .data$C1 + s1_c2 * .data$C2 +
+                           s1_c3 * .data$C3))
 
     final <- glm(
       Y ~ Xbar + C1 + C2 + C3 + Ubar,
@@ -372,7 +398,7 @@ adjust_multinom_uc_emc_sel <- function(
       )
     )
 
-  } else if (c > 3) {
+  } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
   }
 }
