@@ -6,12 +6,8 @@
 #'
 #' Details
 #'
-#' @param data The data set.
-#' @param exposure The name of the exposure variable in the data.
-#' @param outcome The name of the outcome variable in the data.
-#' @param confounders The variable name(s) of the confounder(s) in the data.
-#'  A maximum of three confounders are allowed.
-#' @param pu1_parameters The regression coefficients corresponding to the model:
+#' @inheritParams adjust_emc_sel
+#' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
 #'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y +
 #'  &alpha;<sub>2+j</sub>C<sub>j</sub>, } where U is the (binary) unmeasured
@@ -19,13 +15,11 @@
 #'  represents the vector of (binary) measured confounders (if any), and j
 #'  corresponds to the number of measured confounders. The number of parameters
 #'  therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}
-#' @param ps1_parameters The regression coefficients corresponding to the model:
+#' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,} where S represents (binary)
 #'  selection, X is the (binary) exposure, and Y is the (binary) outcome.
 #'  The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}
-#' @param level Number from 0-1 representing the range of the confidence
-#'  interval. Default is 0.95.
 #'
 #' @examples
 #' adjust_uc_sel(
@@ -33,8 +27,8 @@
 #'  exposure = "X",
 #'  outcome = "Y",
 #'  confounders = c("C1", "C2", "C3"),
-#'  pu1_parameters = c(-.48, .41, .52, .12, .12, -.12),
-#'  ps1_parameters = c(-.52, 2.01, 2.00)
+#'  u_model_coefs = c(-.48, .41, .52, .12, .12, -.12),
+#'  s_model_coefs = c(-.52, 2.01, 2.00)
 #' )
 #'
 #' @import dplyr
@@ -52,44 +46,44 @@ adjust_uc_sel <- function(
   exposure,
   outcome,
   confounders = NULL,
-  pu1_parameters,
-  ps1_parameters,
+  u_model_coefs,
+  s_model_coefs,
   level = 0.95
 ) {
 
   n  <- nrow(data)
   len_c  <- length(confounders)
-  len_pu1 <- length(pu1_parameters)
-  len_ps1 <- length(ps1_parameters)
+  len_u_coefs <- length(u_model_coefs)
+  len_s_coefs <- length(s_model_coefs)
 
   x <- data[, exposure]
   y <- data[, outcome]
 
   if (sum(x %in% c(0, 1)) != n) {
-    stop("Exposure must be binary.")
+    stop("Exposure must be a binary integer.")
   }
   if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be binary.")
+    stop("Outcome must be a binary integer.")
   }
-  if (len_pu1 != 3 + len_c) {
+  if (len_u_coefs != 3 + len_c) {
     stop(
       paste0(
-        "Incorrect U1 parameter length.",
-        "U1 parameter length should equal 3 + length(confounders)."
+        "Incorrect length of U model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
     )
   }
-  if (len_ps1 != 3) {
-    stop("Incorrect S1 parameter length. S1 parameter length should equal 3.")
+  if (len_s_coefs != 3) {
+    stop("Incorrect length of S model coefficients. Length should equal 3.")
   }
 
-  s1_0 <- ps1_parameters[1]
-  s1_x <- ps1_parameters[2]
-  s1_y <- ps1_parameters[3]
+  s1_0 <- s_model_coefs[1]
+  s1_x <- s_model_coefs[2]
+  s1_y <- s_model_coefs[3]
 
-  u1_0 <- pu1_parameters[1]
-  u1_x <- pu1_parameters[2]
-  u1_y <- pu1_parameters[3]
+  u1_0 <- u_model_coefs[1]
+  u1_x <- u_model_coefs[2]
+  u1_y <- u_model_coefs[3]
 
   if (is.null(confounders)) {
 
@@ -129,7 +123,7 @@ adjust_uc_sel <- function(
 
     c1 <- data[, confounders]
     df <- data.frame(X = x, Y = y, C1 = c1)
-    u1_c1 <- pu1_parameters[4]
+    u1_c1 <- u_model_coefs[4]
 
     u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y + u1_c1 * c1)
     u1_pred <- rep(u1_pred, times = 2)
@@ -168,8 +162,8 @@ adjust_uc_sel <- function(
 
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
 
-    u1_c1 <- pu1_parameters[4]
-    u1_c2 <- pu1_parameters[5]
+    u1_c1 <- u_model_coefs[4]
+    u1_c2 <- u_model_coefs[5]
 
     u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y + u1_c1 * c1 + u1_c2 * c2)
     u1_pred <- rep(u1_pred, times = 2)
@@ -209,9 +203,9 @@ adjust_uc_sel <- function(
 
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
 
-    u1_c1 <- pu1_parameters[4]
-    u1_c2 <- pu1_parameters[5]
-    u1_c3 <- pu1_parameters[6]
+    u1_c1 <- u_model_coefs[4]
+    u1_c2 <- u_model_coefs[5]
+    u1_c3 <- u_model_coefs[6]
 
     u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y +
                         u1_c1 * c1 + u1_c2 * c2 + u1_c3 * c3)

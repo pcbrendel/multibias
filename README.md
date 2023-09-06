@@ -75,6 +75,9 @@ where j indicates the number of measured confounders.
 To perform the bias adjustment, it is necessary to obtain values of these bias parameters. Potential sources of these bias parameters include internal validation data, estimates in the literature, and expert opinion. For purposes of demonstrating the methodology, we will obtain the exact values of these bias parameters. This is possible because we have access to the data of missing values that would otherwise be absent in real-world practice.
 
 ```{r, eval = TRUE}
+u_model <- ''
+x_model <- ''
+s_model <- ''
 ```
 
 We will run the analysis over 1,000 bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. First, we create a cluster, make a seed, and specify the desired number of bootstrap repitions.
@@ -106,9 +109,9 @@ or <- foreach(i = 1:nreps, .combine = c, .packages = 'dplyr') %dopar% {
     exposure = "Xstar", 
     outcome = "Y",
     confounders = c("C1", "C2", "C3"),
-    pu1_parameters = c(-.40, .38, .46),
-    px1_parameters = c(-1.61, 2.71, .62, -.41, -.41, .40), 
-    ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
+    u_model_coefs = c(-0.40, 0.38, 0.46),
+    x_model_coefs = c(-1.61, 2.71, 0.62, -0.41, -0.41, 0.40), 
+    s_model_coefs = c(-0.39, 0.40, 0.75, -0.04, -0.04, 0.05)
   )[[1]]
 }
 ```

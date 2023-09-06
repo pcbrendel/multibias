@@ -9,23 +9,23 @@ adjust_multinom_uc_emc(
   exposure,
   outcome,
   confounders = NULL,
-  px1_u0_parameters,
-  px0_u1_parameters,
-  px1_u1_parameters,
+  x1u0_model_coefs,
+  x0u1_model_coefs,
+  x1u1_model_coefs,
   level = 0.95
 )
 }
 \arguments{
-\item{data}{The data set.}
+\item{data}{Dataframe for analysis.}
 
-\item{exposure}{The name of the exposure variable in the data.}
+\item{exposure}{String name of the exposure variable.}
 
-\item{outcome}{The name of the outcome variable in the data.}
+\item{outcome}{String name of the outcome variable.}
 
-\item{confounders}{The variable name(s) of the confounder(s) in the data.
+\item{confounders}{String name(s) of the confounder(s).
 A maximum of three confounders are allowed.}
 
-\item{px1_u0_parameters}{The regression coefficients corresponding to the
+\item{x1u0_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) =
 &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* +
 &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }
@@ -35,7 +35,7 @@ outcome, C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}}
 
-\item{px0_u1_parameters}{The regression coefficients corresponding to the
+\item{x0u1_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) =
 &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* +
 &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }
@@ -45,7 +45,7 @@ outcome, C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}}
 
-\item{px1_u1_parameters}{The regression coefficients corresponding to the
+\item{x1u1_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) =
 &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* +
 &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }
@@ -55,8 +55,8 @@ outcome, C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
 
-\item{level}{Numeric value from 0-1 representing the range of the confidence
-interval. The default value is 0.95.}
+\item{level}{Value from 0-1 representing the full range of the confidence
+interval. Default is 0.95.}
 }
 \description{
 \code{adjust_multinom_uc_emc} returns the exposure-outcome odds ratio and
@@ -74,9 +74,9 @@ adjust_multinom_uc_emc(
  exposure = "Xstar",
  outcome = "Y",
  confounders = c("C1", "C2", "C3"),
- px1_u0_parameters = c(-1.37, 1.64, .71, -.43, -.43, .43),
- px0_u1_parameters = c(-.45, -.05, .50, .12, .10, -.11),
- px1_u1_parameters = c(-1.45, 1.69, 1.20, -.30, -.31, .29)
+ x1u0_model_coefs = c(-1.37, 1.64, .71, -.43, -.43, .43),
+ x0u1_model_coefs = c(-.45, -.05, .50, .12, .10, -.11),
+ x1u1_model_coefs = c(-1.45, 1.69, 1.20, -.30, -.31, .29)
 )
 
 }

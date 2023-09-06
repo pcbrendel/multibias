@@ -9,29 +9,29 @@ adjust_uc_emc(
   exposure,
   outcome,
   confounders = NULL,
-  pu1_parameters,
-  px1_parameters,
+  u_model_coefs,
+  x_model_coefs,
   level = 0.95
 )
 }
 \arguments{
-\item{data}{The data set.}
+\item{data}{Dataframe for analysis.}
 
-\item{exposure}{The name of the exposure variable in the data.}
+\item{exposure}{String name of the exposure variable.}
 
-\item{outcome}{The name of the outcome variable in the data.}
+\item{outcome}{String name of the outcome variable.}
 
-\item{confounders}{The variable name(s) of the confounder(s) in the data.
+\item{confounders}{String name(s) of the confounder(s).
 A maximum of three confounders are allowed.}
 
-\item{pu1_parameters}{The regression coefficients corresponding to the model:
+\item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
 &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }
 where U is the (binary) unmeasured confounder, X is the (binary) true
 exposure, Y is the (binary) outcome. The number of parameters therefore
 equals 3.}{\eqn{logit(P(U=1)) =}}}
 
-\item{px1_parameters}{The regression coefficients corresponding to the model:
+\item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents (binary) true
@@ -40,8 +40,8 @@ outcome, C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured confounders. The number of
 parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}}
 
-\item{level}{Numeric value from 0-1 representing the range of the confidence
-interval. The default value is 0.95.}
+\item{level}{Value from 0-1 representing the full range of the confidence
+interval. Default is 0.95.}
 }
 \description{
 \code{adjust_uc_emc} returns the exposure-outcome odds ratio and confidence
@@ -59,8 +59,8 @@ adjust_uc_emc(
  exposure = "Xstar",
  outcome = "Y",
  confounders = c("C1", "C2", "C3"),
- pu1_parameters = c(-.40, .38, .46),
- px1_parameters = c(-1.21, 1.69, .76, -.41, -.41, .41)
+ u_model_coefs = c(-.40, .38, .46),
+ x_model_coefs = c(-1.21, 1.69, .76, -.41, -.41, .41)
 )
 
 }

@@ -8,18 +8,14 @@
 #' uncontrolled confounder (U) and exposure (X). If a single bias model for
 #' jointly modeling X and U is desired use \code{adjust_multinom_uc_emc}.
 #'
-#' @param data The data set.
-#' @param exposure The name of the exposure variable in the data.
-#' @param outcome The name of the outcome variable in the data.
-#' @param confounders The variable name(s) of the confounder(s) in the data.
-#' A maximum of three confounders are allowed.
-#' @param pu1_parameters The regression coefficients corresponding to the model:
+#' @inheritParams adjust_emc_sel
+#' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
 #'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }
 #'  where U is the (binary) unmeasured confounder, X is the (binary) true
 #'  exposure, Y is the (binary) outcome. The number of parameters therefore
 #'  equals 3.}{\eqn{logit(P(U=1)) =}}
-#' @param px1_parameters The regression coefficients corresponding to the model:
+#' @param x_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 #'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents (binary) true
@@ -27,8 +23,6 @@
 #'  outcome, C represents the vector of (binary) measured confounders (if any),
 #'  and j corresponds to the number of measured confounders. The number of
 #'  parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}
-#' @param level Numeric value from 0-1 representing the range of the confidence
-#' interval. The default value is 0.95.
 #'
 #' @examples
 #' adjust_uc_emc(
@@ -36,8 +30,8 @@
 #'  exposure = "Xstar",
 #'  outcome = "Y",
 #'  confounders = c("C1", "C2", "C3"),
-#'  pu1_parameters = c(-.40, .38, .46),
-#'  px1_parameters = c(-1.21, 1.69, .76, -.41, -.41, .41)
+#'  u_model_coefs = c(-.40, .38, .46),
+#'  x_model_coefs = c(-1.21, 1.69, .76, -.41, -.41, .41)
 #' )
 #'
 #' @import dplyr
@@ -56,39 +50,44 @@ adjust_uc_emc <- function(
   exposure,
   outcome,
   confounders = NULL,
-  pu1_parameters,
-  px1_parameters,
+  u_model_coefs,
+  x_model_coefs,
   level = 0.95
 ) {
 
   n <- nrow(data)
-  c <- length(confounders)
-  p1 <- length(pu1_parameters)
-  p2 <- length(px1_parameters)
+  len_c <- length(confounders)
+  len_u_coefs <- length(u_model_coefs)
+  len_x_coefs <- length(x_model_coefs)
 
   xstar <- data[, exposure]
   y <- data[, outcome]
 
   if (sum(xstar %in% c(0, 1)) != n) {
-    stop("Exposure must be binary.")
+    stop("Exposure must be a binary integer.")
   }
   if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be binary.")
+    stop("Outcome must be a binary integer.")
   }
-  if (p1 != 3) {
-    stop("Incorrect X1 parameter length.")
+  if (len_u_coefs != 3) {
+    stop("Incorrect length of U model coefficients. Length should equal 3.")
   }
-  if (p2 != 3 + c) {
-    stop("Incorrect U1 parameter length.")
+  if (len_x_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
 
-  u1_0     <- pu1_parameters[1]
-  u1_x     <- pu1_parameters[2]
-  u1_y     <- pu1_parameters[3]
+  u1_0     <- u_model_coefs[1]
+  u1_x     <- u_model_coefs[2]
+  u1_y     <- u_model_coefs[3]
 
-  x1_0     <- px1_parameters[1]
-  x1_xstar <- px1_parameters[2]
-  x1_y     <- px1_parameters[3]
+  x1_0     <- x_model_coefs[1]
+  x1_xstar <- x_model_coefs[2]
+  x1_y     <- x_model_coefs[3]
 
   if (is.null(confounders)) {
 
@@ -116,12 +115,12 @@ adjust_uc_emc <- function(
       )
     )
 
-  } else if (c == 1) {
+  } else if (len_c == 1) {
 
     c1 <- data[, confounders]
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
 
-    x1_c1 <- px1_parameters[4]
+    x1_c1 <- x_model_coefs[4]
 
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
                                       x1_y * df$Y + x1_c1 * df$C1))
@@ -147,15 +146,15 @@ adjust_uc_emc <- function(
       )
     )
 
-  } else if (c == 2) {
+  } else if (len_c == 2) {
 
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
 
-    x1_c1 <- px1_parameters[4]
-    x1_c2 <- px1_parameters[5]
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
 
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
                                       x1_c1 * df$C1 + x1_c2 * df$C2))
@@ -181,7 +180,7 @@ adjust_uc_emc <- function(
       )
     )
 
-  } else if (c == 3) {
+  } else if (len_c == 3) {
 
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
@@ -189,9 +188,9 @@ adjust_uc_emc <- function(
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
 
-    x1_c1 <- px1_parameters[4]
-    x1_c2 <- px1_parameters[5]
-    x1_c3 <- px1_parameters[6]
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
+    x1_c3 <- x_model_coefs[6]
 
     df$Xpred <- rbinom(
       n, 1,
@@ -222,7 +221,7 @@ adjust_uc_emc <- function(
       )
     )
 
-  } else if (c > 3) {
+  } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
   }
 }

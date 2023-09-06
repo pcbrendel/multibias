@@ -9,12 +9,8 @@
 #' to predict the uncontrolled confounder (U) and exposure (X). If separate bias
 #' models for X and U are desired, use \code{adjust_uc_mc_2}.
 #'
-#' @param data The data set.
-#' @param exposure The name of the exposure variable in the data.
-#' @param outcome The name of the outcome variable in the data.
-#' @param confounders The variable name(s) of the confounder(s) in the data.
-#' A maximum of three confounders are allowed.
-#' @param px1_u0_parameters The regression coefficients corresponding to the
+#' @inheritParams adjust_emc_sel
+#' @param x1u0_model_coefs The regression coefficients corresponding to the
 #'  model: \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) =
 #'  &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* +
 #'  &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }where X
@@ -23,7 +19,7 @@
 #'  represents the vector of (binary) measured confounders (if any), and
 #'  j corresponds to the number of measured
 #'  confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}
-#' @param px0_u1_parameters The regression coefficients corresponding to the
+#' @param x0u1_model_coefs The regression coefficients corresponding to the
 #'  model: \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) =
 #'  &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* +
 #'  &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, } where X
@@ -32,7 +28,7 @@
 #'  C represents the vector of (binary) measured confounders (if any), and
 #'  j corresponds to the number of measured
 #'  confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}
-#' @param px1_u1_parameters The regression coefficients corresponding to the
+#' @param x1u1_model_coefs The regression coefficients corresponding to the
 #'  model: \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) =
 #'  &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* +
 #'  &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, } where X
@@ -41,15 +37,13 @@
 #'  C represents the vector of (binary) measured confounders (if any),
 #'  and j corresponds to the number of measured
 #'  confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}
-#' @param ps1_parameters The regression coefficients corresponding to the model:
+#' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
 #'  &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
 #'  X* is the (binary) misclassified exposure, Y is the (binary) outcome,
 #'  C represents the vector of (binary) measured confounders (if any), and
 #'  j corresponds to the number of measured confounders.}{\eqn{logit(P(S=1)) =}}
-#' @param level Number from 0-1 representing the range of the confidence
-#'  interval. Default is 0.95.
 #'
 #' @examples
 #' adjust_multinom_uc_emc_sel(
@@ -57,10 +51,10 @@
 #'  exposure = "Xstar",
 #'  outcome = "Y",
 #'  confounders = c("C1", "C2", "C3"),
-#'  px1_u0_parameters = c(-1.79, 2.71, .57, -.43, -.43, .42),
-#'  px0_u1_parameters = c(-.47, 0, .50, .12, .10, -.11),
-#'  px1_u1_parameters = c(-1.84, 2.70, 1.07, -.30, -.31, .29),
-#'  ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
+#'  x1u0_model_coefs = c(-1.79, 2.71, .57, -.43, -.43, .42),
+#'  x0u1_model_coefs = c(-.47, 0, .50, .12, .10, -.11),
+#'  x1u1_model_coefs = c(-1.84, 2.70, 1.07, -.30, -.31, .29),
+#'  s_model_coefs = c(-.39, .40, .75, -.04, -.04, .05)
 #' )
 #'
 #' @import dplyr
@@ -78,57 +72,77 @@ adjust_multinom_uc_emc_sel <- function(
   exposure,
   outcome,
   confounders = NULL,
-  px1_u0_parameters,
-  px0_u1_parameters,
-  px1_u1_parameters,
-  ps1_parameters,
+  x1u0_model_coefs,
+  x0u1_model_coefs,
+  x1u1_model_coefs,
+  s_model_coefs,
   level = 0.95
 ) {
 
   n <- nrow(data)
   len_c <- length(confounders)
-  len_p1 <- length(px1_u0_parameters)
-  len_p2 <- length(px0_u1_parameters)
-  len_p3 <- length(px1_u1_parameters)
-  len_p4 <- length(ps1_parameters)
+  len_x1u0_coefs <- length(x1u0_model_coefs)
+  len_x0u1_coefs <- length(x0u1_model_coefs)
+  len_x1u1_coefs <- length(x1u1_model_coefs)
+  len_s_coefs <- length(s_model_coefs)
 
   xstar <- data[, exposure]
   y <- data[, outcome]
 
   if (sum(xstar %in% c(0, 1)) != n) {
-    stop("Exposure must be binary.")
+    stop("Exposure must be a binary integer.")
   }
   if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be binary.")
+    stop("Outcome must be a binary integer.")
   }
-  if (len_p1 != len_c + 3) {
-    stop("Incorrect X1_U0 parameter length.")
+  if (len_x1u0_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X1U0 model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
-  if (len_p2 != len_c + 3) {
-    stop("Incorrect X0_U1 parameter length.")
+  if (len_x0u1_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X0U1 model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
-  if (len_p3 != len_c + 3) {
-    stop("Incorrect X1_U1 parameter length.")
+  if (len_x1u1_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X1U1 model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
-  if (len_p4 != len_c + 3) {
-    stop("Incorrect S1 parameter length.")
+  if (len_s_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of S model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
 
-  s1_0     <- ps1_parameters[1]
-  s1_xstar <- ps1_parameters[2]
-  s1_y     <- ps1_parameters[3]
+  s1_0       <- s_model_coefs[1]
+  s1_xstar   <- s_model_coefs[2]
+  s1_y       <- s_model_coefs[3]
 
-  x1u0_0     <- px1_u0_parameters[1]
-  x1u0_xstar <- px1_u0_parameters[2]
-  x1u0_y     <- px1_u0_parameters[3]
+  x1u0_0     <- x1u0_model_coefs[1]
+  x1u0_xstar <- x1u0_model_coefs[2]
+  x1u0_y     <- x1u0_model_coefs[3]
 
-  x0u1_0     <- px0_u1_parameters[1]
-  x0u1_xstar <- px0_u1_parameters[2]
-  x0u1_y     <- px0_u1_parameters[3]
+  x0u1_0     <- x0u1_model_coefs[1]
+  x0u1_xstar <- x0u1_model_coefs[2]
+  x0u1_y     <- x0u1_model_coefs[3]
 
-  x1u1_0     <- px1_u1_parameters[1]
-  x1u1_xstar <- px1_u1_parameters[2]
-  x1u1_y     <- px1_u1_parameters[3]
+  x1u1_0     <- x1u1_model_coefs[1]
+  x1u1_xstar <- x1u1_model_coefs[2]
+  x1u1_y     <- x1u1_model_coefs[3]
 
   if (is.null(confounders)) {
 
@@ -188,10 +202,10 @@ adjust_multinom_uc_emc_sel <- function(
     c1 <- data[, confounders]
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
 
-    s1_c1   <- ps1_parameters[4]
-    x1u0_c1 <- px1_u0_parameters[4]
-    x0u1_c1 <- px0_u1_parameters[4]
-    x1u1_c1 <- px1_u1_parameters[4]
+    s1_c1   <- s_model_coefs[4]
+    x1u0_c1 <- x1u0_model_coefs[4]
+    x0u1_c1 <- x0u1_model_coefs[4]
+    x1u1_c1 <- x1u1_model_coefs[4]
 
     p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
                     x1u0_c1 * df$C1)
@@ -254,17 +268,17 @@ adjust_multinom_uc_emc_sel <- function(
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
 
-    s1_c1 <- ps1_parameters[4]
-    s1_c2 <- ps1_parameters[5]
+    s1_c1   <- s_model_coefs[4]
+    s1_c2   <- s_model_coefs[5]
 
-    x1u0_c1 <- px1_u0_parameters[4]
-    x1u0_c2 <- px1_u0_parameters[5]
+    x1u0_c1 <- x1u0_model_coefs[4]
+    x1u0_c2 <- x1u0_model_coefs[5]
 
-    x0u1_c1 <- px0_u1_parameters[4]
-    x0u1_c2 <- px0_u1_parameters[5]
+    x0u1_c1 <- x0u1_model_coefs[4]
+    x0u1_c2 <- x0u1_model_coefs[5]
 
-    x1u1_c1 <- px1_u1_parameters[4]
-    x1u1_c2 <- px1_u1_parameters[5]
+    x1u1_c1 <- x1u1_model_coefs[4]
+    x1u1_c2 <- x1u1_model_coefs[5]
 
     p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
                     x1u0_c1 * df$C1 + x1u0_c2 * df$C2)
@@ -328,21 +342,21 @@ adjust_multinom_uc_emc_sel <- function(
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
 
-    s1_c1 <- ps1_parameters[4]
-    s1_c2 <- ps1_parameters[5]
-    s1_c3 <- ps1_parameters[6]
+    s1_c1   <- s_model_coefs[4]
+    s1_c2   <- s_model_coefs[5]
+    s1_c3   <- s_model_coefs[6]
 
-    x1u0_c1 <- px1_u0_parameters[4]
-    x1u0_c2 <- px1_u0_parameters[5]
-    x1u0_c3 <- px1_u0_parameters[6]
+    x1u0_c1 <- x1u0_model_coefs[4]
+    x1u0_c2 <- x1u0_model_coefs[5]
+    x1u0_c3 <- x1u0_model_coefs[6]
 
-    x0u1_c1 <- px0_u1_parameters[4]
-    x0u1_c2 <- px0_u1_parameters[5]
-    x0u1_c3 <- px0_u1_parameters[6]
+    x0u1_c1 <- x0u1_model_coefs[4]
+    x0u1_c2 <- x0u1_model_coefs[5]
+    x0u1_c3 <- x0u1_model_coefs[6]
 
-    x1u1_c1 <- px1_u1_parameters[4]
-    x1u1_c2 <- px1_u1_parameters[5]
-    x1u1_c3 <- px1_u1_parameters[6]
+    x1u1_c1 <- x1u1_model_coefs[4]
+    x1u1_c2 <- x1u1_model_coefs[5]
+    x1u1_c3 <- x1u1_model_coefs[6]
 
     p_x1u0 <- exp(x1u0_0 + x1u0_xstar * df$Xstar + x1u0_y * df$Y +
                     x1u0_c1 * df$C1 + x1u0_c2 * df$C2 + x1u0_c3 * df$C3)

@@ -10,24 +10,24 @@ adjust_multinom_uc_emc_sel(
   exposure,
   outcome,
   confounders = NULL,
-  px1_u0_parameters,
-  px0_u1_parameters,
-  px1_u1_parameters,
-  ps1_parameters,
+  x1u0_model_coefs,
+  x0u1_model_coefs,
+  x1u1_model_coefs,
+  s_model_coefs,
   level = 0.95
 )
 }
 \arguments{
-\item{data}{The data set.}
+\item{data}{Dataframe for analysis.}
 
-\item{exposure}{The name of the exposure variable in the data.}
+\item{exposure}{String name of the exposure variable.}
 
-\item{outcome}{The name of the outcome variable in the data.}
+\item{outcome}{String name of the outcome variable.}
 
-\item{confounders}{The variable name(s) of the confounder(s) in the data.
+\item{confounders}{String name(s) of the confounder(s).
 A maximum of three confounders are allowed.}
 
-\item{px1_u0_parameters}{The regression coefficients corresponding to the
+\item{x1u0_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) =
 &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* +
 &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }where X
@@ -37,7 +37,7 @@ represents the vector of (binary) measured confounders (if any), and
 j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}}
 
-\item{px0_u1_parameters}{The regression coefficients corresponding to the
+\item{x0u1_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) =
 &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* +
 &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, } where X
@@ -47,7 +47,7 @@ C represents the vector of (binary) measured confounders (if any), and
 j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}}
 
-\item{px1_u1_parameters}{The regression coefficients corresponding to the
+\item{x1u1_model_coefs}{The regression coefficients corresponding to the
 model: \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) =
 &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* +
 &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, } where X
@@ -57,7 +57,7 @@ C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured
 confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
 
-\item{ps1_parameters}{The regression coefficients corresponding to the model:
+\item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
 &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
@@ -65,7 +65,7 @@ X* is the (binary) misclassified exposure, Y is the (binary) outcome,
 C represents the vector of (binary) measured confounders (if any), and
 j corresponds to the number of measured confounders.}{\eqn{logit(P(S=1)) =}}}
 
-\item{level}{Number from 0-1 representing the range of the confidence
+\item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
 \description{
@@ -84,10 +84,10 @@ adjust_multinom_uc_emc_sel(
  exposure = "Xstar",
  outcome = "Y",
  confounders = c("C1", "C2", "C3"),
- px1_u0_parameters = c(-1.79, 2.71, .57, -.43, -.43, .42),
- px0_u1_parameters = c(-.47, 0, .50, .12, .10, -.11),
- px1_u1_parameters = c(-1.84, 2.70, 1.07, -.30, -.31, .29),
- ps1_parameters = c(-.39, .40, .75, -.04, -.04, .05)
+ x1u0_model_coefs = c(-1.79, 2.71, .57, -.43, -.43, .42),
+ x0u1_model_coefs = c(-.47, 0, .50, .12, .10, -.11),
+ x1u1_model_coefs = c(-1.84, 2.70, 1.07, -.30, -.31, .29),
+ s_model_coefs = c(-.39, .40, .75, -.04, -.04, .05)
 )
 
 }

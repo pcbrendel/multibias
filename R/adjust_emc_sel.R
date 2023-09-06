@@ -6,11 +6,11 @@
 #' Details
 #'
 #' @param data Dataframe for analysis.
-#' @param exposure The variable corresponding to the exposure in the data.
-#' @param outcome The variable corresponding to the outcome in the data.
-#' @param confounders The variable(s) corresponding to the confounder(s) in the
-#'  data. A maximum of three confounders are allowed.
-#' @param px1_parameters The regression coefficients corresponding to the model:
+#' @param exposure String name of the exposure variable.
+#' @param outcome String name of the outcome variable.
+#' @param confounders String name(s) of the confounder(s).
+#'  A maximum of three confounders are allowed.
+#' @param x_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 #'  &delta;<sub>2+j</sub>C<sub>j</sub>, }
@@ -19,7 +19,7 @@
 #'  measured confounders (if any), and j corresponds to the number of measured
 #'  confounders. The number of parameters is therefore
 #'  3 + j.}{\eqn{logit(P(X=1)) =}}
-#' @param ps1_parameters The regression coefficients corresponding to the model:
+#' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
 #'  &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
@@ -36,8 +36,8 @@
 #'  exposure = "Xstar",
 #'  outcome = "Y",
 #'  confounders = c("C1", "C2", "C3"),
-#'  px1_parameters = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
-#'  ps1_parameters = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
+#'  x_model_coefs = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
+#'  s_model_coefs = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
 #' )
 #'
 #' @import dplyr
@@ -55,39 +55,49 @@ adjust_emc_sel <- function(
   exposure,
   outcome,
   confounders = NULL,
-  px1_parameters,
-  ps1_parameters,
+  x_model_coefs,
+  s_model_coefs,
   level = 0.95
 ) {
 
   n <- nrow(data)
   len_c <- length(confounders)
-  len_px1 <- length(px1_parameters)
-  len_ps1 <- length(ps1_parameters)
+  len_x_coefs <- length(x_model_coefs)
+  len_s_coefs <- length(s_model_coefs)
 
   xstar <- data[, exposure]
   y <- data[, outcome]
 
   if (sum(xstar %in% c(0, 1)) != n) {
-    stop("Exposure must be binary")
+    stop("Exposure must be a binary integer.")
   }
   if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be binary")
+    stop("Outcome must be a binary integer.")
   }
-  if (len_px1 != len_c + 3) {
-    stop("Incorrect X1 parameter length")
+  if (len_x_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
-  if (len_ps1 != len_c + 3) {
-    stop("Incorrect S1 parameter length")
+  if (len_s_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of S model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
   }
 
-  s1_0     <- ps1_parameters[1]
-  s1_xstar <- ps1_parameters[2]
-  s1_y     <- ps1_parameters[3]
+  s1_0     <- s_model_coefs[1]
+  s1_xstar <- s_model_coefs[2]
+  s1_y     <- s_model_coefs[3]
 
-  x1_0     <- px1_parameters[1]
-  x1_xstar <- px1_parameters[2]
-  x1_y     <- px1_parameters[3]
+  x1_0     <- x_model_coefs[1]
+  x1_xstar <- x_model_coefs[2]
+  x1_y     <- x_model_coefs[3]
 
   if (is.null(confounders)) {
 
@@ -127,8 +137,8 @@ adjust_emc_sel <- function(
 
     c1 <- data[, confounders]
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
-    x1_c1 <- px1_parameters[4]
-    s1_c1    <- ps1_parameters[4]
+    x1_c1 <- x_model_coefs[4]
+    s1_c1 <- s_model_coefs[4]
 
     x1_pred <- plogis(x1_0 + x1_xstar * xstar + x1_y * y + x1_c1 * c1)
     x1_pred <- rep(x1_pred, times = 2)
@@ -170,11 +180,11 @@ adjust_emc_sel <- function(
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
 
-    s1_c1    <- ps1_parameters[4]
-    s1_c2    <- ps1_parameters[5]
+    s1_c1 <- s_model_coefs[4]
+    s1_c2 <- s_model_coefs[5]
 
-    x1_c1    <- px1_parameters[4]
-    x1_c2    <- px1_parameters[5]
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
 
     x1_pred <- plogis(x1_0 + x1_xstar * xstar +
                         x1_y * y + x1_c1 * c1 + x1_c2 * c2)
@@ -218,13 +228,13 @@ adjust_emc_sel <- function(
 
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
 
-    s1_c1    <- ps1_parameters[4]
-    s1_c2    <- ps1_parameters[5]
-    s1_c3    <- ps1_parameters[6]
+    s1_c1 <- s_model_coefs[4]
+    s1_c2 <- s_model_coefs[5]
+    s1_c3 <- s_model_coefs[6]
 
-    x1_c1    <- px1_parameters[4]
-    x1_c2    <- px1_parameters[5]
-    x1_c3    <- px1_parameters[6]
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
+    x1_c3 <- x_model_coefs[6]
 
     x1_pred <- plogis(
       x1_0 + x1_xstar * xstar + x1_y * y + x1_c1 * c1 + x1_c2 * c2 + x1_c3 * c3

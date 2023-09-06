@@ -9,22 +9,22 @@ adjust_emc_sel(
   exposure,
   outcome,
   confounders = NULL,
-  px1_parameters,
-  ps1_parameters,
+  x_model_coefs,
+  s_model_coefs,
   level = 0.95
 )
 }
 \arguments{
 \item{data}{Dataframe for analysis.}
 
-\item{exposure}{The variable corresponding to the exposure in the data.}
+\item{exposure}{String name of the exposure variable.}
 
-\item{outcome}{The variable corresponding to the outcome in the data.}
+\item{outcome}{String name of the outcome variable.}
 
-\item{confounders}{The variable(s) corresponding to the confounder(s) in the
-data. A maximum of three confounders are allowed.}
+\item{confounders}{String name(s) of the confounder(s).
+A maximum of three confounders are allowed.}
 
-\item{px1_parameters}{The regression coefficients corresponding to the model:
+\item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 &delta;<sub>2+j</sub>C<sub>j</sub>, }
@@ -34,7 +34,7 @@ measured confounders (if any), and j corresponds to the number of measured
 confounders. The number of parameters is therefore
 3 + j.}{\eqn{logit(P(X=1)) =}}}
 
-\item{ps1_parameters}{The regression coefficients corresponding to the model:
+\item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
 &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
@@ -59,8 +59,8 @@ adjust_emc_sel(
  exposure = "Xstar",
  outcome = "Y",
  confounders = c("C1", "C2", "C3"),
- px1_parameters = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
- ps1_parameters = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
+ x_model_coefs = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
+ s_model_coefs = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
 )
 
 }
