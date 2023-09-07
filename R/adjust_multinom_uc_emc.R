@@ -39,13 +39,13 @@
 #'
 #' @examples
 #' adjust_multinom_uc_emc(
-#'  df_uc_mc,
+#'  df_uc_emc,
 #'  exposure = "Xstar",
 #'  outcome = "Y",
-#'  confounders = c("C1", "C2", "C3"),
-#'  x1u0_model_coefs = c(-1.37, 1.64, .71, -.43, -.43, .43),
-#'  x0u1_model_coefs = c(-.45, -.05, .50, .12, .10, -.11),
-#'  x1u1_model_coefs = c(-1.45, 1.69, 1.20, -.30, -.31, .29)
+#'  confounders = "C1",
+#'  x1u0_model_coefs = c(-2.82, 1.62, 0.68, -0.06),
+#'  x0u1_model_coefs = c(-0.20, 0.00, 0.68, -0.05),
+#'  x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.27)
 #' )
 #'
 #' @import dplyr

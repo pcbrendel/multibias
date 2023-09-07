@@ -26,12 +26,12 @@
 #'
 #' @examples
 #' adjust_uc_emc(
-#'  df_uc_mc,
+#'  df_uc_emc,
 #'  exposure = "Xstar",
 #'  outcome = "Y",
-#'  confounders = c("C1", "C2", "C3"),
-#'  u_model_coefs = c(-.40, .38, .46),
-#'  x_model_coefs = c(-1.21, 1.69, .76, -.41, -.41, .41)
+#'  confounders = "C1",
+#'  u_model_coefs = c(-0.23, 0.63, 0.66),
+#'  x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
 #' )
 #'
 #' @import dplyr
