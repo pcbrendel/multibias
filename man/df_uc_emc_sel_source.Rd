@@ -5,7 +5,7 @@
 \alias{df_uc_emc_sel_source}
 \title{Data source for df_uc_emc_sel}
 \format{
-A dataframe with 100,000 rows and 8 variables:
+A dataframe with 100,000 rows and 8 columns:
 \describe{
     \item{X}{true exposure, 1 = present and 0 = absent}
     \item{Y}{outcome, 1 = present and 0 = absent}

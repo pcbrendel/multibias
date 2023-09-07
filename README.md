@@ -59,13 +59,13 @@ In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) e
 biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, data = df_uc_emis_sel, family = binomial(link = "logit"))
 biased_or_yx <- exp(coef(biased_model)[2])
 round(biased_or_yx, 2)
-#>    Xstar
+#> Xstar
 #> 1.66
 ```
 
 The `adjust` family of functions serves to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
 
-Models for the missing variables (U, X, S) are used to facilitate this data reconstruction. For the above DAG, the corresponding bias models are:
+Models for the missing variables (*U*, *X*, *S*) are used to facilitate this data reconstruction. For the above DAG, the corresponding bias models are:
  - logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y
  - logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>
  - logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>
@@ -100,7 +100,7 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
-Then we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. In this function we specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the parameters in the U model, the parameters in the X model, and the parameters in the S model. Since knowledge of the complete data was known, the correct bias parameters were known in advance. The bias parameters can be provided as fixed values, as seen in this example, or values from a probability distribution. This latter strategy is referred to as probabilistic bias analysis.
+Then we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. In this function we specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the parameters in the *U* model, the parameters in the *X* model, and the parameters in the *S* model. Since knowledge of the complete data was known, the correct bias parameters were known in advance. The bias parameters can be provided as fixed values, as seen in this example, or values from a probability distribution. This latter strategy is referred to as probabilistic bias analysis.
 
 ```{r, eval = TRUE}
 # parallel for loop to obtain odds ratio estimates
