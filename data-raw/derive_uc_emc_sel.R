@@ -20,14 +20,14 @@ s <- rbinom(n, 1, plogis(log(2) * x + log(2) * y))
 
 df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3,
                  U = u, Xstar = xstar, S = s)
-s1df <- df_uc_emc_sel[sample(seq_len(n), size = n, replace = TRUE,
-                             prob = df$S), ]
+s1df <- df[sample(seq_len(n), size = n, replace = TRUE,
+                  prob = df$S), ]
 rm(c1, c2, c3, u, x, y, xstar, s)
 
 # INSPECT MODELS
 nobias_model <- glm(Y ~ X + C1 + C2 + C3 + U,
                     family = binomial(link = "logit"),
-                    data = df_uc_emc_sel)
+                    data = df)
 
 exp(summary(nobias_model)$coef[2, 1])
 c(exp(summary(nobias_model)$coef[2, 1] +
@@ -59,12 +59,10 @@ s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"))
 
 xu_model <- multinom(
-  paste0(X, U) ~ Xstar + Y + C1 + C2 + C3,
+  paste(X, U) ~ Xstar + Y + C1 + C2 + C3,
   data = df
 )
-
 summary(xu_model)
-summary(xu_model)$coefficients[1, 1]
 
 # ADJUST
 adjust_uc_emc_sel(
@@ -97,7 +95,7 @@ adjust_uc_emc_sel(
 # 2.01 (1.96, 2.06)
 
 adjust_multinom_uc_emc_sel(
-  df_uc_emc_sel,
+  df,
   "X",
   "Y",
   c("C1", "C2", "C3"),
