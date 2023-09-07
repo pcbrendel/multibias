@@ -23,9 +23,12 @@ df_uc_emc_sel_source
 \description{
 Data with complete information on the three sources of bias, three known
  confounders, and 100,000 observations. This data is used to derive
- df_uc_emc_sel and can be used to obtain bias parameters for purposes of
- validating the simultaneous multi-bias adjustment method with
- df_uc_emc_sel. Regressing Y on X, C1, C2, C3 and U shows that the true,
- unbiased exposure-outcome odds ratio = 2.
+ \code{df_uc_emc_sel} and can be used to obtain bias parameters for purposes
+ of validating the simultaneous multi-bias adjustment method with
+ \code{df_uc_emc_sel}. The regression \ifelse{html}{\out{logit(P(Y=1)) =
+ &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>C1 +
+ &alpha;<sub>3</sub>C2 + &alpha;<sub>4</sub>C3 + &alpha;<sub>5</sub>U}
+ shows that the true, unbiased exposure-outcome odds
+ ratio = 2.}{\eqn{logit(P(Y=1)) =}}
 }
 \keyword{datasets}
