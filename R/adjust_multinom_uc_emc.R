@@ -6,7 +6,7 @@
 #'
 #' This function uses one bias model, a multinomial logistic regression model,
 #' to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-#' models for X and U are desired, use \code{adjust_uc_emc_2}.
+#' models for X and U are desired, use \code{adjust_uc_emc}.
 #'
 #' @inheritParams adjust_emc_sel
 #' @param x1u0_model_coefs The regression coefficients corresponding to the

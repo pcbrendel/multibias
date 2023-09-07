@@ -66,7 +66,7 @@ misclassificaiton.
 \details{
 This function uses one bias model, a multinomial logistic regression model,
 to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-models for X and U are desired, use \code{adjust_uc_emc_2}.
+models for X and U are desired, use \code{adjust_uc_emc}.
 }
 \examples{
 adjust_multinom_uc_emc(
