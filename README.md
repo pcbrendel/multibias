@@ -25,7 +25,7 @@ devtools::install_github("pcbrendel/multibias")
 
 ## Example
 
-Say you have a data set whose causal relationships can be represented in the following DAG:
+We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
 
 ![uc_mc_sel_DAG](DAGs/uc_mc_sel_DAG.png)
 
