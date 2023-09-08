@@ -76,20 +76,20 @@ adjust_uc_emc(
 
 adjust_multinom_uc_emc(
   df,
-  "X",
+  "Xstar",
   "Y",
   "C1",
   x1u0_model_coefs = c(
-    summary(xu_model)$coefficients[1, 1],
-    summary(xu_model)$coefficients[1, 2],
-    summary(xu_model)$coefficients[1, 3],
-    summary(xu_model)$coefficients[1, 4]
-  ),
-  x0u1_model_coefs = c(
     summary(xu_model)$coefficients[2, 1],
     summary(xu_model)$coefficients[2, 2],
     summary(xu_model)$coefficients[2, 3],
     summary(xu_model)$coefficients[2, 4]
+  ),
+  x0u1_model_coefs = c(
+    summary(xu_model)$coefficients[1, 1],
+    summary(xu_model)$coefficients[1, 2],
+    summary(xu_model)$coefficients[1, 3],
+    summary(xu_model)$coefficients[1, 4]
   ),
   x1u1_model_coefs = c(
     summary(xu_model)$coefficients[3, 1],
