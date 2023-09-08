@@ -3,7 +3,7 @@ library(tidyverse)
 library(available)
 library(roxygen2)
 
-install.packages("languageserver")
+install.packages("available")
 
 use_data_raw()
 use_mit_license()
