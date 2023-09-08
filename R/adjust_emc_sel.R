@@ -32,12 +32,12 @@
 #'
 #' @examples
 #' adjust_emc_sel(
-#'  df_mc_sel,
+#'  df_emc_sel,
 #'  exposure = "Xstar",
 #'  outcome = "Y",
-#'  confounders = c("C1", "C2", "C3"),
-#'  x_model_coefs = c(-1.35, 1.64, 0.70, -0.42, -0.42, 0.40),
-#'  s_model_coefs = c(-0.08, 0.55, 2.02, -0.16, -0.14, 0.15)
+#'  confounders = "C1",
+#'  x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
+#'  s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
 #' )
 #'
 #' @import dplyr
