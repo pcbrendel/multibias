@@ -3,19 +3,29 @@ An R package for multi-bias analysis corresponding to the [article](https://doi.
 
 Paul Brendel, Aracelis Torres, Onyebuchi A Arah, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-## Overview
-
-The `multibias` package includes a suite of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emis):
-
-  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
-  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
-  - `adjust_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton.
-  - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
-  - `adjust_uc_emc_sel()` adjusts for all three biases.
-  - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
- 
 If you are new to bias analysis, I'd suggest reading [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://www.paulbrendel.com/).
 
+## Overview
+
+The `multibias` package includes a suite of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emc).
+
+Single biases:
+  - `adjust_uc()` adjusts for uncontrolled confounding
+  - `adjust_emc()` adjusts for exposure misclassification
+  - `adjust_sel()` adjusts for selection bias
+
+Double biases:
+  - `adjust_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton.
+  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
+  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
+
+Triple biases:
+  - `adjust_uc_emc_sel()` adjusts for all three biases.
+
+And some additional functions with that use multinomial logistic regression for the bias models:
+  - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
+  - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
+ 
 ## Installation
 
 ```{r, eval = FALSE}
