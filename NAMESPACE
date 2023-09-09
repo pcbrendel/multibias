@@ -3,6 +3,7 @@
 export(adjust_emc_sel)
 export(adjust_multinom_uc_emc)
 export(adjust_multinom_uc_emc_sel)
+export(adjust_sel)
 export(adjust_uc)
 export(adjust_uc_emc)
 export(adjust_uc_emc_sel)
