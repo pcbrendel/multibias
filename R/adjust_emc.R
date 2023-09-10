@@ -1,0 +1,204 @@
+#' Adust for exposure misclassification.
+#'
+#' \code{adjust_emc} returns the exposure-outcome odds ratio and confidence
+#' interval, adjusted for exposure misclassificaiton.
+#'
+#' details
+#'
+#' @inheritParams adjust_emc_sel
+#' @param x_model_coefs The regression coefficients corresponding to the model:
+#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
+#'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
+#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents the (binary) true
+#'  exposure, X* is the (binary) misclassified exposure, Y is the (binary)
+#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  and j corresponds to the number of measured confounders. The number of
+#'  parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}
+#'
+#' @examples
+#' adjust_emc(
+#'  evans,
+#'  exposure = "SMK",
+#'  outcome = "CHD",
+#'  confounders = "AGE",
+#'  x_model_coefs = c(0.20, 0.10, 0.10, 0.10)
+#' )
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats qnorm
+#' @importFrom stats rbinom
+#' @importFrom stats plogis
+#' @importFrom rlang .data
+#'
+#' @export
+
+adjust_emc <- function(
+  data,
+  exposure,
+  outcome,
+  confounders = NULL,
+  x_model_coefs,
+  level = 0.95
+) {
+
+  n <- nrow(data)
+  len_c <- length(confounders)
+  len_x_coefs <- length(x_model_coefs)
+
+  xstar <- data[, exposure]
+  y <- data[, outcome]
+
+  if (sum(xstar %in% c(0, 1)) != n) {
+    stop("Exposure must be a binary integer.")
+  }
+  if (sum(y %in% c(0, 1)) != n) {
+    stop("Outcome must be a binary integer.")
+  }
+  if (len_x_coefs != 3 + len_c) {
+    stop(
+      paste0(
+        "Incorrect length of X model coefficients. ",
+        "Length should equal 3 + number of confounders."
+      )
+    )
+  }
+
+  x1_0     <- x_model_coefs[1]
+  x1_xstar <- x_model_coefs[2]
+  x1_y     <- x_model_coefs[3]
+
+  if (is.null(confounders)) {
+
+    df <- data.frame(Xstar = xstar, Y = y)
+    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y))
+
+    final <- glm(
+      Y ~ Xpred,
+      family = binomial(link = "logit"),
+      data = df
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
+    alpha <- 1 - level
+
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
+
+  } else if (len_c == 1) {
+
+    c1 <- data[, confounders]
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
+
+    x1_c1 <- x_model_coefs[4]
+
+    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
+                                      x1_y * df$Y + x1_c1 * df$C1))
+
+    final <- glm(
+      Y ~ Xpred + C1,
+      family = binomial(link = "logit"),
+      data = df
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
+    alpha <- 1 - level
+
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
+
+  } else if (len_c == 2) {
+
+    c1 <- data[, confounders[1]]
+    c2 <- data[, confounders[2]]
+
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
+
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
+
+    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
+                                      x1_c1 * df$C1 + x1_c2 * df$C2))
+
+    final <- glm(
+      Y ~ Xpred + C1 + C2,
+      family = binomial(link = "logit"),
+      data = df
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
+    alpha <- 1 - level
+
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
+
+  } else if (len_c == 3) {
+
+    c1 <- data[, confounders[1]]
+    c2 <- data[, confounders[2]]
+    c3 <- data[, confounders[3]]
+
+    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
+
+    x1_c1 <- x_model_coefs[4]
+    x1_c2 <- x_model_coefs[5]
+    x1_c3 <- x_model_coefs[6]
+
+    df$Xpred <- rbinom(
+      n, 1,
+      plogis(
+        x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
+          x1_c1 * df$C1 + x1_c2 * df$C2 + x1_c3 * df$C3
+      )
+    )
+
+    final <- glm(
+      Y ~ Xpred + C1 + C2 + C3,
+      family = binomial(link = "logit"),
+      data = df
+    )
+
+    est <- summary(final)$coef[2, 1]
+    se <- summary(final)$coef[2, 2]
+    alpha <- 1 - level
+
+    return(
+      list(
+        exp(est),
+        c(
+          exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2))
+        )
+      )
+    )
+
+  } else if (len_c > 3) {
+    stop("This function is currently not compatible with >3 confounders.")
+  }
+}
