@@ -112,12 +112,14 @@ adjust_emc_sel <- function(
              pX = case_when(Xbar == 1 ~ x1_pred,
                             Xbar == 0 ~ 1 - x1_pred))
 
-    final <- glm(
-      Y ~ Xbar,
-      family = binomial(link = "logit"),
-      weights = (combined$pX / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar,
+        family = binomial(link = "logit"),
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -152,12 +154,14 @@ adjust_emc_sel <- function(
                        Xbar == 0 ~ 1 - x1_pred)
       )
 
-    final <- glm(
-      Y ~ Xbar + C1,
-      family = binomial(link = "logit"),
-      weights = (combined$pX / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1,
+        family = binomial(link = "logit"),
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -199,12 +203,14 @@ adjust_emc_sel <- function(
                        Xbar == 0 ~ 1 - x1_pred)
       )
 
-    final <- glm(
-      Y ~ Xbar + C1 + C2,
-      family = binomial(link = "logit"),
-      weights = (combined$pX / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1 + C2,
+        family = binomial(link = "logit"),
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -250,12 +256,14 @@ adjust_emc_sel <- function(
                        Xbar == 0 ~ 1 - x1_pred)
       )
 
-    final <- glm(
-      Y ~ Xbar + C1 + C2 + C3,
-      family = binomial(link = "logit"),
-      weights = (combined$pX / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1 + C2 + C3,
+        family = binomial(link = "logit"),
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]

@@ -71,12 +71,14 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    final <- glm(
-      Y ~ X,
-      family = binomial(link = "logit"),
-      weights = df$pS,
-      data = df
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X,
+        family = binomial(link = "logit"),
+        weights = df$pS,
+        data = df
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -98,12 +100,14 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    final <- glm(
-      Y ~ X + C1,
-      family = binomial(link = "logit"),
-      weights = df$pS,
-      data = df
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1,
+        family = binomial(link = "logit"),
+        weights = df$pS,
+        data = df
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -127,12 +131,14 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    final <- glm(
-      Y ~ X + C1 + C2,
-      family = binomial(link = "logit"),
-      weights = df$pS,
-      data = df
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1 + C2,
+        family = binomial(link = "logit"),
+        weights = df$pS,
+        data = df
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -157,12 +163,14 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    final <- glm(
-      Y ~ X + C1 + C2 + C3,
-      family = binomial(link = "logit"),
-      weights = df$pS,
-      data = df
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1 + C2 + C3,
+        family = binomial(link = "logit"),
+        weights = df$pS,
+        data = df
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]

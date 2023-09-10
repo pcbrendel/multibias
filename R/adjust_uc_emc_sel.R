@@ -131,12 +131,14 @@ adjust_uc_emc_sel <- function(
         pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y)
       )
 
-    final <- glm(
-      Y ~ Xpred + Upred,
-      family = binomial(link = "logit"),
-      weights = (1 / df2$pS),
-      data = df2
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + Upred,
+        family = binomial(link = "logit"),
+        weights = (1 / df2$pS),
+        data = df2
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -169,12 +171,14 @@ adjust_uc_emc_sel <- function(
                       s1_c1 * .data$C1)
       )
 
-    final <- glm(
-      Y ~ Xpred + C1 + Upred,
-      family = binomial(link = "logit"),
-      weights = (1 / df2$pS),
-      data = df2
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + C1 + Upred,
+        family = binomial(link = "logit"),
+        weights = (1 / df2$pS),
+        data = df2
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -218,12 +222,14 @@ adjust_uc_emc_sel <- function(
                       s1_c1 * .data$C1 + s1_c2 * .data$C2)
       )
 
-    final <- glm(
-      Y ~ Xpred + C1 + C2 + Upred,
-      family = binomial(link = "logit"),
-      weights = (1 / df2$pS),
-      data = df2
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + C1 + C2 + Upred,
+        family = binomial(link = "logit"),
+        weights = (1 / df2$pS),
+        data = df2
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -268,12 +274,14 @@ adjust_uc_emc_sel <- function(
                       s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3)
       )
 
-    final <- glm(
-      Y ~ Xpred + C1 + C2 + C3 + Upred,
-      family = binomial(link = "logit"),
-      weights = (1 / df2$pS),
-      data = df2
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + C1 + C2 + C3 + Upred,
+        family = binomial(link = "logit"),
+        weights = (1 / df2$pS),
+        data = df2
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]

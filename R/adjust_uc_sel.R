@@ -98,12 +98,14 @@ adjust_uc_sel <- function(
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(
-      Y ~ X + Ubar,
-      family = binomial(link = "logit"),
-      weights = (combined$pU / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + Ubar,
+        family = binomial(link = "logit"),
+        weights = (combined$pU / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -134,12 +136,14 @@ adjust_uc_sel <- function(
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(
-      Y ~ X + C1 + Ubar,
-      family = binomial(link = "logit"),
-      weights = (combined$pU / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1 + Ubar,
+        family = binomial(link = "logit"),
+        weights = (combined$pU / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -174,12 +178,14 @@ adjust_uc_sel <- function(
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(
-      Y ~ X + C1 + C2 + Ubar,
-      family = binomial(link = "logit"),
-      weights = (combined$pU / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1 + C2 + Ubar,
+        family = binomial(link = "logit"),
+        weights = (combined$pU / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
@@ -217,12 +223,14 @@ adjust_uc_sel <- function(
              pU = case_when(Ubar == 1 ~ u1_pred,
                             Ubar == 0 ~ 1 - u1_pred))
 
-    final <- glm(
-      Y ~ X + C1 + C2 + C3 + Ubar,
-      family = binomial(link = "logit"),
-      weights = (combined$pU / combined$pS),
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ X + C1 + C2 + C3 + Ubar,
+        family = binomial(link = "logit"),
+        weights = (combined$pU / combined$pS),
+        data = combined
+      )
+    })
 
     est <- summary(final)$coef[2, 1]
     se <- summary(final)$coef[2, 2]
