@@ -33,7 +33,11 @@ And some additional functions with that use multinomial logistic regression for 
 devtools::install_github("pcbrendel/multibias")
 ```
 
-## Example
+## Single Bias Example
+
+To add.
+
+## Triple Bias Example Example
 
 We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
 
@@ -47,7 +51,8 @@ The variables are defined:
  - X*: misclassified, measured exposure
  - S: study selection
 
-It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only examines those who were selected (i.e. those with S=1).
+It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only assesses those who were selected into the study (i.e. those with S=1),
+which represents a fraction of all people in the source population from which we are trying to draw inference.
 
 A simulated data set corresponding to this DAG, `df_uc_emc_sel` can be loaded from the multibias package. 
 
@@ -66,11 +71,11 @@ head(df_uc_emc_sel)
 In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources.
 
 ```{r, eval = TRUE}
-biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, data = df_uc_emis_sel, family = binomial(link = "logit"))
-biased_or_yx <- exp(coef(biased_model)[2])
-round(biased_or_yx, 2)
-#> Xstar
-#> 1.66
+biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, data = df_uc_emc_sel,
+                    family = binomial(link = "logit"))
+biased_or <- round(exp(coef(biased_model)[2]), 2)
+print("Biased Odds Ratio: ", biased_or)
+#> "Biased Odds Ratio: 1.64"
 ```
 
 The `adjust` family of functions serves to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
@@ -96,7 +101,7 @@ s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"))
 ```
 
-We will run the analysis over 1,000 bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. First, we create a cluster, make a seed, and specify the desired number of bootstrap repitions.
+In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. Below we create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
 
 ```{r, eval = TRUE}
 library(doParallel)
@@ -110,52 +115,55 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
-Then we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. In this function we specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the parameters in the *U* model, the parameters in the *X* model, and the parameters in the *S* model. Since knowledge of the complete data was known, the correct bias parameters were known in advance. The bias parameters can be provided as fixed values, as seen in this example, or values from a probability distribution. This latter strategy is referred to as probabilistic bias analysis.
+Next we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. We specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the *U* model coefficients, the *X* model coefficients, and the *S* model coefficients. Since knowledge of the source data was known, the correct bias parameters can be applied.  Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will now have slightly different values for the bias parameters, corresponding to our uncertainty in their estimates.
 
 ```{r, eval = TRUE}
 # parallel for loop to obtain odds ratio estimates
-or <- foreach(i = 1:nreps, .combine = c, .packages = 'dplyr') %dopar% {
-  # bootstrap sample
-  df_sample <- df_uc_emc_sel[sample(1:nrow(df_uc_emc_sel), nrow(df_uc_emc_sel), replace = TRUE),]
-  # adjust for biases
+or <- foreach(i = 1:nreps, .combine = c,
+              .packages = c("dplyr", "multibias")) %dopar% {
+
+  df_sample <- df_uc_emc_sel[sample(seq_len(nrow(df_uc_emc_sel)),
+                                    nrow(df_uc_emc_sel),
+                                    replace = TRUE), ]
+
   est[i] <- adjust_uc_emc_sel(
-    df_sample, 
-    exposure = "Xstar", 
+    df_sample,
+    exposure = "Xstar",
     outcome = "Y",
     confounders = c("C1", "C2", "C3"),
     u_model_coefs = c(
-      u_model$coef[1],
-      u_model$coef[2],
-      u_model$coef[3]
+      rnorm(1, mean = u_model$coef[1], sd = summary(u_model)$coef[1, 2]),
+      rnorm(1, mean = u_model$coef[2], sd = summary(u_model)$coef[2, 2]),
+      rnorm(1, mean = u_model$coef[3], sd = summary(u_model)$coef[3, 2])
     ),
     x_model_coefs = c(
-      x_model$coef[1],
-      x_model$coef[2],
-      x_model$coef[3],
-      x_model$coef[4],
-      x_model$coef[5],
-      x_model$coef[6]
+      rnorm(1, mean = x_model$coef[1], sd = summary(x_model)$coef[1, 2]),
+      rnorm(1, mean = x_model$coef[2], sd = summary(x_model)$coef[2, 2]),
+      rnorm(1, mean = x_model$coef[3], sd = summary(x_model)$coef[3, 2]),
+      rnorm(1, mean = x_model$coef[4], sd = summary(x_model)$coef[4, 2]),
+      rnorm(1, mean = x_model$coef[5], sd = summary(x_model)$coef[5, 2]),
+      rnorm(1, mean = x_model$coef[6], sd = summary(x_model)$coef[6, 2])
     ),
     s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3],
-      s_model$coef[4],
-      s_model$coef[5],
-      s_model$coef[6]
+      rnorm(1, mean = s_model$coef[1], sd = summary(s_model)$coef[1, 2]),
+      rnorm(1, mean = s_model$coef[2], sd = summary(s_model)$coef[2, 2]),
+      rnorm(1, mean = s_model$coef[3], sd = summary(s_model)$coef[3, 2]),
+      rnorm(1, mean = s_model$coef[4], sd = summary(s_model)$coef[4, 2]),
+      rnorm(1, mean = s_model$coef[5], sd = summary(s_model)$coef[5, 2]),
+      rnorm(1, mean = s_model$coef[6], sd = summary(s_model)$coef[6, 2])
     )
   )[[1]]
 }
 ```
-Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 bootstrap odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
+Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
 
 ```{r, eval = TRUE}
 # odds ratio estimate
 round(median(or), 2)
 # confidence interval
-round(quantile(or,c(.025, .975)), 2)
+round(quantile(or, c(.025, .975)), 2)
 #> 2.02
-#> 1.95 2.09
+#> 1.93 2.11
 ```
 
 ## Coming soon
