@@ -35,9 +35,21 @@ devtools::install_github("pcbrendel/multibias")
 
 ## Single Bias Example
 
-To add.
+We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD). We suspect that an important confounder is missing: the biological sex of the study participants.
 
-## Triple Bias Example Example
+```{r, eval = TRUE}
+library(multibias)
+head(evans)
+#>   ID CHD AGE CHL SMK ECG DBP SBP HPT
+#> 1 21   0  56 270   0   0  80 138   0
+#> 2 31   0  43 159   1   0  74 128   0
+#> 3 51   1  56 201   1   1 112 164   1
+#> 4 71   0  64 179   1   0 100 200   1
+#> 5 74   0  49 243   1   0  82 145   0
+#> 6 91   0  46 252   1   0  88 142   0
+```
+
+## Triple Bias Example
 
 We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
 
