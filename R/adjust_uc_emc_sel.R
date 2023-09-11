@@ -128,7 +128,7 @@ adjust_uc_emc_sel <- function(
 
     df <- data.frame(Xstar = xstar, Y = y)
 
-    df2 <- df %>%
+    df <- df %>%
       mutate(
         Xpred = rbinom(
           n, 1,
@@ -145,8 +145,8 @@ adjust_uc_emc_sel <- function(
       final <- glm(
         Y ~ Xpred + Upred,
         family = binomial(link = "logit"),
-        weights = (1 / df2$pS),
-        data = df2
+        weights = (1 / df$pS),
+        data = df
       )
     })
 
@@ -171,7 +171,7 @@ adjust_uc_emc_sel <- function(
     x1_c1 <- x_model_coefs[4]
     s1_c1 <- s_model_coefs[4]
 
-    df2 <- df %>%
+    df <- df %>%
       mutate(
         Xpred = rbinom(n, 1, plogis(x1_0 + x1_xstar * .data$Xstar +
                                       x1_y * .data$Y + x1_c1 * .data$C1)),
@@ -185,8 +185,8 @@ adjust_uc_emc_sel <- function(
       final <- glm(
         Y ~ Xpred + C1 + Upred,
         family = binomial(link = "logit"),
-        weights = (1 / df2$pS),
-        data = df2
+        weights = (1 / df$pS),
+        data = df
       )
     })
 
@@ -217,7 +217,7 @@ adjust_uc_emc_sel <- function(
     s1_c1 <- s_model_coefs[4]
     s1_c2 <- s_model_coefs[5]
 
-    df2 <- df %>%
+    df <- df %>%
       mutate(
         Xpred = rbinom(
           n, 1,
@@ -236,8 +236,8 @@ adjust_uc_emc_sel <- function(
       final <- glm(
         Y ~ Xpred + C1 + C2 + Upred,
         family = binomial(link = "logit"),
-        weights = (1 / df2$pS),
-        data = df2
+        weights = (1 / df$pS),
+        data = df
       )
     })
 
@@ -271,7 +271,7 @@ adjust_uc_emc_sel <- function(
     s1_c2 <- s_model_coefs[5]
     s1_c3 <- s_model_coefs[6]
 
-    df2 <- df %>%
+    df <- df %>%
       mutate(
         Xpred = rbinom(
           n, 1,
@@ -288,8 +288,8 @@ adjust_uc_emc_sel <- function(
       final <- glm(
         Y ~ Xpred + C1 + C2 + C3 + Upred,
         family = binomial(link = "logit"),
-        weights = (1 / df2$pS),
-        data = df2
+        weights = (1 / df$pS),
+        data = df
       )
     })
 
