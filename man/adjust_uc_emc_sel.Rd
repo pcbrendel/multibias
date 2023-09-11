@@ -64,6 +64,16 @@ misclassificaiton, and selection bias.
 This function uses two separate logistic regression models to predict the
 uncontrolled confounder (U) and exposure (X). If a single bias model for
 jointly modeling X and U is desired use \code{adjust_uc_emc_sel}.
+
+Values for the regression coefficients can be applied as
+fixed values or as single draws from a probability
+distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+the advantage of allowing the researcher to capture the uncertainty
+in the bias parameter estimates. To incorporate this uncertainty in the
+estimate and confidence interval, this function should be run in loop across
+bootstrap samples of the dataframe for analysis. The estimate and
+confidence interval would then be obtained from the median and quantiles
+of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_uc_emc_sel(
