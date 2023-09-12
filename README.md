@@ -35,7 +35,7 @@ devtools::install_github("pcbrendel/multibias")
 
 ## Single Bias Example
 
-We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD). We suspect that an important confounder is missing: the biological sex of the study participants.
+We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD) using data from the [Evans County Heart Study](https://en.wikipedia.org/wiki/Evans_County_Heart_Study). Let's inspect the data we have for 609 participants aged 40 and older.
 
 ```{r, eval = TRUE}
 library(multibias)
@@ -47,6 +47,73 @@ head(evans)
 #> 4 71   0  64 179   1   0 100 200   1
 #> 5 74   0  49 243   1   0  82 145   0
 #> 6 91   0  46 252   1   0  88 142   0
+```
+
+This is clearly not the most robust data set, but, for purposes of demonstration, let's proceed by pretending that our data was missing information on age. Let's see what the resulting odds ratio estimate looks like without adjustment for age and with adding hypertension (HPT) as a known confounder.
+
+```{r, eval = TRUE}
+biased_model <- glm(CHD ~ SMK + HPT,
+                    data = evans,
+                    family = binomial(link = "logit"))
+or <- round(exp(coef(biased_model)[2]), 2)
+or_ci_low <- round(exp(coef(biased_model)[2] -
+                         1.96 * summary(biased_model)$coef[2, 2]), 2)
+or_ci_high <- round(exp(coef(biased_model)[2] +
+                          1.96 * summary(biased_model)$coef[2, 2]), 2)
+
+print(paste0("Biased Odds Ratio: ", or))
+print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
+#> "Biased Odds Ratio: 1.99"
+#> "95% CI: (1.12, 3.55)"
+```
+
+This estimate, despite not adjusting for age, appears around what we would expect. In the IJE article [The association between tobacco smoking and coronary heart disease](https://academic.oup.com/ije/article/44/3/735/633393) the author notes: "Cigarette smokers have about twice as much coronary heart disease as non-smokers, whether measured by deaths, prevalence, or the incidence of new events." However, we also know from studies like [this BMJ meta-analysis](https://www.bmj.com/content/360/bmj.j5855#:~:text=The%20pooled%20relative%20risks%20for%20coronary%20heart%20disease%20associated%20with,all%20studies%20in%20table%201.) that the effect estimate can vary greatly depending on the degree of cigarette consumption. We also observe a wide confidence interval due to the small sample size of the data. In real-world practice we would want to obtain better data that includes more observations, participant estimates of cigarettes smoked/day, and other important confounders including sex and race/ethnicity. In Epidemiology it is very rarely the case that we have the "perfect" data set with everything we would like! We'll proceed with the analysis knowing the limitations of the data.
+
+Can we anticipate whether this biased odds ratio (without age-adjustment) is biased toward or away from the null? Let's consider the association of the uncontrolled confounder with the exposure and outcome. In our data, age has a negative association with smoking (older people are **less** likely to be smokers) and a positive association with heart disease (older people are **more** likely to have CHD). These opposite associations are biasing the odds ratio towards the null, creating a distortion where those who are less likely to smoke are more likely to experience the outcome.
+
+To adjust for AGE, where we're assuming it's missing in the data, let's refer to the appropriate bias model for a binary uncontrolled confounder (we're going to treat age as a binary indicator of over (1) or under (0) age 60):
+
+* logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>
+
+It's now time for the most difficult part of quantitative bias analysis - deriving bias parameters. Using all the information at our disposal, this is where we provide assumptions for how the relevant variables in our data are related to the uncontrolled confounder. This experience is comparable to that of providing priors in a Bayesian statistical analysis.
+
+Starting with exposure, we'll assume that smokers are half as likely to have an age >60 than non-smokers, those with CHD are 2.5x as likely to have an age>60 than those without CHD, and those with hypertension are 2x as likely to have an age>60 than those without HPT. To convert these relationships as parameters in the model, we'll log-transform them from odds ratios (see below). Lastly, for the model intercept, we can use the following reasoning: what is the probability that a non-smoker without CHD and HPT is over age 60 in this population? We'll say this is a 25% probability. We'll use the 'inverse logit' function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.   
+
+```{r, eval = TRUE}
+u_0 <- qlogis(0.25)
+u_x <- log(0.5)
+u_y <- log(2.5)
+u_c <- log(2)
+```
+
+Now let's plug these bias parameters into `adjust_uc()` to obtain our bias-adjusted odds ratio.
+
+```{r, eval = TRUE}
+adjust_uc(
+  data = evans,
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT",
+  u_model_coefs = c(u_0, u_x, u_y, u_c)
+)
+```
+
+We get an odds ratio of 2.27 (95% CI: 1.25, 4.11). This matches our expectation that the bias adjustment would pull the odds ratio away from the null. How does this result compare to the result we would get if age *wasn't* missing in the data and was incorporated in the outcome regression? The results are below. It turns out that our bias-adjusted odds ratio using `multibias` is very close to this complete-data odds ratio of 2.31. 
+
+```{r, eval = TRUE}
+full_model <- glm(CHD ~ SMK + HPT + AGE,
+                    data = evans,
+                    family = binomial(link = "logit"))
+or <- round(exp(coef(full_model)[2]), 2)
+or_ci_low <- round(exp(coef(biased_model)[2] -
+                         1.96 * summary(full_model)$coef[2, 2]), 2)
+or_ci_high <- round(exp(coef(biased_model)[2] +
+                          1.96 * summary(full_model)$coef[2, 2]), 2)
+
+print(paste0("Odds Ratio: ", or))
+print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
+#> "Odds Ratio: 2.31"
+#> "95% CI: (1.1, 3.6)"
 ```
 
 ## Triple Bias Example
@@ -90,7 +157,7 @@ print("Biased Odds Ratio: ", biased_or)
 #> "Biased Odds Ratio: 1.64"
 ```
 
-The `adjust` family of functions serves to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
+The function `adjust_uc_emc_sel()` can be used here to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
 
 Models for the missing variables (*U*, *X*, *S*) are used to facilitate this data reconstruction. For the above DAG, the corresponding bias models are:
  - logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y
@@ -180,5 +247,3 @@ round(quantile(or, c(.025, .975)), 2)
 
 ## Coming soon
 * Adjustment for outcome misclassification
-
-
