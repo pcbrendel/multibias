@@ -18,5 +18,6 @@ Imports:
     magrittr,
     rlang
 Suggests:
-    testthat
+    testthat (>= 3.0.0)
 URL: http://github.com/pcbrendel/multibias
+Config/testthat/edition: 3
