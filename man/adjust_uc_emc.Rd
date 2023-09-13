@@ -65,12 +65,12 @@ of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_uc_emc(
- df_uc_emc,
- exposure = "Xstar",
- outcome = "Y",
- confounders = "C1",
- u_model_coefs = c(-0.23, 0.63, 0.66),
- x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
+  df_uc_emc,
+  exposure = "Xstar",
+  outcome = "Y",
+  confounders = "C1",
+  u_model_coefs = c(-0.23, 0.63, 0.66),
+  x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
 )
 
 }

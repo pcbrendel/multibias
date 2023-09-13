@@ -60,12 +60,12 @@ of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_uc_sel(
- df_uc_sel,
- exposure = "X",
- outcome = "Y",
- confounders = "C1",
- u_model_coefs = c(-0.36, 0.96, 1.11, -0.12),
- s_model_coefs = c(0.02, 0.89, 0.90)
+  df_uc_sel,
+  exposure = "X",
+  outcome = "Y",
+  confounders = "C1",
+  u_model_coefs = c(-0.36, 0.96, 1.11, -0.12),
+  s_model_coefs = c(0.02, 0.89, 0.90)
 )
 
 }
