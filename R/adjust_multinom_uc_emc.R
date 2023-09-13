@@ -160,13 +160,14 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 1 & Ubar == 0 ~ X1U0,
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
-
-    final <- glm(
-      Y ~ Xbar + Ubar,
-      family = binomial(link = "logit"),
-      weights = combined$pXU,
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + Ubar,
+        family = binomial(link = "logit"),
+        weights = combined$pXU,
+        data = combined
+      )
+    })
 
   } else if (len_c == 1) {
 
@@ -209,12 +210,14 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    final <- glm(
-      Y ~ Xbar + C1 + Ubar,
-      family = binomial(link = "logit"),
-      weights = combined$pXU,
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1 + Ubar,
+        family = binomial(link = "logit"),
+        weights = combined$pXU,
+        data = combined
+      )
+    })
 
   } else if (len_c == 2) {
 
@@ -263,12 +266,14 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    final <- glm(
-      Y ~ Xbar + C1 + C2 + Ubar,
-      family = binomial(link = "logit"),
-      weights = combined$pXU,
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1 + C2 + Ubar,
+        family = binomial(link = "logit"),
+        weights = combined$pXU,
+        data = combined
+      )
+    })
 
   } else if (len_c == 3) {
 
@@ -321,12 +326,14 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    final <- glm(
-      Y ~ Xbar + C1 + C2 + C3 + Ubar,
-      family = binomial(link = "logit"),
-      weights = combined$pXU,
-      data = combined
-    )
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xbar + C1 + C2 + C3 + Ubar,
+        family = binomial(link = "logit"),
+        weights = combined$pXU,
+        data = combined
+      )
+    })
 
   } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
