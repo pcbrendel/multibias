@@ -46,13 +46,13 @@
 #'
 #' @examples
 #' adjust_uc_emc_sel(
-#'  df_uc_emc_sel,
-#'  exposure = "Xstar",
-#'  outcome = "Y",
-#'  confounders = c("C1", "C2", "C3"),
-#'  u_model_coefs = c(-0.32, 0.59, 0.69),
-#'  x_model_coefs = c(-2.44, 1.62, 0.72, 0.32, -0.15, 0.85),
-#'  s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
+#'   df_uc_emc_sel,
+#'   exposure = "Xstar",
+#'   outcome = "Y",
+#'   confounders = c("C1", "C2", "C3"),
+#'   u_model_coefs = c(-0.32, 0.59, 0.69),
+#'   x_model_coefs = c(-2.44, 1.62, 0.72, 0.32, -0.15, 0.85),
+#'   s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
 #' )
 #'
 #' @import dplyr
@@ -150,19 +150,6 @@ adjust_uc_emc_sel <- function(
       )
     })
 
-    est <- summary(final)$coef[2, 1]
-    se <- summary(final)$coef[2, 2]
-    alpha <- 1 - level
-
-    return(
-      list(
-        exp(est),
-        c(
-          exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
-      )
-    )
-
   } else if (len_c == 1) {
 
     c1 <- data[, confounders]
@@ -189,20 +176,6 @@ adjust_uc_emc_sel <- function(
         data = df
       )
     })
-
-    est <- summary(final)$coef[2, 1]
-    se <- summary(final)$coef[2, 2]
-    alpha <- 1 - level
-
-    return(
-      list(
-        exp(est),
-        c(
-          exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2))
-        )
-      )
-    )
 
   } else if (len_c == 2) {
 
@@ -240,20 +213,6 @@ adjust_uc_emc_sel <- function(
         data = df
       )
     })
-
-    est <- summary(final)$coef[2, 1]
-    se <- summary(final)$coef[2, 2]
-    alpha <- 1 - level
-
-    return(
-      list(
-        exp(est),
-        c(
-          exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2))
-        )
-      )
-    )
 
   } else if (len_c == 3) {
 
@@ -293,23 +252,19 @@ adjust_uc_emc_sel <- function(
       )
     })
 
-    est <- summary(final)$coef[2, 1]
-    se <- summary(final)$coef[2, 2]
-    alpha <- 1 - level
-
-    return(
-      list(
-        exp(est),
-        c(
-          exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2))
-        )
-      )
-    )
-
   }
 
   if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
   }
+
+  est <- summary(final)$coef[2, 1]
+  se <- summary(final)$coef[2, 2]
+  alpha <- 1 - level
+
+  estimate <- exp(est)
+  ci <- c(exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2)))
+  return(list(estimate = estimate, ci = ci))
+
 }
