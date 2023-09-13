@@ -52,11 +52,11 @@ of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_emc(
- evans,
- exposure = "SMK",
- outcome = "CHD",
- confounders = "AGE",
- x_model_coefs = c(0.20, 0.10, 0.10, 0.10)
+  evans,
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT",
+  x_model_coefs = c(qlogis(0.01), log(6), log(2), log(2))
 )
 
 }

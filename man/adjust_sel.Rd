@@ -49,11 +49,11 @@ of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_sel(
- evans,
- exposure = "SMK",
- outcome = "CHD",
- confounders = "AGE",
- s_model_coefs = c(0.05, 0.20, 0.20)
+  evans,
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT",
+  s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
 )
 
 }

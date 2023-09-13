@@ -25,8 +25,8 @@
 #'   evans,
 #'   exposure = "SMK",
 #'   outcome = "CHD",
-#'   confounders = "AGE",
-#'   s_model_coefs = c(0.05, 0.20, 0.20)
+#'   confounders = "HPT",
+#'   s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
 #' )
 #'
 #' @import dplyr

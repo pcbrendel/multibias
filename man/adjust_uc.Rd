@@ -52,11 +52,11 @@ of the distribution of odds ratio estimates.
 }
 \examples{
 adjust_uc(
- evans,
- exposure = "SMK",
- outcome = "CHD",
- confounders = "AGE",
- u_model_coefs = c(0.10, 0.10, 0.10, 0.02),
+  evans,
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT",
+  u_model_coefs = c(qlogis(0.25), log(0.5), log(2.5), log(2)),
 )
 
 }
