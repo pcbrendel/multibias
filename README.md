@@ -3,7 +3,7 @@ An R package for multi-bias analysis corresponding to the [article](https://doi.
 
 Paul Brendel, Aracelis Torres, Onyebuchi A Arah, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-If you are new to bias analysis, I'd suggest reading [Applying Quantitative Bias Analysis to Epidemiologic Data](https://www.springer.com/us/book/9780387879604) textbook or visiting my [website](https://www.paulbrendel.com/).
+If you are new to bias analysis, I'd suggest reading [Applying Quantitative Bias Analysis to Epidemiologic Data](https://link.springer.com/book/10.1007/978-0-387-87959-8) textbook or visiting my [website](https://www.paulbrendel.com).
 
 ## Overview
 

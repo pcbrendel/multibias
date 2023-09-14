@@ -4,7 +4,7 @@ library(available)
 library(roxygen2)
 library(urlchecker)
 
-install.packages("urlchecker")
+install.packages("gitcreds")
 
 # other
 available("multibias")
@@ -16,6 +16,12 @@ use_lifecycle() # when functions become experimental/superseded/deprecated
 use_news_md()
 use_cran_comments()
 urlchecker::url_check()
+usethis::use_package("rlang", min_version = TRUE)
+
+create_github_token()
+gh_token_help()
+gitcreds::gitcreds_set()
+git_sitrep()
 
 # document
 roxygenize()
@@ -37,9 +43,10 @@ use_test("adjust_uc")
 
 test()
 check()
+devtools::check(remote = TRUE, manual = TRUE)
 
 # final
-use_release_issue()
+usethis::use_release_issue()
 
 # informal run
 load_all()
@@ -51,7 +58,6 @@ adjust_sel(
   confounders = "HPT",
   s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
 )
-
 
 # README example 1
 

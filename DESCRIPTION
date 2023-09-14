@@ -2,6 +2,8 @@ Package: multibias
 Type: Package
 Title: Simultaneous Multi-bias Adjustment
 Version: 1.0.0
+Authors@R: person("Paul", "Brendel", email = "pcbrendel@gmail.com", 
+    role = c("aut", "cre", "cph"))
 Author: Paul Brendel
 Maintainer: Paul Brendel <pcbrendel@gmail.com>
 Description: Quantify the causal effect of a binary exposure on a binary 
@@ -20,10 +22,11 @@ LazyData: true
 Depends: R (>= 2.10)
 RoxygenNote: 7.2.3
 Imports: 
-    dplyr,
-    magrittr,
-    rlang
+    dplyr (>= 1.1.3),
+    magrittr (>= 2.0.3),
+    rlang (>= 1.1.1)
 Suggests:
     testthat (>= 3.0.0)
-URL: http://github.com/pcbrendel/multibias
+URL: https://github.com/pcbrendel/multibias
+BugReports: https://github.com/pcbrendel/multibias/issues
 Config/testthat/edition: 3
