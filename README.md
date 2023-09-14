@@ -29,6 +29,10 @@ And some additional functions that use multinomial logistic regression for the b
 ## Installation
 
 ```{r, eval = FALSE}
+# install from CRAN
+install.packages("multibias")
+
+# install from github using devtools
 # install.packages("devtools")
 devtools::install_github("pcbrendel/multibias")
 ```
