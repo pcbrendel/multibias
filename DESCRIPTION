@@ -1,7 +1,7 @@
 Package: multibias
 Type: Package
 Title: Simultaneous Multi-bias Adjustment
-Version: 0.1.0
+Version: 1.0.0
 Author: Paul Brendel
 Maintainer: Paul Brendel <pcbrendel@gmail.com>
 Description: Quantify the causal effect of a binary exposure on a binary 
