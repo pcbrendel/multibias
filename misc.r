@@ -2,8 +2,9 @@ library(devtools)
 library(tidyverse)
 library(available)
 library(roxygen2)
+library(urlchecker)
 
-install.packages("available")
+install.packages("urlchecker")
 
 # other
 available("multibias")
@@ -14,6 +15,7 @@ use_github_action()
 use_lifecycle() # when functions become experimental/superseded/deprecated
 use_news_md()
 use_cran_comments()
+urlchecker::url_check()
 
 # document
 roxygenize()

@@ -37,6 +37,9 @@
 #'  parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}
 #' @param level Value from 0-1 representing the full range of the confidence
 #'  interval. Default is 0.95.
+#' @return A list where the first item is the odds ratio estimate of the
+#'  effect of the exposure on the outcome and the second item is the
+#'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_emc_sel(

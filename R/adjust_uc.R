@@ -22,6 +22,9 @@
 #'  C represents the vector of (binary) measured confounders (if any),
 #'  and j corresponds to the number of measured confounders.
 #'  The number of parameters therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}
+#' @return A list where the first item is the odds ratio estimate of the
+#'  effect of the exposure on the outcome and the second item is the
+#'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_uc(

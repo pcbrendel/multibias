@@ -54,7 +54,10 @@
 #'  X* is the (binary) misclassified exposure, Y is the (binary) outcome,
 #'  C represents the vector of (binary) measured confounders (if any), and
 #'  j corresponds to the number of measured confounders.}{\eqn{logit(P(S=1)) =}}
-#'
+#' @return A list where the first item is the odds ratio estimate of the
+#'  effect of the exposure on the outcome and the second item is the
+#'  confidence interval as the vector: (lower bound, upper bound).
+#' 
 #' @examples
 #' adjust_multinom_uc_emc_sel(
 #'   df_uc_emc_sel,

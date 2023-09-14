@@ -46,6 +46,9 @@
 #'  outcome, C represents the vector of (binary) measured confounders (if any),
 #'  and j corresponds to the number of measured
 #'  confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}
+#' @return A list where the first item is the odds ratio estimate of the
+#'  effect of the exposure on the outcome and the second item is the
+#'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_multinom_uc_emc(
