@@ -1,13 +1,19 @@
 Package: multibias
 Type: Package
-Title: Simultaneous Multi-Bias Adjustment
+Title: Simultaneous Multi-bias Adjustment
 Version: 0.1.0
 Author: Paul Brendel
 Maintainer: Paul Brendel <pcbrendel@gmail.com>
-Description: A suite of functions for those attempting to quantify the effect of 
-    a binary exposure on a binary outcome. The functions can simultaneously 
-    adjust for any combination of uncontrolled confounding, exposure 
-    misclassification, and selection bias.
+Description: Quantify the causal effect of a binary exposure on a binary 
+    outcome with adjustment for multiple biases. The functions can 
+    simultaneously adjust for any combination of uncontrolled confounding, 
+    exposure misclassification, and selection bias. The underlying method 
+    generalizes the concept of combining inverse probability of selection 
+    weighting with predicitve value weighting. Simultaneous multi-bias 
+    analysis can be used to enhance the validity and transparency of 
+    real-world evidence obtained from observational, longitudinal studies. 
+    For reference, refer to Paul Brendel, Aracelis Torres, Onyebuchi Arah 
+    (2023) <doi:https://doi.org/10.1093/ije/dyad001>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
