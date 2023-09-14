@@ -6,10 +6,14 @@ library(roxygen2)
 install.packages("available")
 
 # other
-use_data_raw()
-use_mit_license()
 available("multibias")
 create_package("C:/Users/brend/Desktop/folder/multibias")
+use_data_raw()
+use_mit_license()
+use_github_action()
+use_lifecycle() # when functions become experimental/superseded/deprecated
+use_news_md()
+use_cran_comments()
 
 # document
 roxygenize()
@@ -32,66 +36,20 @@ use_test("adjust_uc")
 test()
 check()
 
-# release to CRAN
+# final
 use_release_issue()
 
-# informal runs
+# informal run
 load_all()
 
-adjust_emc_sel(
-  df_emc_sel,
-  exposure = "Xstar",
-  outcome = "Y",
-  confounders = "C1",
-  x_model_coefs = c(0, 0, 0, 0),
-  s_model_coefs = c(0, 0, 0, 0)
-)[2][[1]]
-
-adjust_emc(
-  evans,
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "AGE",
-  x_model_coefs = c(0, 0, 0, 0),
-)
-
-adjust_multinom_uc_emc_sel(
-  df_uc_emc_sel,
-  exposure = "Xstar",
-  outcome = "Y",
-  confounders = c("C1", "C2", "C3"),
-  x1u0_model_coefs = c(0, 0, 0, 0, 0, 0),
-  x0u1_model_coefs = c(0, 0, 0, 0, 0, 0),
-  x1u1_model_coefs = c(0, 0, 0, 0, 0, 0),
-  s_model_coefs = c(0, 0, 0, 0, 0, 0)
-)
-
-set.seed(1)
 adjust_sel(
   evans,
   exposure = "SMK",
   outcome = "CHD",
-  confounders = "AGE",
-  s_model_coefs = c(0, 0, 0)
-)
-# 2.28 (1.05, 4.96)
-
-adjust_uc_sel(
-  df_uc_sel,
-  exposure = "X",
-  outcome = "Y",
-  confounders = "C1",
-  u_model_coefs = c(0, 0, 0, 0),
-  s_model_coefs = c(0, 0, 0)
+  confounders = "HPT",
+  s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
 )
 
-adjust_uc(
-  evans,
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "AGE",
-  u_model_coefs = c(0, 0, 0, 0),
-)
 
 # README example 1
 
