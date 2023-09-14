@@ -3,6 +3,5 @@
 ^multibias\.Rproj$
 ^data-raw$
 ^LICENSE\.md$
-^DAGs$
 ^misc\.R$
 ^\.github$
