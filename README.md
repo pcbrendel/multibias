@@ -22,7 +22,7 @@ Double biases:
 Triple biases:
   - `adjust_uc_emc_sel()` adjusts for all three biases.
 
-And some additional functions with that use multinomial logistic regression for the bias models:
+And some additional functions that use multinomial logistic regression for the bias models:
   - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
   - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
  
@@ -77,7 +77,7 @@ To adjust for AGE, where we're assuming it's missing in the data, let's refer to
 
 It's now time for the most difficult part of quantitative bias analysis - deriving bias parameters. Using all the information at our disposal, this is where we provide assumptions for how the relevant variables in our data are related to the uncontrolled confounder. This experience is comparable to that of providing priors in a Bayesian statistical analysis.
 
-Starting with exposure, we'll assume that smokers are half as likely to have an age >60 than non-smokers, those with CHD are 2.5x as likely to have an age>60 than those without CHD, and those with hypertension are 2x as likely to have an age>60 than those without HPT. To convert these relationships as parameters in the model, we'll log-transform them from odds ratios (see below). Lastly, for the model intercept, we can use the following reasoning: what is the probability that a non-smoker without CHD and HPT is over age 60 in this population? We'll say this is a 25% probability. We'll use the 'inverse logit' function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.   
+Starting with exposure, we'll assume that smokers are half as likely to have an age >60 than non-smokers, those with CHD are 2.5x as likely to have an age>60 than those without CHD, and those with hypertension are 2x as likely to have an age>60 than those without HPT. To convert these relationships as parameters in the model, we'll log-transform them from odds ratios (see below). Lastly, for the model intercept, we can use the following reasoning: what is the probability that a non-smoker (X=0) without CHD (Y=0) and HPT (C=0) is over age 60 in this population? We'll say this is a 25% probability. We'll use the 'inverse logit' function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.   
 
 ```{r, eval = TRUE}
 u_0 <- qlogis(0.25)
@@ -231,7 +231,7 @@ or <- foreach(i = 1:nreps, .combine = c,
       rnorm(1, mean = s_model$coef[5], sd = summary(s_model)$coef[5, 2]),
       rnorm(1, mean = s_model$coef[6], sd = summary(s_model)$coef[6, 2])
     )
-  )[[1]]
+  )$estimate
 }
 ```
 Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
@@ -247,3 +247,7 @@ round(quantile(or, c(.025, .975)), 2)
 
 ## Coming soon
 * Adjustment for outcome misclassification
+
+  <!-- badges: start -->
+  [![R-CMD-check](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml)
+  <!-- badges: end -->
