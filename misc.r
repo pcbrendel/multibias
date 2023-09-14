@@ -6,6 +6,11 @@ library(urlchecker)
 
 install.packages("gitcreds")
 
+# submit to cran
+usethis::use_release_issue()
+usethis::use_version("major")
+devtools::submit_cran()
+
 # other
 available("multibias")
 create_package("C:/Users/brend/Desktop/folder/multibias")
@@ -18,11 +23,11 @@ use_cran_comments()
 urlchecker::url_check()
 usethis::use_package("rlang", min_version = TRUE)
 
+# git PAT
 create_github_token()
 gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
-
 
 # document
 roxygenize()
@@ -40,14 +45,10 @@ use_test("adjust_uc_emc")
 use_test("adjust_uc_sel")
 use_test("adjust_uc")
 
-# test_active_file("tests/testthat/test-adjust_emc_sel.R")
-
 test()
 check()
 devtools::check(remote = TRUE, manual = TRUE)
-
-# final
-usethis::use_release_issue()
+devtools::check_win_devel()
 
 # informal run
 load_all()
