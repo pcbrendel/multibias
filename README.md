@@ -1,13 +1,16 @@
 # multibias
-An R package for multi-bias analysis corresponding to the [article](https://doi.org/10.1093/ije/dyad001):
 
-Paul Brendel, Aracelis Torres, Onyebuchi A Arah, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
-
-If you are new to bias analysis, I'd suggest reading [Applying Quantitative Bias Analysis to Epidemiologic Data](https://link.springer.com/book/10.1007/978-0-387-87959-8) textbook or visiting my [website](https://www.paulbrendel.com).
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
 
 ## Overview
 
-The `multibias` package includes a suite of functions that provide odds ratio estimates that are adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emc).
+The multibias package is used to adjust for multiple biases in causal inference. The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
+
+Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
+
+The functions provide odds ratio estimates adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emc):
 
 Single biases:
   - `adjust_uc()` adjusts for uncontrolled confounding
@@ -25,7 +28,9 @@ Triple biases:
 And some additional functions that use multinomial logistic regression for the bias models:
   - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
   - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
- 
+
+If you are new to bias analysis, check out [Applying Quantitative Bias Analysis to Epidemiologic Data](https://link.springer.com/book/10.1007/978-0-387-87959-8) or visit my [website](https://www.paulbrendel.com).
+
 ## Installation
 
 ```{r, eval = FALSE}
@@ -33,7 +38,7 @@ And some additional functions that use multinomial logistic regression for the b
 install.packages("multibias")
 
 # install from github using devtools
-# install.packages("devtools")
+# library("devtools")
 devtools::install_github("pcbrendel/multibias")
 ```
 
@@ -124,7 +129,7 @@ print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
 
 We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
 
-![uc_mc_sel_DAG](DAGs/uc_mc_sel_DAG.png)
+![uc_mc_sel_DAG](inst/DAGs/uc_mc_sel_DAG.png)
 
 The variables are defined:
  - X: true, unmeasured exposure
@@ -251,7 +256,3 @@ round(quantile(or, c(.025, .975)), 2)
 
 ## Coming soon
 * Adjustment for outcome misclassification
-
-  <!-- badges: start -->
-  [![R-CMD-check](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml)
-  <!-- badges: end -->
