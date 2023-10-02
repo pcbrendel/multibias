@@ -29,6 +29,8 @@ And some additional functions that use multinomial logistic regression for the b
   - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
   - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
 
+To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/). 
+
 If you are new to bias analysis, check out [Applying Quantitative Bias Analysis to Epidemiologic Data](https://link.springer.com/book/10.1007/978-0-387-87959-8) or visit my [website](https://www.paulbrendel.com).
 
 ## Installation
