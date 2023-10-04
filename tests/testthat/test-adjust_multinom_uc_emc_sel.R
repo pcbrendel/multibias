@@ -1,13 +1,12 @@
-library(nnet)
-
 nobias_model <- glm(Y ~ X + C1 + C2 + C3 + U,
                     family = binomial(link = "logit"),
                     data = df_uc_emc_sel_source)
 
-xu_model <- multinom(
-  paste(X, U) ~ Xstar + Y + C1 + C2 + C3,
-  data = df_uc_emc_sel_source
-)
+# library(nnet)
+# xu_model <- multinom(
+#   paste(X, U) ~ Xstar + Y + C1 + C2 + C3,
+#   data = df_uc_emc_sel_source
+# )
 
 s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
@@ -18,38 +17,10 @@ single_run <- adjust_multinom_uc_emc_sel(
   exposure = "Xstar",
   outcome = "Y",
   confounders = c("C1", "C2", "C3"),
-  x1u0_model_coefs = c(
-    summary(xu_model)$coefficients[2, 1],
-    summary(xu_model)$coefficients[2, 2],
-    summary(xu_model)$coefficients[2, 3],
-    summary(xu_model)$coefficients[2, 4],
-    summary(xu_model)$coefficients[2, 5],
-    summary(xu_model)$coefficients[2, 6]
-  ),
-  x0u1_model_coefs = c(
-    summary(xu_model)$coefficients[1, 1],
-    summary(xu_model)$coefficients[1, 2],
-    summary(xu_model)$coefficients[1, 3],
-    summary(xu_model)$coefficients[1, 4],
-    summary(xu_model)$coefficients[1, 5],
-    summary(xu_model)$coefficients[1, 6]
-  ),
-  x1u1_model_coefs = c(
-    summary(xu_model)$coefficients[3, 1],
-    summary(xu_model)$coefficients[3, 2],
-    summary(xu_model)$coefficients[3, 3],
-    summary(xu_model)$coefficients[3, 4],
-    summary(xu_model)$coefficients[3, 5],
-    summary(xu_model)$coefficients[3, 6]
-  ),
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3],
-    s_model$coef[4],
-    s_model$coef[5],
-    s_model$coef[6]
-  )
+  x1u0_model_coefs = c(-2.78, 1.62, 0.61, 0.36, -0.27, 0.88),
+  x0u1_model_coefs = c(-0.17, -0.01, 0.71, -0.08, 0.07, -0.15),
+  x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.25, -0.06, 0.74),
+  s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
 )
 
 n <- 100000
@@ -62,38 +33,10 @@ for (i in 1:nreps) {
     exposure = "Xstar",
     outcome = "Y",
     confounders = c("C1", "C2", "C3"),
-    x1u0_model_coefs = c(
-      summary(xu_model)$coefficients[2, 1],
-      summary(xu_model)$coefficients[2, 2],
-      summary(xu_model)$coefficients[2, 3],
-      summary(xu_model)$coefficients[2, 4],
-      summary(xu_model)$coefficients[2, 5],
-      summary(xu_model)$coefficients[2, 6]
-    ),
-    x0u1_model_coefs = c(
-      summary(xu_model)$coefficients[1, 1],
-      summary(xu_model)$coefficients[1, 2],
-      summary(xu_model)$coefficients[1, 3],
-      summary(xu_model)$coefficients[1, 4],
-      summary(xu_model)$coefficients[1, 5],
-      summary(xu_model)$coefficients[1, 6]
-    ),
-    x1u1_model_coefs = c(
-      summary(xu_model)$coefficients[3, 1],
-      summary(xu_model)$coefficients[3, 2],
-      summary(xu_model)$coefficients[3, 3],
-      summary(xu_model)$coefficients[3, 4],
-      summary(xu_model)$coefficients[3, 5],
-      summary(xu_model)$coefficients[3, 6]
-    ),
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3],
-      s_model$coef[4],
-      s_model$coef[5],
-      s_model$coef[6]
-    )
+    x1u0_model_coefs = c(-2.78, 1.62, 0.61, 0.36, -0.27, 0.88),
+    x0u1_model_coefs = c(-0.17, -0.01, 0.71, -0.08, 0.07, -0.15),
+    x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.25, -0.06, 0.74),
+    s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
   )
   est[i] <- results$estimate
 }
