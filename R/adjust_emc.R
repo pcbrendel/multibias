@@ -60,7 +60,7 @@ adjust_emc <- function(
   len_x_coefs <- length(x_model_coefs)
 
   xstar <- data[, exposure]
-  y <- data[, outcome]
+  y     <- data[, outcome]
 
   if (sum(xstar %in% c(0, 1)) != n) {
     stop("Exposure must be a binary integer.")
@@ -154,7 +154,9 @@ adjust_emc <- function(
     )
 
   } else if (len_c > 3) {
+
     stop("This function is currently not compatible with >3 confounders.")
+
   }
 
   est <- summary(final)$coef[2, 1]
