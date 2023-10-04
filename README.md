@@ -14,14 +14,15 @@ Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confound
 The functions provide odds ratio estimates adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emc):
 
 Single biases:
-  - `adjust_uc()` adjusts for uncontrolled confounding
   - `adjust_emc()` adjusts for exposure misclassification
+  - `adjust_omc()` adjusts for outcome misclassification
   - `adjust_sel()` adjusts for selection bias
+  - `adjust_uc()` adjusts for uncontrolled confounding
 
 Double biases:
+  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
   - `adjust_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton.
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
-  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
 
 Triple biases:
   - `adjust_uc_emc_sel()` adjusts for all three biases.

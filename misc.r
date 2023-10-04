@@ -53,12 +53,12 @@ devtools::check_win_devel()
 # informal run
 load_all()
 
-adjust_sel(
+adjust_omc(
   evans,
   exposure = "SMK",
   outcome = "CHD",
   confounders = "HPT",
-  s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
+  y_model_coefs = c(qlogis(0.01), log(1.25), log(5), log(1.5))
 )
 
 # README example 1
