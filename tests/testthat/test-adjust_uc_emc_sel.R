@@ -45,7 +45,7 @@ nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  single_run <- adjust_uc_emc_sel(
+  results <- adjust_uc_emc_sel(
     bdf,
     "Xstar",
     "Y",
