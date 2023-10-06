@@ -1,14 +1,29 @@
 library(devtools)
 library(tidyverse)
-library(available)
 library(roxygen2)
-library(urlchecker)
 
-install.packages("gitcreds")
+# library(urlchecker)
+# library(gitcreds)
+# library(available)
+
+# document
+roxygenize()
+document()
+
+# testing
+usethis::use_testthat()
+use_test("adjust_emc_sel") # creates test
+test_file("tests/testthat/test-adjust_uc_emc.R") # single test
+test() # tests all
+
+# check
+check()
+check(remote = TRUE, manual = TRUE)
+devtools::check_win_devel()
 
 # submit to cran
 usethis::use_release_issue()
-usethis::use_version("major")
+usethis::use_version("minor")
 devtools::submit_cran()
 
 # other
@@ -28,27 +43,6 @@ create_github_token()
 gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
-
-# document
-roxygenize()
-document()
-
-# testing
-usethis::use_testthat()
-use_test("adjust_emc_sel")
-use_test("adjust_emc")
-use_test("adjust_multinom_uc_emc_sel")
-use_test("adjust_multinom_uc_emc")
-use_test("adjust_sel")
-use_test("adjust_uc_emc_sel")
-use_test("adjust_uc_emc")
-use_test("adjust_uc_sel")
-use_test("adjust_uc")
-
-test()
-check()
-devtools::check(remote = TRUE, manual = TRUE)
-devtools::check_win_devel()
 
 # informal run
 load_all()
