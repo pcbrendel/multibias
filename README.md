@@ -11,7 +11,7 @@ The multibias package is used to adjust for multiple biases in causal inference.
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-The functions provide odds ratio estimates adjusted for any combination of uncontrolled confounding (uc), selection bias (sel), and exposure misclassification (emc):
+The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**):
 
 Single biases:
   - `adjust_emc()` adjusts for exposure misclassification
@@ -25,13 +25,15 @@ Double biases:
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
 
 Triple biases:
-  - `adjust_uc_emc_sel()` adjusts for all three biases.
+  - `adjust_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias.
 
 And some additional functions that use multinomial logistic regression for the bias models:
   - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
   - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
 
 To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/). 
+
+The package also includes several dataframes that are useful for demonstrating and validating the bias adjustment methods. Each dataframe contains different combinations of bias as identified by the same prefixing system (e.g., **uc** for uncontrolled confounding). For each bias combination, there is a dataframe with incomplete information (as would be encountered in the real world) (e.g., `df_uc`) and a dataframe with complete information that was used to derive the biased data (e.g., `df_uc_source`).
 
 If you are new to bias analysis, check out [Applying Quantitative Bias Analysis to Epidemiologic Data](https://link.springer.com/book/10.1007/978-0-387-87959-8) or visit my [website](https://www.paulbrendel.com).
 
@@ -48,7 +50,7 @@ devtools::install_github("pcbrendel/multibias")
 
 ## Single Bias Example
 
-We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD) using data from the [Evans County Heart Study](https://en.wikipedia.org/wiki/Evans_County_Heart_Study). Let's inspect the data we have for 609 participants aged 40 and older.
+We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD) using data from the [Evans County Heart Study](https://en.wikipedia.org/wiki/Evans_County_Heart_Study). Let's inspect the dataframe we have for 609 participants aged 40 and older.
 
 ```{r, eval = TRUE}
 library(multibias)
@@ -62,12 +64,12 @@ head(evans)
 #> 6 91   0  46 252   1   0  88 142   0
 ```
 
-This is clearly not the most robust data set, but, for purposes of demonstration, let's proceed by pretending that our data was missing information on age. Let's see what the resulting odds ratio estimate looks like without adjustment for age and with adding hypertension (HPT) as a known confounder.
+This is clearly not the most robust data, but, for purposes of demonstration, let's proceed by pretending that our data was missing information on age. Let's see what the resulting odds ratio estimate looks like without adjustment for age and with adding hypertension (HPT) as a known confounder.
 
 ```{r, eval = TRUE}
 biased_model <- glm(CHD ~ SMK + HPT,
-                    data = evans,
-                    family = binomial(link = "logit"))
+                    family = binomial(link = "logit",
+                    data = evans))
 or <- round(exp(coef(biased_model)[2]), 2)
 or_ci_low <- round(exp(coef(biased_model)[2] -
                          1.96 * summary(biased_model)$coef[2, 2]), 2)
@@ -80,7 +82,7 @@ print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
 #> "95% CI: (1.12, 3.55)"
 ```
 
-This estimate, despite not adjusting for age, appears around what we would expect. In the IJE article [The association between tobacco smoking and coronary heart disease](https://academic.oup.com/ije/article/44/3/735/633393) the author notes: "Cigarette smokers have about twice as much coronary heart disease as non-smokers, whether measured by deaths, prevalence, or the incidence of new events." However, we also know from studies like [this BMJ meta-analysis](https://www.bmj.com/content/360/bmj.j5855#:~:text=The%20pooled%20relative%20risks%20for%20coronary%20heart%20disease%20associated%20with,all%20studies%20in%20table%201.) that the effect estimate can vary greatly depending on the degree of cigarette consumption. We also observe a wide confidence interval due to the small sample size of the data. In real-world practice we would want to obtain better data that includes more observations, participant estimates of cigarettes smoked/day, and other important confounders including sex and race/ethnicity. In Epidemiology it is very rarely the case that we have the "perfect" data set with everything we would like! We'll proceed with the analysis knowing the limitations of the data.
+This estimate, despite not adjusting for age, appears around what we would expect. In the IJE article [The association between tobacco smoking and coronary heart disease](https://academic.oup.com/ije/article/44/3/735/633393) the author notes: "Cigarette smokers have about twice as much coronary heart disease as non-smokers, whether measured by deaths, prevalence, or the incidence of new events." However, we also know from studies like [this BMJ meta-analysis](https://www.bmj.com/content/360/bmj.j5855#:~:text=The%20pooled%20relative%20risks%20for%20coronary%20heart%20disease%20associated%20with,all%20studies%20in%20table%201.) that the effect estimate can vary greatly depending on the degree of cigarette consumption. We also observe a wide confidence interval due to the small sample size of the data. In real-world practice we would want to obtain better data that includes more observations, participant estimates of cigarettes smoked/day, and other important confounders including sex and race/ethnicity. In Epidemiology it is very rarely the case that we have the "perfect" data with everything we would like! We'll proceed with the analysis knowing the limitations of the data.
 
 Can we anticipate whether this biased odds ratio (without age-adjustment) is biased toward or away from the null? Let's consider the association of the uncontrolled confounder with the exposure and outcome. In our data, age has a negative association with smoking (older people are **less** likely to be smokers) and a positive association with heart disease (older people are **more** likely to have CHD). These opposite associations are biasing the odds ratio towards the null, creating a distortion where those who are less likely to smoke are more likely to experience the outcome.
 
@@ -115,8 +117,8 @@ We get an odds ratio of 2.27 (95% CI: 1.25, 4.11). This matches our expectation 
 
 ```{r, eval = TRUE}
 full_model <- glm(CHD ~ SMK + HPT + AGE,
-                    data = evans,
-                    family = binomial(link = "logit"))
+                  family = binomial(link = "logit"),
+                  data = evans)
 or <- round(exp(coef(full_model)[2]), 2)
 or_ci_low <- round(exp(coef(biased_model)[2] -
                          1.96 * summary(full_model)$coef[2, 2]), 2)
@@ -146,7 +148,7 @@ The variables are defined:
 It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only assesses those who were selected into the study (i.e. those with S=1),
 which represents a fraction of all people in the source population from which we are trying to draw inference.
 
-A simulated data set corresponding to this DAG, `df_uc_emc_sel` can be loaded from the multibias package. 
+A simulated dataframe corresponding to this DAG, `df_uc_emc_sel` can be loaded from the `multibias` package. 
 
 ```{r, eval = TRUE}
 library(multibias)
@@ -163,8 +165,9 @@ head(df_uc_emc_sel)
 In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources.
 
 ```{r, eval = TRUE}
-biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, data = df_uc_emc_sel,
-                    family = binomial(link = "logit"))
+biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, ,
+                    family = binomial(link = "logit"),
+                    data = df_uc_emc_sel)
 biased_or <- round(exp(coef(biased_model)[2]), 2)
 print("Biased Odds Ratio: ", biased_or)
 #> "Biased Odds Ratio: 1.64"
@@ -183,14 +186,14 @@ To perform the bias adjustment, it is necessary to obtain values of these bias p
 
 ```{r, eval = TRUE}
 u_model <- glm(U ~ X + Y,
-               data = df_uc_emc_sel_source,
-               family = binomial(link = "logit"))
+               family = binomial(link = "logit"),
+               data = df_uc_emc_sel_source)
 x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
-               data = df_uc_emc_sel_source,
-               family = binomial(link = "logit"))
+               family = binomial(link = "logit"),
+               data = df_uc_emc_sel_source)
 s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
-               data = df_uc_emc_sel_source,
-               family = binomial(link = "logit"))
+               family = binomial(link = "logit"),
+               data = df_uc_emc_sel_source)
 ```
 
 In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. Below we create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
