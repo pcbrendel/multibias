@@ -24,7 +24,7 @@ est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
   results <- adjust_sel(
-    s1df,
+    bdf,
     "X",
     "Y",
     "C1",
