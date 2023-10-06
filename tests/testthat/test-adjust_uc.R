@@ -7,7 +7,7 @@ u_model <- glm(U ~ X + Y + C1,
                data = df_uc_source)
 
 single_run <- adjust_uc(
-  df,
+  df_uc,
   "X",
   "Y",
   "C1",
