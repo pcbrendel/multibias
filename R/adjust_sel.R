@@ -86,7 +86,7 @@ adjust_sel <- function(
       final <- glm(
         Y ~ X,
         family = binomial(link = "logit"),
-        weights = df$pS,
+        weights = (1 / df$pS),
         data = df
       )
     })
@@ -101,7 +101,7 @@ adjust_sel <- function(
       final <- glm(
         Y ~ X + C1,
         family = binomial(link = "logit"),
-        weights = df$pS,
+        weights = (1 / df$pS),
         data = df
       )
     })
@@ -118,7 +118,7 @@ adjust_sel <- function(
       final <- glm(
         Y ~ X + C1 + C2,
         family = binomial(link = "logit"),
-        weights = df$pS,
+        weights = (1 / df$pS),
         data = df
       )
     })
@@ -136,7 +136,7 @@ adjust_sel <- function(
       final <- glm(
         Y ~ X + C1 + C2 + C3,
         family = binomial(link = "logit"),
-        weights = df$pS,
+        weights = (1 / df$pS),
         data = df
       )
     })
