@@ -39,6 +39,12 @@
 #'
 #' @examples
 #' adjust_uc_omc(
+#'   df,
+#'   "X",
+#'   "Ystar",
+#'   "C1",
+#'   u_model_coefs = c(-0.22, 0.61, 0.70),
+#'   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
 #' )
 #'
 #' @import dplyr
