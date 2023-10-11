@@ -22,17 +22,17 @@
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
 #'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }
-#'  where U is the (binary) unmeasured confounder, X is the (binary) true
-#'  exposure, Y is the (binary) outcome. The number of parameters therefore
+#'  where U is the binary unmeasured confounder, X is the binary true
+#'  exposure, Y is the binary outcome. The number of parameters therefore
 #'  equals 3.}{\eqn{logit(P(U=1)) =}}
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* +
-#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where Y represents (binary) true
-#'  outcome, X is the (binary) exposure, Y* is the (binary) misclassified
-#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where Y represents binary true
+#'  outcome, X is the binary exposure, Y* is the binary misclassified
+#'  outcome, C represents the vector of binary measured confounders (if any),
 #'  and j corresponds to the number of measured confounders. The number of
-#'  parameters is therefore 3 + j.}{\eqn{logit(P(Y=1)) =}}
+#'  parameters therefore equals 3 + j.}{\eqn{logit(P(Y=1)) =}}
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -67,7 +67,7 @@ adjust_uc_omc <- function(
   len_u_coefs <- length(u_model_coefs)
   len_y_coefs <- length(y_model_coefs)
 
-  x     <- data[, exposure]
+  x <- data[, exposure]
   ystar <- data[, outcome]
 
   if (sum(x %in% c(0, 1)) != n) {

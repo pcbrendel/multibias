@@ -7,7 +7,7 @@
 #'
 #' This function uses two separate logistic regression models to predict the
 #' uncontrolled confounder (U) and exposure (X). If a single bias model for
-#' jointly modeling X and U is desired use \code{adjust_uc_emc_sel}.
+#' jointly modeling X and U is desired use \code{adjust_multinom_uc_emc_sel}.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -22,27 +22,27 @@
 #' @inheritParams adjust_emc_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
-#'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, } where U is the (binary)
-#'  unmeasured confounder, X is the (binary) true exposure, Y is the (binary)
+#'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, } where U is the binary
+#'  unmeasured confounder, X is the binary true exposure, and Y is the binary
 #'  outcome. The number of parameters therefore
 #'  equals 3.}{\eqn{logit(P(U=1)) =}}
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents (binary) true
-#'  exposure, X* is the (binary) misclassified exposure, Y is the
-#'  (binary) outcome, C represents the vector of (binary)
+#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents binary true
+#'  exposure, X* is the binary misclassified exposure, Y is the
+#'  binary outcome, C represents the vector of binary
 #'  measured confounders (if any), and j corresponds to the number of measured
-#'  confounders. The number of parameters is therefore
+#'  confounders. The number of parameters therefore equals
 #'  3 + j.}{\eqn{logit(P(X=1)) =}}
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-#'  &beta;<sub>2+j</sub>C<sub>2+j</sub>, } where S represents (binary)
-#'  selection, X* is the (binary) misclassified exposure, Y is the (binary)
-#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  &beta;<sub>2+j</sub>C<sub>2+j</sub>, } where S represents binary
+#'  selection, X* is the binary misclassified exposure, Y is the binary
+#'  outcome, C represents the vector of binary measured confounders (if any),
 #'  and j corresponds to the number of measured confounders.
-#'  The number of parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}
+#'  The number of parameters therefore equals 3 + j.}{\eqn{logit(P(S=1)) =}}
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -258,7 +258,9 @@ adjust_uc_emc_sel <- function(
   }
 
   if (len_c > 3) {
+
     stop("This function is currently not compatible with >3 confounders.")
+
   }
 
   est <- summary(final)$coef[2, 1]
