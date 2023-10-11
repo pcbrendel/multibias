@@ -26,7 +26,7 @@ A maximum of three confounders are allowed.}
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, } where S represents
-(binary) selection, X is the (binary) exposure, Y is the (binary)
+binary selection, X is the binary exposure, Y is the binary
 outcome. The number of parameters is therefore 3.}{\eqn{logit(P(S=1)) =}}}
 
 \item{level}{Value from 0-1 representing the full range of the confidence

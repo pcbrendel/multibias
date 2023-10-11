@@ -28,8 +28,8 @@ A maximum of three confounders are allowed.}
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 &delta;<sub>2+j</sub>C<sub>j</sub>, }
-where X represents (binary) true exposure, X* is the (binary) misclassified
-exposure, Y is the (binary) outcome, C represents the vector of (binary)
+where X represents the binary true exposure, X* is the binary misclassified
+exposure, Y is the binary outcome, C represents the vector of binary
 measured confounders (if any), and j corresponds to the number of measured
 confounders. The number of parameters is therefore
 3 + j.}{\eqn{logit(P(X=1)) =}}}
@@ -37,9 +37,9 @@ confounders. The number of parameters is therefore
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-&beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
-X* is the (binary) misclassified exposure, Y is the (binary) outcome,
-C represents the vector of (binary) measured confounders (if any), and j
+&beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents binary selection,
+X* is the binary misclassified exposure, Y is the binary outcome,
+C represents the vector of binary measured confounders (if any), and j
 corresponds to the number of measured confounders. The number of
 parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
 
