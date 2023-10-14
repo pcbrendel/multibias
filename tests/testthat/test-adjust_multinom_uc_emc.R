@@ -5,8 +5,9 @@ nobias_model <- glm(Y ~ X + C1 + U,
 # library(nnet)
 # xu_model <- multinom(
 #   paste0(X, U) ~ Xstar + Y + C1,
-#   data = df
+#   data = df_uc_emc_source
 # )
+# summary(xu_model)
 
 single_run <- adjust_multinom_uc_emc(
   df_uc_emc,

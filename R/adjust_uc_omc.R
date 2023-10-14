@@ -39,7 +39,7 @@
 #'
 #' @examples
 #' adjust_uc_omc(
-#'   df,
+#'   df_uc_omc,
 #'   "X",
 #'   "Ystar",
 #'   "C1",
