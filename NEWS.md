@@ -1,8 +1,21 @@
+# multibias 1.2.0
+
+## New features
+
+* Added two functions for simultaneous adjustment of uncontrolled confounding 
+  and outcome misclassification: `adjust_uc_omc` and `adjust_multinom_uc_omc`.
+* Added dataframes with uncontrolled confounding and outcome misclassification: 
+  `df_uc_omc` and `df_uc_omc_source`.
+
+## Bug fixes
+
+* None
+
 # multibias 1.1.0
 
 ## New features
 
-* Created new function to adjust for outcome misclassification: `adjust_omc`
+* Created new function to adjust for outcome misclassification: `adjust_omc`.
 * Added dataframes for all single bias scenarios:
   * `df_emc`
   * `df_emc_source`
