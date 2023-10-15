@@ -20,16 +20,13 @@ Single biases:
   - `adjust_uc()` adjusts for uncontrolled confounding
 
 Double biases:
-  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias.
-  - `adjust_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton.
-  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
+  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
+  - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
+  - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification
+  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias
 
 Triple biases:
-  - `adjust_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias.
-
-And some additional functions that use multinomial logistic regression for the bias models:
-  - `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
-  - `adjust_multinom_uc_emc_sel()` adjusts for all three biases (with the bias models for the uncontrolled confounder and true exposure jointly modeled via a multinomial regression).
+  - `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias
 
 To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/). 
 

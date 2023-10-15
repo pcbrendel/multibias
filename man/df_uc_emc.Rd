@@ -16,9 +16,9 @@ A dataframe with 100,000 rows and 3 columns:
 df_uc_emc
 }
 \description{
-Data containing two sources of bias, a known confounders, and
+Data containing two sources of bias, a known confounder, and
  100,000 observations. This data is obtained from \code{df_uc_emc_source}
- then removing the columns X and U. The resulting data corresponds to
+ by removing the columns X and U. The resulting data corresponds to
  what a researcher would see in the real-world: a misclassified exposure,
  Xstar, and missing data on a confounder U. As seen in
  \code{df_uc_emc_source}, the true, unbiased exposure-outcome odds ratio = 2.

@@ -17,7 +17,7 @@
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, } where S represents
-#'  (binary) selection, X is the (binary) exposure, Y is the (binary)
+#'  binary selection, X is the binary exposure, Y is the binary
 #'  outcome. The number of parameters is therefore 3.}{\eqn{logit(P(S=1)) =}}
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the

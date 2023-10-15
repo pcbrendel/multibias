@@ -26,9 +26,9 @@ A maximum of three confounders are allowed.}
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-&delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents the (binary) true
-exposure, X* is the (binary) misclassified exposure, Y is the (binary)
-outcome, C represents the vector of (binary) measured confounders (if any),
+&delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents the binary true
+exposure, X* is the binary misclassified exposure, Y is the binary
+outcome, C represents the vector of binary measured confounders (if any),
 and j corresponds to the number of measured confounders. The number of
 parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}}
 
