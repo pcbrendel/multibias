@@ -17,9 +17,9 @@
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* +
-#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where Y represents the (binary) true
-#'  outcome, X is the (binary) exposure, Y is the (binary) misclassified
-#'  outcome, C represents the vector of (binary) measured confounders (if any),
+#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where Y represents the binary true
+#'  outcome, X is the binary exposure, Y* is the binary misclassified
+#'  outcome, C represents the vector of binary measured confounders (if any),
 #'  and j corresponds to the number of measured confounders. The number of
 #'  parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}
 #' @return A list where the first item is the odds ratio estimate of the

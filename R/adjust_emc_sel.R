@@ -22,17 +22,17 @@
 #'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
 #'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
 #'  &delta;<sub>2+j</sub>C<sub>j</sub>, }
-#'  where X represents (binary) true exposure, X* is the (binary) misclassified
-#'  exposure, Y is the (binary) outcome, C represents the vector of (binary)
+#'  where X represents the binary true exposure, X* is the binary misclassified
+#'  exposure, Y is the binary outcome, C represents the vector of binary
 #'  measured confounders (if any), and j corresponds to the number of measured
 #'  confounders. The number of parameters is therefore
 #'  3 + j.}{\eqn{logit(P(X=1)) =}}
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
 #'  &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-#'  &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents (binary) selection,
-#'  X* is the (binary) misclassified exposure, Y is the (binary) outcome,
-#'  C represents the vector of (binary) measured confounders (if any), and j
+#'  &beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents binary selection,
+#'  X* is the binary misclassified exposure, Y is the binary outcome,
+#'  C represents the vector of binary measured confounders (if any), and j
 #'  corresponds to the number of measured confounders. The number of
 #'  parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}
 #' @param level Value from 0-1 representing the full range of the confidence
@@ -235,7 +235,9 @@ adjust_emc_sel <- function(
     })
 
   } else if (len_c > 3) {
+
     stop("This function is currently not compatible with >3 confounders.")
+  
   }
 
   est <- summary(final)$coef[2, 1]

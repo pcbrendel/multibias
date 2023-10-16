@@ -1,12 +1,12 @@
-#' Adust for uncontrolled confounding and exposure misclassification.
+#' Adust for uncontrolled confounding and outcome misclassification.
 #'
-#' \code{adjust_uc_emc} returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for uncontrolled confounding and exposure
+#' \code{adjust_uc_omc} returns the exposure-outcome odds ratio and confidence
+#' interval, adjusted for uncontrolled confounding and outcome
 #' misclassificaiton.
 #'
 #' This function uses two separate logistic regression models to predict the
-#' uncontrolled confounder (U) and exposure (X). If a single bias model for
-#' jointly modeling X and U is desired use \code{adjust_multinom_uc_emc}.
+#' uncontrolled confounder (U) and outcome (Y). If a single bias model for
+#' jointly modeling Y and U is desired use \code{adjust_multinom_uc_omc}.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -25,26 +25,26 @@
 #'  where U is the binary unmeasured confounder, X is the binary true
 #'  exposure, Y is the binary outcome. The number of parameters therefore
 #'  equals 3.}{\eqn{logit(P(U=1)) =}}
-#' @param x_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
-#'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents the binary true
-#'  exposure, X* is the binary misclassified exposure, Y is the binary
+#' @param y_model_coefs The regression coefficients corresponding to the model:
+#'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> +
+#'  &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* +
+#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where Y represents binary true
+#'  outcome, X is the binary exposure, Y* is the binary misclassified
 #'  outcome, C represents the vector of binary measured confounders (if any),
 #'  and j corresponds to the number of measured confounders. The number of
-#'  parameters therefore equals 3 + j.}{\eqn{logit(P(X=1)) =}}
+#'  parameters therefore equals 3 + j.}{\eqn{logit(P(Y=1)) =}}
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_uc_emc(
-#'   df_uc_emc,
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = "C1",
-#'   u_model_coefs = c(-0.23, 0.63, 0.66),
-#'   x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
+#' adjust_uc_omc(
+#'   df_uc_omc,
+#'   "X",
+#'   "Ystar",
+#'   "C1",
+#'   u_model_coefs = c(-0.22, 0.61, 0.70),
+#'   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
 #' )
 #'
 #' @import dplyr
@@ -58,37 +58,37 @@
 #'
 #' @export
 
-adjust_uc_emc <- function(
+adjust_uc_omc <- function(
   data,
   exposure,
   outcome,
   confounders = NULL,
   u_model_coefs,
-  x_model_coefs,
+  y_model_coefs,
   level = 0.95
 ) {
 
   n <- nrow(data)
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
-  len_x_coefs <- length(x_model_coefs)
+  len_y_coefs <- length(y_model_coefs)
 
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  x <- data[, exposure]
+  ystar <- data[, outcome]
 
-  if (sum(xstar %in% c(0, 1)) != n) {
+  if (sum(x %in% c(0, 1)) != n) {
     stop("Exposure must be a binary integer.")
   }
-  if (sum(y %in% c(0, 1)) != n) {
+  if (sum(ystar %in% c(0, 1)) != n) {
     stop("Outcome must be a binary integer.")
   }
   if (len_u_coefs != 3) {
     stop("Incorrect length of U model coefficients. Length should equal 3.")
   }
-  if (len_x_coefs != 3 + len_c) {
+  if (len_y_coefs != 3 + len_c) {
     stop(
       paste0(
-        "Incorrect length of X model coefficients. ",
+        "Incorrect length of Y model coefficients. ",
         "Length should equal 3 + number of confounders."
       )
     )
@@ -98,18 +98,18 @@ adjust_uc_emc <- function(
   u1_x     <- u_model_coefs[2]
   u1_y     <- u_model_coefs[3]
 
-  x1_0     <- x_model_coefs[1]
-  x1_xstar <- x_model_coefs[2]
-  x1_y     <- x_model_coefs[3]
+  y1_0     <- y_model_coefs[1]
+  y1_x     <- y_model_coefs[2]
+  y1_ystar <- y_model_coefs[3]
 
   if (is.null(confounders)) {
 
-    df <- data.frame(Xstar = xstar, Y = y)
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y))
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$Xpred + u1_y * df$Y))
+    df <- data.frame(X = x, Ystar = ystar)
+    df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$X + y1_ystar * df$Ystar))
+    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Ypred))
 
     final <- glm(
-      Y ~ Xpred + Upred,
+      Ypred ~ X + Upred,
       family = binomial(link = "logit"),
       data = df
     )
@@ -117,16 +117,16 @@ adjust_uc_emc <- function(
   } else if (len_c == 1) {
 
     c1 <- data[, confounders]
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
+    df <- data.frame(X = x, Ystar = ystar, C1 = c1)
 
-    x1_c1 <- x_model_coefs[4]
+    y1_c1 <- y_model_coefs[4]
 
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                      x1_y * df$Y + x1_c1 * df$C1))
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$Xpred + u1_y * df$Y))
+    df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$X +
+                                      y1_ystar * df$Ystar + y1_c1 * df$C1))
+    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Ypred))
 
     final <- glm(
-      Y ~ Xpred + C1 + Upred,
+      Ypred ~ X + C1 + Upred,
       family = binomial(link = "logit"),
       data = df
     )
@@ -136,17 +136,17 @@ adjust_uc_emc <- function(
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
+    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2)
 
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
+    y1_c1 <- y_model_coefs[4]
+    y1_c2 <- y_model_coefs[5]
 
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
-                                      x1_c1 * df$C1 + x1_c2 * df$C2))
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$Xpred + u1_y * df$Y))
+    df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$X + y1_ystar * df$Ystar +
+                                      y1_c1 * df$C1 + y1_c2 * df$C2))
+    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Ypred))
 
     final <- glm(
-      Y ~ Xpred + C1 + C2 + Upred,
+      Ypred ~ X + C1 + C2 + Upred,
       family = binomial(link = "logit"),
       data = df
     )
@@ -157,23 +157,23 @@ adjust_uc_emc <- function(
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
 
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
+    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
 
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
-    x1_c3 <- x_model_coefs[6]
+    y1_c1 <- y_model_coefs[4]
+    y1_c2 <- y_model_coefs[5]
+    y1_c3 <- y_model_coefs[6]
 
-    df$Xpred <- rbinom(
+    df$Ypred <- rbinom(
       n, 1,
       plogis(
-        x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
-          x1_c1 * df$C1 + x1_c2 * df$C2 + x1_c3 * df$C3
+        y1_0 + y1_x * df$X + y1_ystar * df$Ystar +
+          y1_c1 * df$C1 + y1_c2 * df$C2 + y1_c3 * df$C3
       )
     )
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$Xpred + u1_y * df$Y))
+    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Ypred))
 
     final <- glm(
-      Y ~ Xpred + C1 + C2 + C3 + Upred,
+      Ypred ~ X + C1 + C2 + C3 + Upred,
       family = binomial(link = "logit"),
       data = df
     )
