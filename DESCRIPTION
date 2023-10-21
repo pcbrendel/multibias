@@ -1,7 +1,7 @@
 Package: multibias
 Type: Package
 Title: Simultaneous Multi-Bias Adjustment
-Version: 1.2.0
+Version: 1.2.1
 Authors@R: person("Paul", "Brendel", email = "pcbrendel@gmail.com", 
     role = c("aut", "cre", "cph"))
 Maintainer: Paul Brendel <pcbrendel@gmail.com>
@@ -25,7 +25,10 @@ Imports:
     magrittr (>= 2.0.3),
     rlang (>= 1.1.1)
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 URL: https://github.com/pcbrendel/multibias
 BugReports: https://github.com/pcbrendel/multibias/issues
 Config/testthat/edition: 3
+VignetteBuilder: knitr

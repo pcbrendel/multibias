@@ -38,6 +38,10 @@ use_cran_comments()
 urlchecker::url_check()
 usethis::use_package("rlang", min_version = TRUE)
 
+# vignette
+usethis::use_vignette("my-vignette")
+devtools::build_rmd("vignettes/multibias_examples.Rmd")
+
 # git PAT
 create_github_token()
 gh_token_help()
