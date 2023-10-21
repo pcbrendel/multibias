@@ -1,5 +1,7 @@
 # multibias 1.2.1
 
+* Moved examples from README to vignette.
+
 # multibias 1.2.0
 
 ## New features

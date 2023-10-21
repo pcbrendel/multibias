@@ -46,4 +46,5 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
-* Adjustment for outcome misclassification
+* Bias adjustments with outcome misclassification
+* Support for continuous exposure and outcome
