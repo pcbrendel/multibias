@@ -237,7 +237,7 @@ adjust_emc_sel <- function(
   } else if (len_c > 3) {
 
     stop("This function is currently not compatible with >3 confounders.")
-  
+
   }
 
   est <- summary(final)$coef[2, 1]
