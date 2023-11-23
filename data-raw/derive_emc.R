@@ -7,16 +7,20 @@ n <- 100000
 
 # DERIVE DATA
 c1 <- rbinom(n, 1, 0.5)
-x <- rbinom(n, 1, plogis(-2 + log(1.5) * c1))
-y <- rbinom(n, 1, plogis(-2.5 + log(2) * x + log(1.5) * c1))
+c2 <- rbinom(n, 1, 0.2)
+c3 <- rbinom(n, 1, 0.8)
+x <- rbinom(n, 1, plogis(-2 + log(1.5) * c1 + log(0.75) * c2 +
+                           log(2.5) * c3))
+y <- rbinom(n, 1, plogis(-2.5 + log(2) * x + log(1.5) * c1 - log(2.5) * c2 -
+                           log(0.75) * c3))
 xstar <- rbinom(n, 1, plogis(-1 + log(5) * x + log(1.25) * y))
 
-df <- data.frame(X = x, Y = y, C1 = c1, Xstar = xstar)
+df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3, Xstar = xstar)
 
-rm(c1, x, y, xstar)
+rm(c1, c2, c3, x, y, xstar)
 
 # INSPECT MODELS
-nobias_model <- glm(Y ~ X + C1,
+nobias_model <- glm(Y ~ X + C1 + C2 + C3,
                     family = binomial(link = "logit"),
                     data = df)
 
@@ -25,9 +29,9 @@ c(exp(summary(nobias_model)$coef[2, 1] +
         summary(nobias_model)$coef[2, 2] * qnorm(.025)),
   exp(summary(nobias_model)$coef[2, 1] +
         summary(nobias_model)$coef[2, 2] * qnorm(.975)))
-# 1.97 (1.87, 2.07)
+# 1.94 (1.86, 2.02)
 
-bias_model <- glm(Y ~ Xstar + C1,
+bias_model <- glm(Y ~ Xstar + C1 + C2 + C3,
                   family = binomial(link = "logit"),
                   data = df)
 
@@ -36,10 +40,10 @@ c(exp(summary(bias_model)$coef[2, 1] +
         summary(bias_model)$coef[2, 2] * qnorm(.025)),
   exp(summary(bias_model)$coef[2, 1] +
         summary(bias_model)$coef[2, 2] * qnorm(.975)))
-# 1.49 (1.43, 1.55)
+# 1.51 (1.45, 1.56)
 
 # OBTAIN BIAS PARAMETERS
-x_model <- glm(X ~ Xstar + Y + C1,
+x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
                data = df)
 summary(x_model)
@@ -49,22 +53,24 @@ adjust_emc(
   df,
   "Xstar",
   "Y",
-  "C1",
+  c("C1", "C2", "C3"),
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
     x_model$coef[3],
-    x_model$coef[4]
+    x_model$coef[4],
+    x_model$coef[5],
+    x_model$coef[6]
   )
 )
-# 2.00 (1.91, 2.11)
+# 1.87 (1.79, 1.94)
 
 # CREATE PACKAGE DATA
 df_emc_source <- df
 head(df_emc_source)
-use_data(df_emc_source)
+use_data(df_emc_source, overwrite = TRUE)
 
 df_emc <- df %>%
-  select(Xstar, Y, C1) # only have access to these in real-world
+  select(Xstar, Y, C1, C2, C3) # only have access to these in real-world
 head(df_emc)
-use_data(df_emc)
+use_data(df_emc, overwrite = TRUE)
