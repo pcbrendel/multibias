@@ -8,7 +8,7 @@
 #'  As seen in \code{df_uc_source}, the true, unbiased exposure-outcome
 #'  odds ratio = 2.
 #'
-#' @format A dataframe with 100,000 rows and 3 columns:
+#' @format A dataframe with 100,000 rows and 5 columns:
 #' \describe{
 #'     \item{X}{exposure, 1 = present and 0 = absent}
 #'     \item{Y}{outcome, 1 = present and 0 = absent}

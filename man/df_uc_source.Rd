@@ -5,7 +5,7 @@
 \alias{df_uc_source}
 \title{Data source for df_uc}
 \format{
-A dataframe with 100,000 rows and 4 columns:
+A dataframe with 100,000 rows and 6 columns:
 \describe{
     \item{X}{exposure, 1 = present and 0 = absent}
     \item{Y}{true outcome, 1 = present and 0 = absent}

@@ -10,7 +10,7 @@
 #'  shows that the true, unbiased exposure-outcome odds
 #'  ratio = 2.}{\eqn{logit(P(Y=1)) =}}
 #'
-#' @format A dataframe with 100,000 rows and 4 columns:
+#' @format A dataframe with 100,000 rows and 6 columns:
 #' \describe{
 #'     \item{X}{exposure, 1 = present and 0 = absent}
 #'     \item{Y}{true outcome, 1 = present and 0 = absent}
