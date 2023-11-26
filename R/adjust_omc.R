@@ -148,7 +148,7 @@ adjust_omc <- function(
     )
 
     final <- glm(
-      Ypred ~ Xpred + C1 + C2 + C3,
+      Ypred ~ X + C1 + C2 + C3,
       family = binomial(link = "logit"),
       data = df
     )
