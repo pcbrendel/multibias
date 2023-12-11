@@ -1,9 +1,24 @@
 # multibias 1.3.0
 
-* Added two functions for simultaneous adjustment of outcome misclassification 
-  and selection bias: `adjust_omc_sel` and `adjust_multinom_omc_sel`.
+## New features
+
+* Added a function for simultaneous adjustment of outcome misclassification 
+  and selection bias: `adjust_omc_sel`.
 * Added dataframes with outcome misclassification and selection bias: 
   `df_omc_sel` and `df_omc_sel_source`.
+* Expanded the number of known confounders in dataframes:
+  * `df_uc`
+  * `df_uc_source`
+  * `df_emc`
+  * `df_emc_source`
+  * `df_omc`
+  * `df_omc_source`
+  * `df_sel`
+  * `df_sel_source`
+
+## Bug fixes
+
+* Fixed bug in `adjust_omc` that appears when using three confounders
 
 # multibias 1.2.1
 

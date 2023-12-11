@@ -21,6 +21,7 @@ Single biases:
 
 Double biases:
   - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
+  - `adjust_omc_sel()` adjusts for outcome misclassification and selection bias
   - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
   - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification
   - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias
@@ -46,5 +47,5 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
-* Bias adjustments with outcome misclassification
+* Bias adjustments for outcome misclassification
 * Support for continuous exposure and outcome
