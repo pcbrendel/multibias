@@ -1,24 +1,24 @@
 nobias_model <- glm(Y ~ X + C1,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_omc_sel_source)
 
-x_model <- glm(X ~ Xstar + Y + C1,
+y_model <- glm(Y ~ X + Ystar + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1,
+               data = df_omc_sel_source)
+s_model <- glm(S ~ X + Ystar + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_omc_sel_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
-  exposure = "Xstar",
-  outcome = "Y",
+single_run <- adjust_omc_sel(
+  df_omc_sel,
+  exposure = "X",
+  outcome = "Ystar",
   confounders = "C1",
-  x_model_coefs = c(
-    x_model$coef[1],
-    x_model$coef[2],
-    x_model$coef[3],
-    x_model$coef[4]
+  y_model_coefs = c(
+    y_model$coef[1],
+    y_model$coef[2],
+    y_model$coef[3],
+    y_model$coef[4]
   ),
   s_model_coefs = c(
     s_model$coef[1],
@@ -32,17 +32,17 @@ n <- 100000
 nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_omc_sel[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_omc_sel(
     bdf,
-    exposure = "Xstar",
-    outcome = "Y",
+    exposure = "X",
+    outcome = "Ystar",
     confounders = "C1",
-    x_model_coefs = c(
-      x_model$coef[1],
-      x_model$coef[2],
-      x_model$coef[3],
-      x_model$coef[4]
+    y_model_coefs = c(
+      y_model$coef[1],
+      y_model$coef[2],
+      y_model$coef[3],
+      y_model$coef[4]
     ),
     s_model_coefs = c(
       s_model$coef[1],
