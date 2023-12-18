@@ -1,3 +1,12 @@
+# multibias 1.4.0
+
+## New features
+
+* Added a function for simultaneous adjustment of exposure misclassification
+  and outcome misclassification: `adjust_multinom_emc_omc`.
+* Added dataframes with exposure misclassification and outcome 
+  misclassification: `df_emc_omc` and `df_emc_omc_source`.
+
 # multibias 1.3.0
 
 ## New features
