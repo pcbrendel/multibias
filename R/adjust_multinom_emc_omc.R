@@ -1,3 +1,71 @@
+#' Adust for exposure misclassification and outcome misclassification
+#'
+#' \code{adjust_multinom_emc_omc} returns the exposure-outcome odds ratio and
+#' confidence interval, adjusted for exposure misclassificaiton and outcome
+#' misclassification.
+#'
+#' This function uses one bias model, a multinomial logistic regression model,
+#' to predict the exposure (X) and outcome (Y). If separate bias
+#' models for X and Y are desired, use \code{adjust_emc_omc}.
+#'
+#' Values for the regression coefficients can be applied as
+#' fixed values or as single draws from a probability
+#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' the advantage of allowing the researcher to capture the uncertainty
+#' in the bias parameter estimates. To incorporate this uncertainty in the
+#' estimate and confidence interval, this function should be run in loop across
+#' bootstrap samples of the dataframe for analysis. The estimate and
+#' confidence interval would then be obtained from the median and quantiles
+#' of the distribution of odds ratio estimates.
+#'
+#' @inheritParams adjust_emc_sel
+#' @param x1y0_model_coefs The regression coefficients corresponding to the
+#'  model:
+#'  \ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = $\gamma_{1,0}$ + $\gamma_{1,1}$X* + $\gamma_{1,2}$Y* + $\gamma_{1,2+j}$C_j, }}
+#'  where X is the binary true exposure, Y is the binary true outcome,
+#'  X* is the binary misclassified exposure, Y* is the binary misclassified
+#'  outcome, C represents the vector of binary measured confounders (if any),
+#'  and j corresponds to the number of measured confounders.
+#' @param x0y1_model_coefs The regression coefficients corresponding to the
+#'  model:
+#'  \ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = $\gamma_{2,0}$ + $\gamma_{2,1}$X* + $\gamma_{2,2}$Y* + $\gamma_{2,2+j}$C_j, }}
+#'  where X is the binary true exposure, Y is the binary true outcome,
+#'  X* is the binary misclassified exposure, Y* is the binary misclassified
+#'  outcome, C represents the vector of binary measured confounders (if any),
+#'  and j corresponds to the number of measured confounders.
+#' @param x1y1_model_coefs The regression coefficients corresponding to the
+#'  model:
+#'  \ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = $\gamma_{3,0}$ + $\gamma_{3,1}$X* + $\gamma_{3,2}$Y* + $\gamma_{3,2+j}$C_j, }}
+#'  where X is the binary true exposure, Y is the binary true outcome,
+#'  X* is the binary misclassified exposure, Y* is the binary misclassified
+#'  outcome, C represents the vector of binary measured confounders (if any),
+#'  and j corresponds to the number of measured confounders.
+#' @return A list where the first item is the odds ratio estimate of the
+#'  effect of the exposure on the outcome and the second item is the
+#'  confidence interval as the vector: (lower bound, upper bound).
+#'
+#' @examples
+#' adjust_multinom_emc_omc(
+#'   df_emc_omc,
+#'   exposure = "Xstar",
+#'   outcome = "Ystar",
+#'   confounders = c("C1", "C2", "C3"),
+#'   x1y0_model_coefs = c(-2.86, 1.63, 0.23, 0.37, -0.22, 0.87),
+#'   x0y1_model_coefs = c(-3.26, 0.22, 1.60, 0.41, -0.93, 0.28),
+#'   x1y1_model_coefs = c(-5.62, 1.83, 1.83, 0.74, -1.15, 1.19),
+#'   s_model_coefs = c()
+#' )
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats qnorm
+#' @importFrom stats plogis
+#' @importFrom rlang .data
+#'
+#' @export
+
 adjust_multinom_emc_omc <- function(
   data,
   exposure,

@@ -81,7 +81,7 @@ misclassificaiton, and selection bias.
 \details{
 This function uses one bias model, a multinomial logistic regression model,
 to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-models for X and U are desired, use \code{adjust_uc_mc_2}.
+models for X and U are desired, use \code{adjust_uc_emc_sel}.
 
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
