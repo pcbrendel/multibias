@@ -7,7 +7,7 @@
 #'
 #' This function uses one bias model, a multinomial logistic regression model,
 #' to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-#' models for X and U are desired, use \code{adjust_uc_mc_2}.
+#' models for X and U are desired, use \code{adjust_uc_emc_sel}.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -57,7 +57,7 @@
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
-#' 
+#'
 #' @examples
 #' adjust_multinom_uc_emc_sel(
 #'   df_uc_emc_sel,
@@ -380,9 +380,9 @@ adjust_multinom_uc_emc_sel <- function(
     })
 
   } else if (len_c > 3) {
-  
+
     stop("This function is currently not compatible with >3 confounders.")
-  
+
   }
 
   est <- summary(final)$coef[2, 1]
