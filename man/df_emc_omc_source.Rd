@@ -25,7 +25,7 @@ Data with complete information on the two sources of bias, three known
  \code{df_emc_omc} and can be used to obtain bias parameters for purposes
  of validating the simultaneous multi-bias adjustment method with
  \code{df_emc_omc}. The regression
- \ifelse{html}{\out{logit(P(Y=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>C1 + &alpha;<sub>3</sub>C2 + &alpha;<sub>4</sub>C3}}{\eqn{logit(P(Y=1)) = $\alpha_0$ + $\alpha_1$X + $\alpha_2$C1 + $\alpha_3$C2 + $\alpha_4$C3}}
+ \ifelse{html}{\out{logit(P(Y=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>C1 + &alpha;<sub>3</sub>C2 + &alpha;<sub>4</sub>C3}}{\eqn{logit(P(Y=1)) = \alpha_0 + \alpha_1 X + \alpha_2 C1 + \alpha_3 C2 + \alpha_4 C3}}
  shows that the true, unbiased exposure-outcome odds ratio = 2.
 }
 \keyword{datasets}
