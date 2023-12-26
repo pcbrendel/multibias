@@ -5,7 +5,7 @@
 \alias{df_emc_omc_source}
 \title{Data source for df_emc_omc}
 \format{
-A dataframe with 100,000 rows and 5 columns:
+A dataframe with 100,000 rows and 7 columns:
 \describe{
     \item{X}{true exposure, 1 = present and 0 = absent}
     \item{Y}{outcome, 1 = present and 0 = absent}
