@@ -85,8 +85,7 @@ adjust_multinom_emc_omc(
   confounders = c("C1", "C2", "C3"),
   x1y0_model_coefs = c(-2.86, 1.63, 0.23, 0.37, -0.22, 0.87),
   x0y1_model_coefs = c(-3.26, 0.22, 1.60, 0.41, -0.93, 0.28),
-  x1y1_model_coefs = c(-5.62, 1.83, 1.83, 0.74, -1.15, 1.19),
-  s_model_coefs = c()
+  x1y1_model_coefs = c(-5.62, 1.83, 1.83, 0.74, -1.15, 1.19)
 )
 
 }
