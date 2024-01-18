@@ -24,13 +24,12 @@ adjust_uc(
 A maximum of three confounders are allowed.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
-&alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y +
-&alpha;<sub>2+j</sub>C<sub>j</sub>, } where U is the (binary) unmeasured
+\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
+where U is the (binary) unmeasured
 confounder, X is the (binary) exposure, Y is the (binary) outcome,
 C represents the vector of (binary) measured confounders (if any),
 and j corresponds to the number of measured confounders.
-The number of parameters therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}}
+The number of parameters therefore equals 3 + j.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
