@@ -4,10 +4,10 @@
 #'  confounder, and 100,000 observations. This data is used to derive
 #'  \code{df_emc_sel} and can be used to obtain bias parameters for purposes
 #'  of validating the simultaneous multi-bias adjustment method with
-#'  \code{df_emc_sel}. The regression \ifelse{html}{\out{logit(P(Y=1)) =
-#'  &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>C1}
+#'  \code{df_emc_sel}. With this source data, the fitted regression
+#'  \ifelse{html}{\out{logit(P(Y=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>C1}}{\eqn{logit(P(Y=1)) = \alpha_0 + \alpha_1 X + \alpha_2 C1}}
 #'  shows that the true, unbiased exposure-outcome odds
-#'  ratio = 2.}{\eqn{logit(P(Y=1)) =}}
+#'  ratio = 2.
 #'
 #' @format A dataframe with 100,000 rows and 5 columns:
 #' \describe{
