@@ -2,18 +2,22 @@
 
 ## New features
 
-* Added a function for simultaneous adjustment of exposure misclassification
-  and outcome misclassification: `adjust_multinom_emc_omc`.
-* Added dataframes with exposure misclassification and outcome 
+* Added two functions for simultaneous adjustment of exposure misclassification
+  and outcome misclassification: `adjust_emc_omc` & `adjust_multinom_emc_omc`.
+* Added dataframes with exposure misclassification and outcome
   misclassification: `df_emc_omc` and `df_emc_omc_source`.
+
+## Bug fixes
+
+* Improved some of the documentation of equations.
 
 # multibias 1.3.0
 
 ## New features
 
-* Added a function for simultaneous adjustment of outcome misclassification 
+* Added a function for simultaneous adjustment of outcome misclassification
   and selection bias: `adjust_omc_sel`.
-* Added dataframes with outcome misclassification and selection bias: 
+* Added dataframes with outcome misclassification and selection bias:
   `df_omc_sel` and `df_omc_sel_source`.
 * Expanded the number of known confounders in dataframes:
   * `df_uc`
@@ -37,9 +41,9 @@
 
 ## New features
 
-* Added two functions for simultaneous adjustment of uncontrolled confounding 
+* Added two functions for simultaneous adjustment of uncontrolled confounding
   and outcome misclassification: `adjust_uc_omc` and `adjust_multinom_uc_omc`.
-* Added dataframes with uncontrolled confounding and outcome misclassification: 
+* Added dataframes with uncontrolled confounding and outcome misclassification:
   `df_uc_omc` and `df_uc_omc_source`.
 
 ## Bug fixes
@@ -64,7 +68,7 @@
 ## Bug fixes
 
 * `adjust_sel` had been weighing with the probability of selection
-  instead of the **inverse** probability of selection.  
+  instead of the **inverse** probability of selection.
 
 # multibias 1.0.0
 
