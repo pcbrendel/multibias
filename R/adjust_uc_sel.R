@@ -16,18 +16,17 @@
 #'
 #' @inheritParams adjust_emc_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> +
-#'  &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y +
-#'  &alpha;<sub>2+j</sub>C<sub>j</sub>, } where U is the binary unmeasured
+#'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
+#'  where U is the binary unmeasured
 #'  confounder, X is the binary exposure, Y is the binary outcome, C
 #'  represents the vector of binary measured confounders (if any), and j
 #'  corresponds to the number of measured confounders. The number of parameters
-#'  therefore equals 3 + j.}{\eqn{logit(P(U=1)) =}}
+#'  therefore equals 3 + j.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
-#'  &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y,} where S represents binary
-#'  selection, X is the binary exposure, and Y is the binary outcome.
-#'  The number of parameters therefore equals 3.}{\eqn{logit(P(S=1)) =}}
+#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
+#'  where S represents binary selection, X is the binary exposure,
+#'  and Y is the binary outcome.
+#'  The number of parameters therefore equals 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).

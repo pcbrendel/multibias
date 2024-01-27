@@ -25,23 +25,19 @@ adjust_omc_sel(
 A maximum of three confounders are allowed.}
 
 \item{y_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> +
-&delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* +
-&delta;<sub>2+j</sub>C<sub>j</sub>, }
+\ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
 where Y represents the binary true outcome, X is the binary exposure,
 Y* is the binary misclassified outcome, C represents the vector of binary
 measured confounders (if any), and j corresponds to the number of measured
-confounders. The number of parameters is therefore
-3 + j.}{\eqn{logit(P(X=1)) =}}}
+confounders. The number of parameters is therefore 3 + j.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
-&beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* +
-&beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents binary selection,
+\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
+where S represents binary selection,
 X is the binary exposure, Y* is the binary misclassified outcome,
 C represents the vector of binary measured confounders (if any), and j
 corresponds to the number of measured confounders. The number of
-parameters is therefore 3 + j.}{\eqn{logit(P(S=1)) =}}}
+parameters is therefore 3 + j.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}

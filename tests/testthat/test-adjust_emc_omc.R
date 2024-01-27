@@ -4,28 +4,28 @@ set.seed(1234)
 
 nobias_model <- glm(Y ~ X,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_emc_omc_source)
 
-x_model <- glm(X ~ Xstar + Y,
+x_model <- glm(X ~ Xstar + Ystar,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
-s_model <- glm(S ~ Xstar + Y,
+               data = df_emc_omc_source)
+y_model <- glm(Y ~ X + Ystar,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_emc_omc_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_emc_omc(
+  df_emc_omc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Ystar",
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
     x_model$coef[3]
   ),
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3]
+  y_model_coefs = c(
+    y_model$coef[1],
+    y_model$coef[2],
+    y_model$coef[3]
   )
 )
 
@@ -33,20 +33,20 @@ n <- 100000
 nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_emc_omc(
     bdf,
     exposure = "Xstar",
-    outcome = "Y",
+    outcome = "Ystar",
     x_model_coefs = c(
       x_model$coef[1],
       x_model$coef[2],
       x_model$coef[3]
     ),
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3]
+    y_model_coefs = c(
+      y_model$coef[1],
+      y_model$coef[2],
+      y_model$coef[3]
     )
   )
   est[i] <- results$estimate
@@ -69,19 +69,19 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_emc_omc_source)
 
-x_model <- glm(X ~ Xstar + Y + C1,
+x_model <- glm(X ~ Xstar + Ystar + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1,
+               data = df_emc_omc_source)
+y_model <- glm(Y ~ X + Ystar + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_emc_omc_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_emc_omc(
+  df_emc_omc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Ystar",
   confounders = "C1",
   x_model_coefs = c(
     x_model$coef[1],
@@ -89,11 +89,11 @@ single_run <- adjust_emc_sel(
     x_model$coef[3],
     x_model$coef[4]
   ),
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3],
-    s_model$coef[4]
+  y_model_coefs = c(
+    y_model$coef[1],
+    y_model$coef[2],
+    y_model$coef[3],
+    y_model$coef[4]
   )
 )
 
@@ -101,11 +101,11 @@ n <- 100000
 nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_emc_omc(
     bdf,
     exposure = "Xstar",
-    outcome = "Y",
+    outcome = "Ystar",
     confounders = "C1",
     x_model_coefs = c(
       x_model$coef[1],
@@ -113,11 +113,11 @@ for (i in 1:nreps) {
       x_model$coef[3],
       x_model$coef[4]
     ),
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3],
-      s_model$coef[4]
+    y_model_coefs = c(
+      y_model$coef[1],
+      y_model$coef[2],
+      y_model$coef[3],
+      y_model$coef[4]
     )
   )
   est[i] <- results$estimate
@@ -140,19 +140,19 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_emc_omc_source)
 
-x_model <- glm(X ~ Xstar + Y + C1 + C2,
+x_model <- glm(X ~ Xstar + Ystar + C1 + C2,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1 + C2,
+               data = df_emc_omc_source)
+y_model <- glm(Y ~ X + Ystar + C1 + C2,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_emc_omc_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_emc_omc(
+  df_emc_omc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Ystar",
   confounders = c("C1", "C2"),
   x_model_coefs = c(
     x_model$coef[1],
@@ -161,12 +161,12 @@ single_run <- adjust_emc_sel(
     x_model$coef[4],
     x_model$coef[5]
   ),
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3],
-    s_model$coef[4],
-    s_model$coef[5]
+  y_model_coefs = c(
+    y_model$coef[1],
+    y_model$coef[2],
+    y_model$coef[3],
+    y_model$coef[4],
+    y_model$coef[5]
   )
 )
 
@@ -174,11 +174,11 @@ n <- 100000
 nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_emc_omc(
     bdf,
     exposure = "Xstar",
-    outcome = "Y",
+    outcome = "Ystar",
     confounders = c("C1", "C2"),
     x_model_coefs = c(
       x_model$coef[1],
@@ -187,12 +187,12 @@ for (i in 1:nreps) {
       x_model$coef[4],
       x_model$coef[5]
     ),
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3],
-      s_model$coef[4],
-      s_model$coef[5]
+    y_model_coefs = c(
+      y_model$coef[1],
+      y_model$coef[2],
+      y_model$coef[3],
+      y_model$coef[4],
+      y_model$coef[5]
     )
   )
   est[i] <- results$estimate
@@ -215,19 +215,19 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2 + C3,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_emc_omc_source)
 
-x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
+x_model <- glm(X ~ Xstar + Ystar + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
+               data = df_emc_omc_source)
+y_model <- glm(Y ~ X + Ystar + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_emc_omc_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_emc_omc(
+  df_emc_omc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Ystar",
   confounders = c("C1", "C2", "C3"),
   x_model_coefs = c(
     x_model$coef[1],
@@ -237,13 +237,13 @@ single_run <- adjust_emc_sel(
     x_model$coef[5],
     x_model$coef[6]
   ),
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3],
-    s_model$coef[4],
-    s_model$coef[5],
-    s_model$coef[6]
+  y_model_coefs = c(
+    y_model$coef[1],
+    y_model$coef[2],
+    y_model$coef[3],
+    y_model$coef[4],
+    y_model$coef[5],
+    y_model$coef[6]
   )
 )
 
@@ -251,11 +251,11 @@ n <- 100000
 nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_emc_omc(
     bdf,
     exposure = "Xstar",
-    outcome = "Y",
+    outcome = "Ystar",
     confounders = c("C1", "C2", "C3"),
     x_model_coefs = c(
       x_model$coef[1],
@@ -265,13 +265,13 @@ for (i in 1:nreps) {
       x_model$coef[5],
       x_model$coef[6]
     ),
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3],
-      s_model$coef[4],
-      s_model$coef[5],
-      s_model$coef[6]
+    y_model_coefs = c(
+      y_model$coef[1],
+      y_model$coef[2],
+      y_model$coef[3],
+      y_model$coef[4],
+      y_model$coef[5],
+      y_model$coef[6]
     )
   )
   est[i] <- results$estimate

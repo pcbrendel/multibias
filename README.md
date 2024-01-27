@@ -21,6 +21,7 @@ Single biases:
 
 Double biases:
   - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
+  - `adjust_emc_omc` & `adjust_multinom_emc_omc()` adjusts for exposure misclassification and outcome misclassification
   - `adjust_omc_sel()` adjusts for outcome misclassification and selection bias
   - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
   - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification
@@ -29,7 +30,7 @@ Double biases:
 Triple biases:
   - `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias
 
-To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/). 
+To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/).
 
 The package also includes several dataframes that are useful for demonstrating and validating the bias adjustment methods. Each dataframe contains different combinations of bias as identified by the same prefixing system (e.g., **uc** for uncontrolled confounding). For each bias combination, there is a dataframe with incomplete information (as would be encountered in the real world) (e.g., `df_uc`) and a dataframe with complete information that was used to derive the biased data (e.g., `df_uc_source`).
 
@@ -47,5 +48,5 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
-* Bias adjustments for outcome misclassification
+* Remaining triple bias adjustment functions
 * Support for continuous exposure and outcome
