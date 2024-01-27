@@ -6,6 +6,8 @@ library(roxygen2)
 # library(gitcreds)
 # library(available)
 
+load_all()
+
 # document
 roxygenize()
 document()
@@ -17,7 +19,7 @@ test_file("tests/testthat/test-adjust_uc_emc.R") # single test
 test() # tests all
 
 # check
-check()
+check(vignettes = FALSE)
 check(remote = TRUE, manual = TRUE)
 devtools::check_win_devel()
 
@@ -49,8 +51,6 @@ gitcreds::gitcreds_set()
 git_sitrep()
 
 # informal run
-load_all()
-
 adjust_omc(
   evans,
   exposure = "SMK",

@@ -6,6 +6,9 @@
   and outcome misclassification: `adjust_emc_omc` & `adjust_multinom_emc_omc`.
 * Added dataframes with exposure misclassification and outcome
   misclassification: `df_emc_omc` and `df_emc_omc_source`.
+* Expanded the number of known confounders in dataframes:
+  * `df_emc_sel`
+  * `df_emc_sel_source`
 
 ## Bug fixes
 
