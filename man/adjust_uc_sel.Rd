@@ -67,9 +67,9 @@ adjust_uc_sel(
   df_uc_sel,
   exposure = "X",
   outcome = "Y",
-  confounders = "C1",
-  u_model_coefs = c(-0.36, 0.96, 1.11, -0.12),
-  s_model_coefs = c(0.02, 0.89, 0.90)
+  confounders = c("C1", "C2", "C3"),
+  u_model_coefs = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
+  s_model_coefs = c(-0.01, 0.92, 0.94)
 )
 
 }
