@@ -49,5 +49,5 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
+* Final triple bias combinations
 * Support for continuous exposure and outcome
-* 
