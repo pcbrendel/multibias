@@ -25,7 +25,7 @@
 #'  measured confounders (if any), and j corresponds to the number of measured
 #'  confounders. The number of parameters is therefore 3 + j.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = |beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
+#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
 #'  where S represents binary selection, X* is the binary misclassified
 #'  exposure, Y is the binary outcome, C represents the vector of binary
 #'  measured confounders (if any), and j corresponds to the number of

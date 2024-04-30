@@ -29,6 +29,7 @@ Double biases:
 
 Triple biases:
   - `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias
+  - `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` adjusts for uncontrolled confounding, outcome misclassification, and selection bias
 
 To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/).
 
@@ -48,5 +49,5 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
-* Remaining triple bias adjustment functions
 * Support for continuous exposure and outcome
+* 
