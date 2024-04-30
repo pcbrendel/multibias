@@ -1,3 +1,16 @@
+# multibias 1.5.0
+
+## New features
+
+* Added two functions for simultaneous adjustment of uncontrolled confounding, 
+  outcome misclassification, and selection bias: `adjust_uc_omc_sel` & 
+  `adjust_multinom_uc_omc_sel`.
+* Added dataframes with uncontrolled confounding, outcome misclassification, 
+  and selection bias: `df_uc_omc_sel` and `df_uc_omc_sel_source`.
+* Expanded the number of known confounders in dataframes:
+  * `df_uc_sel`
+  * `df_uc_sel_source`
+
 # multibias 1.4.0
 
 ## New features
