@@ -1,3 +1,7 @@
+set.seed(1234)
+n <- 10000
+nreps <- 10
+
 nobias_model <- glm(Y ~ X + C1,
                     family = binomial(link = "logit"),
                     data = df_omc_sel_source)
@@ -28,8 +32,6 @@ single_run <- adjust_omc_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc_sel[sample(seq_len(n), n, replace = TRUE), ]

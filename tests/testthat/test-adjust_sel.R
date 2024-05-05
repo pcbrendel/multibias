@@ -1,4 +1,7 @@
 set.seed(1234)
+n <- 80000
+nreps <- 10
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
@@ -20,8 +23,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -73,8 +74,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -127,8 +126,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -181,8 +178,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]

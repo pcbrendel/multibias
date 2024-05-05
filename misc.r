@@ -15,11 +15,11 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_emc_sel") # creates test
-test_file("tests/testthat/test-adjust_uc_emc.R") # single test
+test_active_file("tests/testthat/test-adjust_uc_emc_sel.R") # single test
 test() # tests all
 
 # check
-check(vignettes = FALSE)
+check()
 check(remote = TRUE, manual = TRUE)
 devtools::check_win_devel()
 
@@ -94,7 +94,7 @@ summary(u_model)
 #      CHD or HPT
 # SMK: OR=0.5
 # CHD: OR=2.5
-# HPT: OR=2 
+# HPT: OR=2
 u_0 <- qlogis(0.25)
 u_x <- log(0.5)
 u_y <- log(2.5)

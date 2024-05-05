@@ -1,8 +1,13 @@
+# library(nnet)
+
+set.seed(1234)
+n <- 10000
+nreps <- 10
+
 nobias_model <- glm(Y ~ X + C1 + U,
                     family = binomial(link = "logit"),
                     data = df_uc_omc_source)
 
-# library(nnet)
 # uy_model <- multinom(
 #   paste0(U, Y) ~ X + Ystar + C1,
 #   data = df_uc_omc_source
@@ -19,8 +24,6 @@ single_run <- adjust_multinom_uc_omc(
   u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_omc[sample(seq_len(n), n, replace = TRUE), ]

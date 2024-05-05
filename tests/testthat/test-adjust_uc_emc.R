@@ -1,3 +1,7 @@
+set.seed(1234)
+n <- 10000
+nreps <- 10
+
 nobias_model <- glm(Y ~ X + C1 + U,
                     family = binomial(link = "logit"),
                     data = df_uc_emc_source)
@@ -27,8 +31,6 @@ single_run <- adjust_uc_emc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc[sample(seq_len(n), n, replace = TRUE), ]

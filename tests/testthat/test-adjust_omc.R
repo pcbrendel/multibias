@@ -1,4 +1,7 @@
 set.seed(1234)
+n <- 10000
+nreps <- 10
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
@@ -20,8 +23,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -74,8 +75,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -131,8 +130,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -190,8 +187,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]

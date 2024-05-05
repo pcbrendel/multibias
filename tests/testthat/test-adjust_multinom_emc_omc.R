@@ -1,5 +1,9 @@
-set.seed(1234)
 # library(nnet)
+
+set.seed(1234)
+n <- 10000
+nreps <- 10
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
@@ -21,8 +25,6 @@ single_run <- adjust_multinom_emc_omc(
   x1y1_model_coefs = c(-4.36, 1.82, 1.82)
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -72,8 +74,6 @@ single_run <- adjust_multinom_emc_omc(
   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -124,8 +124,6 @@ single_run <- adjust_multinom_emc_omc(
   x1y1_model_coefs = c(-4.60, 1.83, 1.83, 0.72, -1.14)
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -176,8 +174,6 @@ single_run <- adjust_multinom_emc_omc(
   x1y1_model_coefs = c(-5.62, 1.83, 1.83, 0.74, -1.15, 1.19)
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_emc_omc[sample(seq_len(n), n, replace = TRUE), ]
