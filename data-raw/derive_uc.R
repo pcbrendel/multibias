@@ -13,12 +13,12 @@ c3 <- rbinom(n, 1, 0.8)
 u <- rbinom(n, 1, 0.5)
 x_bi <- rbinom(n, 1, plogis(-2 + log(1.5) * c1 + log(0.75) * c2 +
                               log(2.5) * c3 + log(2) * u))
-x_cont <- -2 + 1.5 * c1 + 0.75 * c2 + 2.5 * c3 + 2 * u + rnorm(n, 0, .5)
+x_cont <- -2 + 1.5 * c1 + 0.75 * c2 + 2.5 * c3 + 2 * u + rnorm(n, 0, 1)
 y_bi <- rbinom(n, 1, plogis(-2.5 + log(effect_strength) * x_bi + log(1.5) * c1 -
                               log(2.5) * c2 - log(0.75) * c3 + log(2) * u))
 y_cont <- (
   -2.5 + effect_strength * x_cont + 1.5 * c1 - 2.5 * c2 - 0.75 * c3 + 2 * u +
-    rnorm(n, 0, .5)
+    rnorm(n, 0, 1)
 )
 
 df <- data.frame(
@@ -44,7 +44,7 @@ c(exp(summary(nobias_model)$coef[2, 1] +
         summary(nobias_model)$coef[2, 2] * qnorm(.025)),
   exp(summary(nobias_model)$coef[2, 1] +
         summary(nobias_model)$coef[2, 2] * qnorm(.975)))
-# 2.03 (1.94, 2.10)
+# 2.00 (1.93, 2.07)
 
 bias_model <- glm(Y_bi ~ X_bi + C1 + C2 + C3,
                   family = binomial(link = "logit"),
@@ -55,7 +55,7 @@ c(exp(summary(bias_model)$coef[2, 1] +
         summary(bias_model)$coef[2, 2] * qnorm(.025)),
   exp(summary(bias_model)$coef[2, 1] +
         summary(bias_model)$coef[2, 2] * qnorm(.975)))
-# 2.26 (2.18, 2.34)
+# 2.22 (2.14, 2.29)
 
 # OBTAIN BIAS PARAMETERS
 u_model <- glm(U ~ X_bi + Y_bi + C1 + C2 + C3,
