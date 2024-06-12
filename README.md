@@ -1,4 +1,4 @@
-# multibias
+# multibias <img src="man/figures/logo.png" align="right" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pcbrendel/multibias/actions/workflows/R-CMD-check.yaml)
