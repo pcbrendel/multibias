@@ -16,7 +16,7 @@
 #' @inheritParams adjust_emc_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where S represents binary selection, X is the exposure, Y is the
+#'  where \emph{S} represents binary selection, \emph{X} is the exposure, \emph{Y} is the
 #'  outcome. The number of parameters is therefore 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
@@ -56,12 +56,6 @@ adjust_sel <- function(
 
   x <- data[, exposure]
   y <- data[, outcome]
-
-  if (sum(x %in% c(0, 1)) == n) {
-    x_binary <- TRUE
-  } else {
-    x_binary <- FALSE
-  }
 
   if (sum(y %in% c(0, 1)) == n) {
     y_binary <- TRUE

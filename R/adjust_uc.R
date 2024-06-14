@@ -16,10 +16,11 @@
 #' @inheritParams adjust_emc_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#'  where U is the binary unmeasured confounder, X is the exposure,
-#'  Y is the outcome, C represents the vector of measured confounders (if any),
-#'  and j corresponds to the number of measured confounders.
-#'  The number of parameters therefore equals 3 + j.
+#'  where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+#'  exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
+#'  measured confounders (if any),
+#'  and \emph{j} corresponds to the number of measured confounders.
+#'  The number of parameters therefore equals 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -59,12 +60,6 @@ adjust_uc <- function(
 
   x <- data[, exposure]
   y <- data[, outcome]
-
-  if (sum(x %in% c(0, 1)) == n) {
-    x_binary <- TRUE
-  } else {
-    x_binary <- FALSE
-  }
 
   if (sum(y %in% c(0, 1)) == n) {
     y_binary <- TRUE
