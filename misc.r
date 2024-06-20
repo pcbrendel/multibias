@@ -48,16 +48,40 @@ gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
 
-# informal run
-load_all()
+# causal data class
 
-adjust_omc(
-  evans,
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "HPT",
-  y_model_coefs = c(qlogis(0.01), log(1.25), log(5), log(1.5))
-)
+create_causal_data <- function(data, exposure, outcome, confounders) {
+  # Validate input
+  if (!is.data.frame(data)) stop("data must be a dataframe.")
+  if (!is.character(exposure) || length(exposure) != 1) stop("exposure must be a single string.")
+  if (!is.character(outcome) || length(outcome) != 1) stop("outcome must be a single string.")
+  if (!is.character(confounders)) stop("confounders must be a string or a vector of strings.")
+
+  # Create the object
+  obj <- list(
+    data = data,
+    exposure = exposure,
+    outcome = outcome,
+    confounders = confounders
+  )
+
+  # Assign the class
+  class(obj) <- "causal_data"
+  return(obj)
+}
+
+print.causal_data <- function(x, ...) {
+  cat("Causal Data Object\n")
+  cat("------------------\n")
+  cat("Exposure:", x$exposure, "\n")
+  cat("Outcome:", x$outcome, "\n")
+  cat("Confounders:", paste(x$confounders, collapse = ", "), "\n")
+  cat("Data: \n")
+  print(head(x$data))
+}
+
+df <- create_causal_data(df_uc, "X", "Y", c("C1", "C2", "C3"))
+print(df)
 
 # README example 1
 
