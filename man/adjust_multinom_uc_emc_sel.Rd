@@ -28,42 +28,35 @@ adjust_multinom_uc_emc_sel(
 A maximum of three confounders are allowed.}
 
 \item{x1u0_model_coefs}{The regression coefficients corresponding to the
-model: \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) =
-&gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* +
-&gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, } where X
-is the binary true exposure, U is the binary unmeasured confounder,
+model:
+\ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
+where X is the binary true exposure, U is the binary unmeasured confounder,
 X* is the binary misclassified exposure, Y is the binary outcome, C
 represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured
-confounders.}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) =}}}
+j corresponds to the number of measured confounders.}
 
 \item{x0u1_model_coefs}{The regression coefficients corresponding to the
-model: \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) =
-&gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* +
-&gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, } where X
-is the binary true exposure, U is the binary unmeasured confounder,
+model:
+\ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
+where X is the binary true exposure, U is the binary unmeasured confounder,
 X* is the binary misclassified exposure, Y is the binary outcome,
 C represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured
-confounders.}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) =}}}
+j corresponds to the number of measured confounders.}
 
 \item{x1u1_model_coefs}{The regression coefficients corresponding to the
-model: \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) =
-&gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* +
-&gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, } where X
-is the binary true exposure, U is the binary unmeasured confounder,
+model:
+\ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y + \gamma_{3,2+j} C_j, }}
+where X is the binary true exposure, U is the binary unmeasured confounder,
 X* is the binary misclassified exposure, Y is the binary outcome,
 C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured
-confounders.}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) =}}}
+and j corresponds to the number of measured confounders.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> +
-&beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y +
-&beta;<sub>2+j</sub>C<sub>j</sub>, } where S represents binary selection,
+\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta_{2+j} C_j, }}
+where S represents binary selection,
 X* is the binary misclassified exposure, Y is the binary outcome,
 C represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured confounders.}{\eqn{logit(P(S=1)) =}}}
+j corresponds to the number of measured confounders.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -81,7 +74,7 @@ misclassificaiton, and selection bias.
 \details{
 This function uses one bias model, a multinomial logistic regression model,
 to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-models for X and U are desired, use \code{adjust_uc_mc_2}.
+models for X and U are desired, use \code{adjust_uc_emc_sel}.
 
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability

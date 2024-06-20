@@ -6,6 +6,8 @@ library(roxygen2)
 # library(gitcreds)
 # library(available)
 
+load_all()
+
 # document
 roxygenize()
 document()
@@ -13,7 +15,7 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_emc_sel") # creates test
-test_file("tests/testthat/test-adjust_uc_emc.R") # single test
+test_active_file("tests/testthat/test-adjust_uc_emc_sel.R") # single test
 test() # tests all
 
 # check
@@ -48,6 +50,7 @@ gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
 
+<<<<<<< HEAD
 # causal data class
 
 create_causal_data <- function(data, exposure, outcome, confounders) {
@@ -82,6 +85,16 @@ print.causal_data <- function(x, ...) {
 
 df <- create_causal_data(df_uc, "X", "Y", c("C1", "C2", "C3"))
 print(df)
+=======
+# informal run
+adjust_omc(
+  evans,
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT",
+  y_model_coefs = c(qlogis(0.01), log(1.25), log(5), log(1.5))
+)
+>>>>>>> 6997601a6c403993c1d5903b7505a5341fe3cf47
 
 # README example 1
 
@@ -118,7 +131,7 @@ summary(u_model)
 #      CHD or HPT
 # SMK: OR=0.5
 # CHD: OR=2.5
-# HPT: OR=2 
+# HPT: OR=2
 u_0 <- qlogis(0.25)
 u_x <- log(0.5)
 u_y <- log(2.5)

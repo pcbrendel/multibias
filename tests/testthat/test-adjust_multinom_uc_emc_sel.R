@@ -1,5 +1,9 @@
-set.seed(1234)
 # library(nnet)
+
+set.seed(1234)
+n <- 10000
+nreps <- 10
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X + U,
@@ -29,8 +33,6 @@ single_run <- adjust_multinom_uc_emc_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -94,8 +96,6 @@ single_run <- adjust_multinom_uc_emc_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -162,8 +162,6 @@ single_run <- adjust_multinom_uc_emc_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -232,8 +230,6 @@ single_run <- adjust_multinom_uc_emc_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_emc_sel[sample(seq_len(n), n, replace = TRUE), ]

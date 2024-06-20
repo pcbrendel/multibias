@@ -1,18 +1,21 @@
 set.seed(1234)
+n <- 20000
+nreps <- 10
+
 # 0 confounders
 
-nobias_model <- glm(Y ~ X + U,
+nobias_model <- glm(Y_bi ~ X_bi + U,
                     family = binomial(link = "logit"),
                     data = df_uc_source)
 
-u_model <- glm(U ~ X + Y,
+u_model <- glm(U ~ X_bi + Y_bi,
                family = binomial(link = "logit"),
                data = df_uc_source)
 
 single_run <- adjust_uc(
   df_uc,
-  exposure = "X",
-  outcome = "Y",
+  exposure = "X_bi",
+  outcome = "Y_bi",
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -20,15 +23,13 @@ single_run <- adjust_uc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
   results <- adjust_uc(
     bdf,
-    exposure = "X",
-    outcome = "Y",
+    exposure = "X_bi",
+    outcome = "Y_bi",
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -41,7 +42,7 @@ for (i in 1:nreps) {
 or_true <- exp(summary(nobias_model)$coef[2, 1])
 or_adjusted <- median(est)
 
-test_that("odds ratio and confidence interval output", {
+test_that("adjust_uc, 0 confounders: OR and CI output", {
   expect_gt(or_adjusted, or_true - 0.1)
   expect_lt(or_adjusted, or_true + 0.1)
   expect_vector(
@@ -53,18 +54,18 @@ test_that("odds ratio and confidence interval output", {
 
 # 1 confounder
 
-nobias_model <- glm(Y ~ X + C1 + U,
+nobias_model <- glm(Y_bi ~ X_bi + C1 + U,
                     family = binomial(link = "logit"),
                     data = df_uc_source)
 
-u_model <- glm(U ~ X + Y + C1,
+u_model <- glm(U ~ X_bi + Y_bi + C1,
                family = binomial(link = "logit"),
                data = df_uc_source)
 
 single_run <- adjust_uc(
   df_uc,
-  exposure = "X",
-  outcome = "Y",
+  exposure = "X_bi",
+  outcome = "Y_bi",
   confounders = "C1",
   u_model_coefs = c(
     u_model$coef[1],
@@ -74,15 +75,13 @@ single_run <- adjust_uc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
   results <- adjust_uc(
     bdf,
-    exposure = "X",
-    outcome = "Y",
+    exposure = "X_bi",
+    outcome = "Y_bi",
     confounders = "C1",
     u_model_coefs = c(
       u_model$coef[1],
@@ -97,7 +96,7 @@ for (i in 1:nreps) {
 or_true <- exp(summary(nobias_model)$coef[2, 1])
 or_adjusted <- median(est)
 
-test_that("odds ratio and confidence interval output", {
+test_that("adjust_uc, 1 confounder: OR and CI output", {
   expect_gt(or_adjusted, or_true - 0.1)
   expect_lt(or_adjusted, or_true + 0.1)
   expect_vector(
@@ -109,18 +108,16 @@ test_that("odds ratio and confidence interval output", {
 
 # 2 confounders
 
-nobias_model <- glm(Y ~ X + C1 + C2 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_source)
+nobias_model <- lm(Y_cont ~ X_cont + C1 + C2 + U, data = df_uc_source)
 
-u_model <- glm(U ~ X + Y + C1 + C2,
+u_model <- glm(U ~ X_cont + Y_cont + C1 + C2,
                family = binomial(link = "logit"),
                data = df_uc_source)
 
 single_run <- adjust_uc(
   df_uc,
-  exposure = "X",
-  outcome = "Y",
+  exposure = "X_cont",
+  outcome = "Y_cont",
   confounders = c("C1", "C2"),
   u_model_coefs = c(
     u_model$coef[1],
@@ -131,15 +128,13 @@ single_run <- adjust_uc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
   results <- adjust_uc(
     bdf,
-    exposure = "X",
-    outcome = "Y",
+    exposure = "X_cont",
+    outcome = "Y_cont",
     confounders = c("C1", "C2"),
     u_model_coefs = c(
       u_model$coef[1],
@@ -152,10 +147,10 @@ for (i in 1:nreps) {
   est[i] <- results$estimate
 }
 
-or_true <- exp(summary(nobias_model)$coef[2, 1])
+or_true <- summary(nobias_model)$coef[2, 1]
 or_adjusted <- median(est)
 
-test_that("odds ratio and confidence interval output", {
+test_that("adjust_uc, 2 confounders: OR and CI output", {
   expect_gt(or_adjusted, or_true - 0.1)
   expect_lt(or_adjusted, or_true + 0.1)
   expect_vector(
@@ -167,18 +162,17 @@ test_that("odds ratio and confidence interval output", {
 
 # 3 confounders
 
-nobias_model <- glm(Y ~ X + C1 + C2 + C3 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_source)
+nobias_model <- lm(Y_cont ~ X_cont + C1 + C2 + C3 + U,
+                   data = df_uc_source)
 
-u_model <- glm(U ~ X + Y + C1 + C2 + C3,
+u_model <- glm(U ~ X_cont + Y_cont + C1 + C2 + C3,
                family = binomial(link = "logit"),
                data = df_uc_source)
 
 single_run <- adjust_uc(
   df_uc,
-  exposure = "X",
-  outcome = "Y",
+  exposure = "X_cont",
+  outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
   u_model_coefs = c(
     u_model$coef[1],
@@ -190,15 +184,13 @@ single_run <- adjust_uc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
   results <- adjust_uc(
     bdf,
-    exposure = "X",
-    outcome = "Y",
+    exposure = "X_cont",
+    outcome = "Y_cont",
     confounders = c("C1", "C2", "C3"),
     u_model_coefs = c(
       u_model$coef[1],
@@ -212,10 +204,10 @@ for (i in 1:nreps) {
   est[i] <- results$estimate
 }
 
-or_true <- exp(summary(nobias_model)$coef[2, 1])
+or_true <- summary(nobias_model)$coef[2, 1]
 or_adjusted <- median(est)
 
-test_that("odds ratio and confidence interval output", {
+test_that("adjust_uc, 3 confounders: OR and CI output", {
   expect_gt(or_adjusted, or_true - 0.1)
   expect_lt(or_adjusted, or_true + 0.1)
   expect_vector(

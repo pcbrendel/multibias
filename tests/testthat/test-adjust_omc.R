@@ -1,4 +1,10 @@
 set.seed(1234)
+n <- 10000
+nreps <- 10
+
+# cont X just for testing that function runs
+df_omc$X_cont <- plogis(df_omc$X) + rnorm(nrow(df_omc), mean = 0, sd = 0.1)
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
@@ -11,7 +17,7 @@ y_model <- glm(Y ~ X + Ystar,
 
 single_run <- adjust_omc(
   df_omc,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   y_model_coefs = c(
     y_model$coef[1],
@@ -20,8 +26,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -63,7 +67,7 @@ y_model <- glm(Y ~ X + Ystar + C1,
 
 single_run <- adjust_omc(
   df_omc,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = "C1",
   y_model_coefs = c(
@@ -74,8 +78,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -119,7 +121,7 @@ y_model <- glm(Y ~ X + Ystar + C1 + C2,
 
 single_run <- adjust_omc(
   df_omc,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2"),
   y_model_coefs = c(
@@ -131,8 +133,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
@@ -177,7 +177,7 @@ y_model <- glm(Y ~ X + Ystar + C1 + C2 + C3,
 
 single_run <- adjust_omc(
   df_omc,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3"),
   y_model_coefs = c(
@@ -190,8 +190,6 @@ single_run <- adjust_omc(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]

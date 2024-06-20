@@ -15,13 +15,13 @@
 #'
 #' @inheritParams adjust_emc_sel
 #' @param x_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> +
-#'  &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y +
-#'  &delta;<sub>2+j</sub>C<sub>j</sub>, } where X represents the binary true
-#'  exposure, X* is the binary misclassified exposure, Y is the binary
-#'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders. The number of
-#'  parameters is therefore 3 + j.}{\eqn{logit(P(X=1)) =}}
+#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
+#'  where \emph{X} represents the binary true exposure, \emph{X*} is the binary
+#'  misclassified exposure, \emph{Y} is the outcome, \emph{C} represents
+#'  the vector of measured confounders (if any),
+#'  and \emph{j} corresponds to the number of measured confounders. The number
+#'  of parameters is therefore 3 + \emph{j}.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -65,9 +65,13 @@ adjust_emc <- function(
   if (sum(xstar %in% c(0, 1)) != n) {
     stop("Exposure must be a binary integer.")
   }
-  if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be a binary integer.")
+
+  if (sum(y %in% c(0, 1)) == n) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
   }
+
   if (len_x_coefs != 3 + len_c) {
     stop(
       paste0(
@@ -86,11 +90,18 @@ adjust_emc <- function(
     df <- data.frame(Xstar = xstar, Y = y)
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y))
 
-    final <- glm(
-      Y ~ Xpred,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ Xpred,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ Xpred,
+        data = df
+      )
+    }
 
   } else if (len_c == 1) {
 
@@ -102,11 +113,18 @@ adjust_emc <- function(
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
                                       x1_y * df$Y + x1_c1 * df$C1))
 
-    final <- glm(
-      Y ~ Xpred + C1,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ Xpred + C1,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ Xpred + C1,
+        data = df
+      )
+    }
 
   } else if (len_c == 2) {
 
@@ -121,11 +139,18 @@ adjust_emc <- function(
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
                                       x1_c1 * df$C1 + x1_c2 * df$C2))
 
-    final <- glm(
-      Y ~ Xpred + C1 + C2,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ Xpred + C1 + C2,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ Xpred + C1 + C2,
+        data = df
+      )
+    }
 
   } else if (len_c == 3) {
 
@@ -147,11 +172,18 @@ adjust_emc <- function(
       )
     )
 
-    final <- glm(
-      Y ~ Xpred + C1 + C2 + C3,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ Xpred + C1 + C2 + C3,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ Xpred + C1 + C2 + C3,
+        data = df
+      )
+    }
 
   } else if (len_c > 3) {
 
@@ -163,9 +195,16 @@ adjust_emc <- function(
   se <- summary(final)$coef[2, 2]
   alpha <- 1 - level
 
-  estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  if (y_binary) {
+    estimate <- exp(est)
+    ci <- c(exp(est + se * qnorm(alpha / 2)),
+            exp(est + se * qnorm(1 - alpha / 2)))
+  } else {
+    estimate <- est
+    ci <- c(est + se * qnorm(alpha / 2),
+            est + se * qnorm(1 - alpha / 2))
+  }
+
   return(list(estimate = estimate, ci = ci))
 
 }

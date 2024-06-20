@@ -1,4 +1,10 @@
 set.seed(1234)
+n <- 80000
+nreps <- 10
+
+# cont Y just for testing that function runs
+df_sel$Y_cont <- plogis(df_sel$Y) + rnorm(nrow(df_sel), mean = 0, sd = 0.1)
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
@@ -12,7 +18,7 @@ s_model <- glm(S ~ X + Y,
 single_run <- adjust_sel(
   df_sel,
   exposure = "X",
-  outcome = "Y",
+  outcome = "Y_cont",
   s_model_coefs = c(
     s_model$coef[1],
     s_model$coef[2],
@@ -20,8 +26,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -64,7 +68,7 @@ s_model <- glm(S ~ X + Y,
 single_run <- adjust_sel(
   df_sel,
   exposure = "X",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = "C1",
   s_model_coefs = c(
     s_model$coef[1],
@@ -73,8 +77,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -118,7 +120,7 @@ s_model <- glm(S ~ X + Y,
 single_run <- adjust_sel(
   df_sel,
   exposure = "X",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = c("C1", "C2"),
   s_model_coefs = c(
     s_model$coef[1],
@@ -127,8 +129,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
@@ -172,7 +172,7 @@ s_model <- glm(S ~ X + Y,
 single_run <- adjust_sel(
   df_sel,
   exposure = "X",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
   s_model_coefs = c(
     s_model$coef[1],
@@ -181,8 +181,6 @@ single_run <- adjust_sel(
   )
 )
 
-n <- 100000
-nreps <- 10
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]

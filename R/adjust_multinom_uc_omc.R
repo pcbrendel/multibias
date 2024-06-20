@@ -20,32 +20,26 @@
 #'
 #' @inheritParams adjust_emc_sel
 #' @param u1y0_model_coefs The regression coefficients corresponding to the
-#'  model: \ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) =
-#'  &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X +
-#'  &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }
+#'  model:
+#'  \ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
 #'  where U is the binary unmeasured confounder, Y is the binary true outcome,
 #'  X is the binary exposure, Y* is the binary misclassified
 #'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured
-#'  confounders.}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) =}}
+#'  and j corresponds to the number of measured confounders.
 #' @param u0y1_model_coefs The regression coefficients corresponding to the
-#'  model: \ifelse{html}{\out{log(P(U=0,Y=1)/P(U=0,Y=0)) =
-#'  &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X +
-#'  &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }
+#'  model:
+#'  \ifelse{html}{\out{log(P(U=0,Y=1)/P(U=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=0,Y=1)/P(U=0,Y=0)) = \gamma_{2,0} + \gamma_{2,1} X + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j,}}
 #'  where U is the binary unmeasured confounder, Y is the binary true outcome,
 #'  X is the binary exposure, Y* is the binary misclassified
 #'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured
-#'  confounders.}{\eqn{log(P(U=0,Y=1)/P(U=0,Y=0)) =}}
+#'  and j corresponds to the number of measured confounders.
 #' @param u1y1_model_coefs The regression coefficients corresponding to the
-#'  model: \ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) =
-#'  &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X +
-#'  &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }
+#'  model:
+#'  \ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j,}}
 #'  where U is the binary unmeasured confounder, Y is the binary true outcome,
 #'  X is the binary exposure, Y* is the binary misclassified
 #'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured
-#'  confounders.}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) =}}
+#'  and j corresponds to the number of measured confounders.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
