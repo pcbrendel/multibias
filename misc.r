@@ -50,7 +50,6 @@ gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
 
-<<<<<<< HEAD
 # causal data class
 
 create_causal_data <- function(data, exposure, outcome, confounders) {
@@ -85,16 +84,6 @@ print.causal_data <- function(x, ...) {
 
 df <- create_causal_data(df_uc, "X", "Y", c("C1", "C2", "C3"))
 print(df)
-=======
-# informal run
-adjust_omc(
-  evans,
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "HPT",
-  y_model_coefs = c(qlogis(0.01), log(1.25), log(5), log(1.5))
-)
->>>>>>> 6997601a6c403993c1d5903b7505a5341fe3cf47
 
 # README example 1
 
