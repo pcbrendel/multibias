@@ -1,3 +1,20 @@
+# multibias 1.5.1
+
+* The following functions now support more flexible combinations of continuous
+  and binary exposure-outcome variables:
+  * `adjust_uc`
+  * `adjust_emc` (exposure must be binary)
+  * `adjust_omc` (outcome must be binary)
+  * `adjust_sel`
+  * `adjust_uc_sel`
+* Expanded the number of known confounders in dataframes:
+  * `df_uc_omc`
+  * `df_uc_omc_source`
+  * `df_uc_emc`
+  * `df_uc_emc_source`
+* Dataframes `df_uc` and `df_uc_source` now both have continuous and
+  binary exposures and outcomes.
+
 # multibias 1.5.0
 
 ## New features

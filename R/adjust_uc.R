@@ -1,7 +1,7 @@
 #' Adust for uncontrolled confounding.
 #'
 #' \code{adjust_uc} returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for uncontrolled confounding.
+#' interval, adjusted for uncontrolled confounding from a binary confounder.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -16,11 +16,11 @@
 #' @inheritParams adjust_emc_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#'  where U is the (binary) unmeasured
-#'  confounder, X is the (binary) exposure, Y is the (binary) outcome,
-#'  C represents the vector of (binary) measured confounders (if any),
-#'  and j corresponds to the number of measured confounders.
-#'  The number of parameters therefore equals 3 + j.
+#'  where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+#'  exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
+#'  measured confounders (if any),
+#'  and \emph{j} corresponds to the number of measured confounders.
+#'  The number of parameters therefore equals 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -61,12 +61,12 @@ adjust_uc <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(x %in% c(0, 1)) != n) {
-    stop("Exposure must be a binary integer.")
+  if (sum(y %in% c(0, 1)) == n) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
   }
-  if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be a binary integer.")
-  }
+
   if (len_u_coefs != 3 + len_c) {
     stop(
       paste0(
@@ -85,11 +85,18 @@ adjust_uc <- function(
     df <- data.frame(X = x, Y = y)
     df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y))
 
-    final <- glm(
-      Y ~ X + Upred,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ X + Upred,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ X + Upred,
+        data = df
+      )
+    }
 
   } else if (len_c == 1) {
 
@@ -101,11 +108,18 @@ adjust_uc <- function(
     df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y +
                                       u1_c1 * df$C1))
 
-    final <- glm(
-      Y ~ X + C1 + Upred,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ X + C1 + Upred,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ X + C1 + Upred,
+        data = df
+      )
+    }
 
   } else if (len_c == 2) {
 
@@ -120,11 +134,18 @@ adjust_uc <- function(
     df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y +
                                       u1_c1 * df$C1 + u1_c2 * df$C2))
 
-    final <- glm(
-      Y ~ X + C1 + C2 + Upred,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ X + C1 + C2 + Upred,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ X + C1 + C2 + Upred,
+        data = df
+      )
+    }
 
   } else if (len_c == 3) {
 
@@ -146,11 +167,18 @@ adjust_uc <- function(
       )
     )
 
-    final <- glm(
-      Y ~ X + C1 + C2 + C3 + Upred,
-      family = binomial(link = "logit"),
-      data = df
-    )
+    if (y_binary) {
+      final <- glm(
+        Y ~ X + C1 + C2 + C3 + Upred,
+        family = binomial(link = "logit"),
+        data = df
+      )
+    } else {
+      final <- lm(
+        Y ~ X + C1 + C2 + C3 + Upred,
+        data = df
+      )
+    }
 
   } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
@@ -160,9 +188,16 @@ adjust_uc <- function(
   se <- summary(final)$coef[2, 2]
   alpha <- 1 - level
 
-  estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  if (y_binary) {
+    estimate <- exp(est)
+    ci <- c(exp(est + se * qnorm(alpha / 2)),
+            exp(est + se * qnorm(1 - alpha / 2)))
+  } else {
+    estimate <- est
+    ci <- c(est + se * qnorm(alpha / 2),
+            est + se * qnorm(1 - alpha / 2))
+  }
+
   return(list(estimate = estimate, ci = ci))
 
 }

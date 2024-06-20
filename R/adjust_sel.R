@@ -16,8 +16,8 @@
 #' @inheritParams adjust_emc_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where S represents binary selection, X is the binary exposure, Y is the
-#'  binary outcome. The number of parameters is therefore 3.
+#'  where \emph{S} represents binary selection, \emph{X} is the exposure, \emph{Y} is the
+#'  outcome. The number of parameters is therefore 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -57,12 +57,12 @@ adjust_sel <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(x %in% c(0, 1)) != n) {
-    stop("Exposure must be a binary integer.")
+  if (sum(y %in% c(0, 1)) == n) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
   }
-  if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be a binary integer.")
-  }
+
   if (len_s_coefs != 3) {
     stop(
       paste0(
@@ -81,14 +81,24 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ X,
-        family = binomial(link = "logit"),
-        weights = (1 / df$pS),
-        data = df
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ X,
+          family = binomial(link = "logit"),
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ X,
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    }
 
   } else if (len_c == 1) {
 
@@ -96,14 +106,24 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ X + C1,
-        family = binomial(link = "logit"),
-        weights = (1 / df$pS),
-        data = df
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ X + C1,
+          family = binomial(link = "logit"),
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ X + C1,
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    }
 
   } else if (len_c == 2) {
 
@@ -113,14 +133,24 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ X + C1 + C2,
-        family = binomial(link = "logit"),
-        weights = (1 / df$pS),
-        data = df
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ X + C1 + C2,
+          family = binomial(link = "logit"),
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ X + C1 + C2,
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    }
 
   } else if (len_c == 3) {
 
@@ -131,14 +161,24 @@ adjust_sel <- function(
     df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ X + C1 + C2 + C3,
-        family = binomial(link = "logit"),
-        weights = (1 / df$pS),
-        data = df
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ X + C1 + C2 + C3,
+          family = binomial(link = "logit"),
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ X + C1 + C2 + C3,
+          weights = (1 / df$pS),
+          data = df
+        )
+      })
+    }
 
   } else if (len_c > 3) {
 
@@ -150,9 +190,16 @@ adjust_sel <- function(
   se <- summary(final)$coef[2, 2]
   alpha <- 1 - level
 
-  estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  if (y_binary) {
+    estimate <- exp(est)
+    ci <- c(exp(est + se * qnorm(alpha / 2)),
+            exp(est + se * qnorm(1 - alpha / 2)))
+  } else {
+    estimate <- est
+    ci <- c(est + se * qnorm(alpha / 2),
+            est + se * qnorm(1 - alpha / 2))
+  }
+
   return(list(estimate = estimate, ci = ci))
 
 }

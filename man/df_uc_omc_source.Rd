@@ -5,11 +5,13 @@
 \alias{df_uc_omc_source}
 \title{Data source for df_uc_omc}
 \format{
-A dataframe with 100,000 rows and 5 columns:
+A dataframe with 100,000 rows and 7 columns:
 \describe{
-    \item{X}{true exposure, 1 = present and 0 = absent}
+    \item{X}{exposure, 1 = present and 0 = absent}
     \item{Y}{outcome, 1 = present and 0 = absent}
     \item{C1}{1st confounder, 1 = present and 0 = absent}
+    \item{C2}{2nd confounder, 1 = present and 0 = absent}
+    \item{C3}{3rd confounder, 1 = present and 0 = absent}
     \item{U}{unmeasured confounder, 1 = present and 0 = absent}
     \item{Ystar}{misclassified outcome, 1 = present and 0 = absent}
 }
@@ -18,8 +20,8 @@ A dataframe with 100,000 rows and 5 columns:
 df_uc_omc_source
 }
 \description{
-Data with complete information on the two sources of bias, a known
- confounder, and 100,000 observations. This data is used to derive
+Data with complete information on the two sources of bias, three known
+ confounders, and 100,000 observations. This data is used to derive
  \code{df_uc_omc} and can be used to obtain bias parameters for purposes
  of validating the simultaneous multi-bias adjustment method with
  \code{df_uc_omc}. With this source data, the fitted regression

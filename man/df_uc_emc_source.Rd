@@ -5,11 +5,13 @@
 \alias{df_uc_emc_source}
 \title{Data source for df_uc_emc}
 \format{
-A dataframe with 100,000 rows and 5 columns:
+A dataframe with 100,000 rows and 7 columns:
 \describe{
     \item{X}{true exposure, 1 = present and 0 = absent}
     \item{Y}{outcome, 1 = present and 0 = absent}
     \item{C1}{1st confounder, 1 = present and 0 = absent}
+    \item{C2}{2nd confounder, 1 = present and 0 = absent}
+    \item{C3}{3rd confounder, 1 = present and 0 = absent}
     \item{U}{unmeasured confounder, 1 = present and 0 = absent}
     \item{Xstar}{misclassified exposure, 1 = present and 0 = absent}
 }

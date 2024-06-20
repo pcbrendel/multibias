@@ -16,11 +16,11 @@
 #' @inheritParams adjust_emc_sel
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \_delta_0 + \_delta_1 X + \_delta_2 Y^* + \_delta_{2+j} C_j, }}
-#'  where Y represents the binary true outcome, X is the binary exposure,
-#'  Y* is the binary misclassified outcome,
-#'  C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders. The number of
-#'  parameters is therefore 3 + j.
+#'  where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
+#'  \emph{Y*} is the binary misclassified outcome,
+#'  \emph{C} represents the vector of measured confounders (if any),
+#'  and \emph{j} corresponds to the number of measured confounders. The number
+#'  of parameters is therefore 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -61,12 +61,16 @@ adjust_omc <- function(
   x     <- data[, exposure]
   ystar <- data[, outcome]
 
-  if (sum(x %in% c(0, 1)) != n) {
-    stop("Exposure must be a binary integer.")
+  if (sum(x %in% c(0, 1)) == n) {
+    x_binary <- TRUE
+  } else {
+    x_binary <- FALSE
   }
+
   if (sum(ystar %in% c(0, 1)) != n) {
     stop("Outcome must be a binary integer.")
   }
+
   if (len_y_coefs != 3 + len_c) {
     stop(
       paste0(
@@ -165,6 +169,7 @@ adjust_omc <- function(
   estimate <- exp(est)
   ci <- c(exp(est + se * qnorm(alpha / 2)),
           exp(est + se * qnorm(1 - alpha / 2)))
+
   return(list(estimate = estimate, ci = ci))
 
 }
