@@ -35,6 +35,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stats binomial
 #' @importFrom stats glm
+#' @importFrom stats lm
 #' @importFrom stats qnorm
 #' @importFrom stats plogis
 #' @importFrom rlang .data
