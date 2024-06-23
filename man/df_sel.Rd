@@ -20,10 +20,10 @@ df_sel
 \description{
 Data containing one source of bias, three known confounders, and 100,000
  observations. This data is obtained by sampling with replacement with
- probability = S from \code{df_sel_source} then removing the S column.
- The resulting data corresponds to what a researcher would see
- in the real-world: missing data for those not selected into the study (S=0).
- As seen in \code{df_sel_source}, the true, unbiased
+ probability = \emph{S} from \code{df_sel_source} then removing the \emph{S}
+ column. The resulting data corresponds to what a researcher would see
+ in the real-world: missing data for those not selected into the study
+ (\emph{S}=0). As seen in \code{df_sel_source}, the true, unbiased
  exposure-outcome odds ratio = 2.
 }
 \keyword{datasets}
