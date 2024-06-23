@@ -9,7 +9,7 @@
 #'  As seen in \code{df_uc_source}, the true, unbiased exposure-outcome
 #'  effect estimate = 2.
 #'
-#' @format A dataframe with 100,000 rows and 5 columns:
+#' @format A dataframe with 100,000 rows and 7 columns:
 #' \describe{
 #'     \item{X_bi}{binary exposure, 1 = present and 0 = absent}
 #'     \item{X_cont}{continuous exposure}

@@ -12,7 +12,7 @@
 #'    \item g = identity, Y = \emph{Y_cont}, X = \emph{X_cont}.
 #'  }
 #'
-#' @format A dataframe with 100,000 rows and 6 columns:
+#' @format A dataframe with 100,000 rows and 8 columns:
 #' \describe{
 #'     \item{X_bi}{binary exposure, 1 = present and 0 = absent}
 #'     \item{X_cont}{continuous exposure}

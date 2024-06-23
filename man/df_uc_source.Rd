@@ -5,7 +5,7 @@
 \alias{df_uc_source}
 \title{Data source for df_uc}
 \format{
-A dataframe with 100,000 rows and 6 columns:
+A dataframe with 100,000 rows and 8 columns:
 \describe{
     \item{X_bi}{binary exposure, 1 = present and 0 = absent}
     \item{X_cont}{continuous exposure}

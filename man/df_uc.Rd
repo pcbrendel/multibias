@@ -5,7 +5,7 @@
 \alias{df_uc}
 \title{Simulated data with uncontrolled confounding}
 \format{
-A dataframe with 100,000 rows and 5 columns:
+A dataframe with 100,000 rows and 7 columns:
 \describe{
     \item{X_bi}{binary exposure, 1 = present and 0 = absent}
     \item{X_cont}{continuous exposure}
