@@ -12,10 +12,8 @@ c2 <- rbinom(n, 1, 0.2)
 c3 <- rbinom(n, 1, 0.8)
 x <- rbinom(n, 1, plogis(-2 + log(1.5) * c1 + log(0.75) * c2 +
                            log(2.5) * c3))
-y <- rbinom(
-  n, 1, plogis(-2.5 + log(effect_strength) * x + log(1.5) * c1 - log(2.5) * c2 -
-                 log(0.75) * c3)
-)
+y <- rbinom(n, 1, plogis(-2.5 + log(effect_strength) * x + log(1.5) * c1 -
+                           log(2.5) * c2 - log(0.75) * c3))
 s <- rbinom(n, 1, plogis(log(2.5) * x + log(2.5) * y))
 
 df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3, S = s)
