@@ -26,17 +26,17 @@ A maximum of three confounders are allowed.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-where U is the binary unmeasured confounder, X is the binary true
-exposure, Y is the binary true outcome. The number of parameters therefore
-equals 3.}
+where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+exposure, \emph{Y} is the binary true outcome. The number of parameters
+therefore equals 3.}
 
 \item{y_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-where Y represents binary true outcome, X is the binary exposure,
-Y* is the binary misclassified outcome,
-C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured confounders. The number of
-parameters therefore equals 3 + j.}
+where \emph{Y} represents binary true outcome, \emph{X} is the exposure,
+\emph{Y*} is the binary misclassified outcome,
+\emph{C} represents the vector of measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.
+The number of parameters therefore equals 3 + \emph{j}.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -53,8 +53,9 @@ misclassificaiton.
 }
 \details{
 This function uses two separate logistic regression models to predict the
-uncontrolled confounder (U) and outcome (Y). If a single bias model for
-jointly modeling Y and U is desired use \code{adjust_multinom_uc_omc}.
+ binary outcome (\emph{Y}) and uncontrolled confounder (\emph{U}).
+ If a single bias model for jointly modeling \emph{Y} and \emph{U}
+ is desired use \code{adjust_multinom_uc_omc}.
 
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability

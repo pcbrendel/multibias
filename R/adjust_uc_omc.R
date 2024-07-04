@@ -5,8 +5,9 @@
 #' misclassificaiton.
 #'
 #' This function uses two separate logistic regression models to predict the
-#' uncontrolled confounder (U) and outcome (Y). If a single bias model for
-#' jointly modeling Y and U is desired use \code{adjust_multinom_uc_omc}.
+#'  binary outcome (\emph{Y}) and uncontrolled confounder (\emph{U}).
+#'  If a single bias model for jointly modeling \emph{Y} and \emph{U}
+#'  is desired use \code{adjust_multinom_uc_omc}.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -21,16 +22,16 @@
 #' @inheritParams adjust_emc_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-#'  where U is the binary unmeasured confounder, X is the binary true
-#'  exposure, Y is the binary true outcome. The number of parameters therefore
-#'  equals 3.
+#'  where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+#'  exposure, \emph{Y} is the binary true outcome. The number of parameters
+#'  therefore equals 3.
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-#'  where Y represents binary true outcome, X is the binary exposure,
-#'  Y* is the binary misclassified outcome,
-#'  C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders. The number of
-#'  parameters therefore equals 3 + j.
+#'  where \emph{Y} represents binary true outcome, \emph{X} is the exposure,
+#'  \emph{Y*} is the binary misclassified outcome,
+#'  \emph{C} represents the vector of measured confounders (if any),
+#'  and \emph{j} corresponds to the number of measured confounders.
+#'  The number of parameters therefore equals 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).
@@ -74,15 +75,14 @@ adjust_uc_omc <- function(
   x <- data[, exposure]
   ystar <- data[, outcome]
 
-  if (sum(x %in% c(0, 1)) != n) {
-    stop("Exposure must be a binary integer.")
-  }
   if (sum(ystar %in% c(0, 1)) != n) {
     stop("Outcome must be a binary integer.")
   }
+
   if (len_u_coefs != 3) {
     stop("Incorrect length of U model coefficients. Length should equal 3.")
   }
+
   if (len_y_coefs != 3 + len_c) {
     stop(
       paste0(
@@ -189,6 +189,7 @@ adjust_uc_omc <- function(
   estimate <- exp(est)
   ci <- c(exp(est + se * qnorm(alpha / 2)),
           exp(est + se * qnorm(1 - alpha / 2)))
+
   return(list(estimate = estimate, ci = ci))
 
 }
