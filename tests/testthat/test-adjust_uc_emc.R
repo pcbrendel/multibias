@@ -2,6 +2,10 @@ set.seed(1234)
 n <- 20000
 nreps <- 10
 
+# cont Y just for testing that function runs
+df_uc_emc$Y_cont <- plogis(df_uc_emc$Y) +
+  rnorm(nrow(df_uc_emc), mean = 0, sd = 0.1)
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X + U,
@@ -18,7 +22,7 @@ x_model <- glm(X ~ Xstar + Y,
 single_run <- adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Y_cont",
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -81,7 +85,7 @@ x_model <- glm(X ~ Xstar + Y + C1,
 single_run <- adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = "C1",
   u_model_coefs = c(
     u_model$coef[1],
@@ -149,7 +153,7 @@ x_model <- glm(X ~ Xstar + Y + C1 + C2,
 single_run <- adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = c("C1", "C2"),
   u_model_coefs = c(
     u_model$coef[1],
@@ -218,7 +222,7 @@ x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
 single_run <- adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",
-  outcome = "Y",
+  outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
   u_model_coefs = c(
     u_model$coef[1],
