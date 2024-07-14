@@ -5,8 +5,9 @@
 #' misclassificaiton.
 #'
 #' This function uses one bias model, a multinomial logistic regression model,
-#' to predict the uncontrolled confounder (U) and exposure (X). If separate bias
-#' models for X and U are desired, use \code{adjust_uc_emc}.
+#' to predict the uncontrolled confounder (\emph{U}) and exposure (\emph{X}).
+#' If separate bias models for \emph{X} and \emph{U} are desired,
+#' use \code{adjust_uc_emc}.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
@@ -20,29 +21,29 @@
 #'
 #' @inheritParams adjust_emc_sel
 #' @param x1u0_model_coefs The regression coefficients corresponding to the
-#'  model:
-#'  \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
-#'  where X is the binary true exposure, U is the binary unmeasured
-#'  confounder, X* is the binary misclassified exposure, Y is the binary
-#'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders.
+#' model:
+#' \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
+#' where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+#' confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+#' outcome, \emph{C} represents the vector of measured confounders (if any),
+#' and \emph{j} corresponds to the number of measured confounders.
 #' @param x0u1_model_coefs The regression coefficients corresponding to the
-#'  model:
-#'  \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
-#'  where X is the binary true exposure, U is the binary unmeasured
-#'  confounder, X* is the binary misclassified exposure, Y is the binary
-#'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders.
+#' model:
+#' \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
+#' where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+#' confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+#' outcome, \emph{C} represents the vector of measured confounders (if any),
+#' and \emph{j} corresponds to the number of measured confounders.
 #' @param x1u1_model_coefs The regression coefficients corresponding to the
-#'  model:
-#'  \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y + \gamma_{3,2+j} C_j, }}
-#'  where X is the binary true exposure, U is the binary unmeasured
-#'  confounder, X* is the binary misclassified exposure, Y is the binary
-#'  outcome, C represents the vector of binary measured confounders (if any),
-#'  and j corresponds to the number of measured confounders.
+#' model:
+#' \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y + \gamma_{3,2+j} C_j, }}
+#' where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+#' confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+#' outcome, \emph{C} represents the vector of measured confounders (if any),
+#' and \emph{j} corresponds to the number of measured confounders.
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_multinom_uc_emc(
@@ -86,9 +87,13 @@ adjust_multinom_uc_emc <- function(
   if (sum(xstar %in% c(0, 1)) != n) {
     stop("Exposure must be a binary integer.")
   }
-  if (sum(y %in% c(0, 1)) != n) {
-    stop("Outcome must be a binary integer.")
+
+  if (sum(y %in% c(0, 1)) == n) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
   }
+
   if (len_x1u0_coefs != 3 + len_c) {
     stop(
       paste0(
@@ -157,14 +162,25 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 1 & Ubar == 0 ~ X1U0,
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
-    suppressWarnings({
-      final <- glm(
-        Y ~ Xbar + Ubar,
-        family = binomial(link = "logit"),
-        weights = combined$pXU,
-        data = combined
-      )
-    })
+
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ Xbar + Ubar,
+          family = binomial(link = "logit"),
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ Xbar + Ubar,
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    }
 
   } else if (len_c == 1) {
 
@@ -207,14 +223,24 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ Xbar + C1 + Ubar,
-        family = binomial(link = "logit"),
-        weights = combined$pXU,
-        data = combined
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ Xbar + C1 + Ubar,
+          family = binomial(link = "logit"),
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ Xbar + C1 + Ubar,
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    }
 
   } else if (len_c == 2) {
 
@@ -263,14 +289,24 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ Xbar + C1 + C2 + Ubar,
-        family = binomial(link = "logit"),
-        weights = combined$pXU,
-        data = combined
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ Xbar + C1 + C2 + Ubar,
+          family = binomial(link = "logit"),
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ Xbar + C1 + C2 + Ubar,
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    }
 
   } else if (len_c == 3) {
 
@@ -323,14 +359,24 @@ adjust_multinom_uc_emc <- function(
                              Xbar == 0 & Ubar == 1 ~ X0U1,
                              Xbar == 1 & Ubar == 1 ~ X1U1))
 
-    suppressWarnings({
-      final <- glm(
-        Y ~ Xbar + C1 + C2 + C3 + Ubar,
-        family = binomial(link = "logit"),
-        weights = combined$pXU,
-        data = combined
-      )
-    })
+    if (y_binary) {
+      suppressWarnings({
+        final <- glm(
+          Y ~ Xbar + C1 + C2 + C3 + Ubar,
+          family = binomial(link = "logit"),
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    } else {
+      suppressWarnings({
+        final <- lm(
+          Y ~ Xbar + C1 + C2 + C3 + Ubar,
+          weights = combined$pXU,
+          data = combined
+        )
+      })
+    }
 
   } else if (len_c > 3) {
 
@@ -342,9 +388,16 @@ adjust_multinom_uc_emc <- function(
   se <- summary(final)$coef[2, 2]
   alpha <- 1 - level
 
-  estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  if (y_binary) {
+    estimate <- exp(est)
+    ci <- c(exp(est + se * qnorm(alpha / 2)),
+            exp(est + se * qnorm(1 - alpha / 2)))
+  } else {
+    estimate <- est
+    ci <- c(est + se * qnorm(alpha / 2),
+            est + se * qnorm(1 - alpha / 2))
+  }
+
   return(list(estimate = estimate, ci = ci))
 
 }
