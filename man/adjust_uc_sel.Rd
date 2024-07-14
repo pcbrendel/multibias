@@ -22,7 +22,7 @@ adjust_uc_sel(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}

@@ -23,31 +23,34 @@ adjust_multinom_emc_omc(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{x1y0_model_coefs}{The regression coefficients corresponding to the
 model:
 \ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-where X is the binary true exposure, Y is the binary true outcome,
-X* is the binary misclassified exposure, Y* is the binary misclassified
-outcome, C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured confounders.}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+binary measured confounders (if any), and \emph{j} corresponds to the
+number of measured confounders.}
 
 \item{x0y1_model_coefs}{The regression coefficients corresponding to the
 model:
 \ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j, }}
-where X is the binary true exposure, Y is the binary true outcome,
-X* is the binary misclassified exposure, Y* is the binary misclassified
-outcome, C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured confounders.}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+binary measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
 
 \item{x1y1_model_coefs}{The regression coefficients corresponding to the
 model:
 \ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
-where X is the binary true exposure, Y is the binary true outcome,
-X* is the binary misclassified exposure, Y* is the binary misclassified
-outcome, C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured confounders.}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+binary measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -64,8 +67,8 @@ misclassification.
 }
 \details{
 This function uses one bias model, a multinomial logistic regression model,
-to predict the exposure (X) and outcome (Y). If separate bias
-models for X and Y are desired, use \code{adjust_emc_omc}.
+to predict the exposure (\emph{X}) and outcome (\emph{Y}). If separate bias
+models for \emph{X} and \emph{Y} are desired, use \code{adjust_emc_omc}.
 
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability

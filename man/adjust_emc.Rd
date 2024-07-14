@@ -21,7 +21,7 @@ adjust_emc(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}

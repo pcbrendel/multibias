@@ -23,7 +23,7 @@ adjust_multinom_uc_omc(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{u1y0_model_coefs}{The regression coefficients corresponding to the
 model:
