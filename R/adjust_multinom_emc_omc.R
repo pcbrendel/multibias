@@ -25,7 +25,7 @@
 #'  where \emph{X} is the binary true exposure, \emph{Y} is the binary
 #'  true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
 #'  is the binary misclassified outcome, \emph{C} represents the vector of
-#'  binary measured confounders (if any), and \emph{j} corresponds to the
+#'  measured confounders (if any), and \emph{j} corresponds to the
 #'  number of measured confounders.
 #' @param x0y1_model_coefs The regression coefficients corresponding to the
 #'  model:
@@ -33,7 +33,7 @@
 #'  where \emph{X} is the binary true exposure, \emph{Y} is the binary
 #'  true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
 #'  is the binary misclassified outcome, \emph{C} represents the vector of
-#'  binary measured confounders (if any),
+#'  measured confounders (if any),
 #'  and \emph{j} corresponds to the number of measured confounders.
 #' @param x1y1_model_coefs The regression coefficients corresponding to the
 #'  model:
@@ -41,7 +41,7 @@
 #'  where \emph{X} is the binary true exposure, \emph{Y} is the binary
 #'  true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
 #'  is the binary misclassified outcome, \emph{C} represents the vector of
-#'  binary measured confounders (if any),
+#'  measured confounders (if any),
 #'  and \emph{j} corresponds to the number of measured confounders.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
