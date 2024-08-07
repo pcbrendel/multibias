@@ -21,7 +21,7 @@ Single biases:
 
 Double biases:
   - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
-  - `adjust_emc_omc` & `adjust_multinom_emc_omc()` adjusts for exposure misclassification and outcome misclassification
+  - `adjust_emc_omc` adjusts for exposure misclassification and outcome misclassification
   - `adjust_omc_sel()` adjusts for outcome misclassification and selection bias
   - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
   - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification

@@ -9,8 +9,11 @@ adjust_emc_omc(
   exposure,
   outcome,
   confounders = NULL,
-  x_model_coefs,
-  y_model_coefs,
+  x_model_coefs = NULL,
+  y_model_coefs = NULL,
+  x1y0_model_coefs = NULL,
+  x0y1_model_coefs = NULL,
+  x1y1_model_coefs = NULL,
   level = 0.95
 )
 }
@@ -40,6 +43,33 @@ misclassified outcome, \emph{C} represents the vector of measured
 confounders (if any), and \emph{j} corresponds to the number of measured
 confounders. The number of parameters is therefore 3 + \emph{j}.}
 
+\item{x1y0_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+measured confounders (if any), and \emph{j} corresponds to the
+number of measured confounders.}
+
+\item{x0y1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
+
+\item{x1y1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{Y} is the binary
+true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+is the binary misclassified outcome, \emph{C} represents the vector of
+measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
+
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
@@ -51,7 +81,11 @@ A list where the first item is the odds ratio estimate of the
 \description{
 \code{adjust_emc_omc} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for exposure misclassification and outcome
-misclassification.
+misclassification. Two different options for the bias parameters are
+available here: 1) parameters from separate models of \emph{X} and \emph{Y}
+(x_model_coefs and y_model_coefs) or 2) parameters from a joint model of
+\emph{X} and \emph{Y} (x1y0_model_coefs, x0y1_model_coefs, and
+x1y1_model_coefs).
 }
 \details{
 Values for the regression coefficients can be applied as
