@@ -13,23 +13,20 @@ Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confound
 
 The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**):
 
-Single biases:
-  - `adjust_emc()` adjusts for exposure misclassification
-  - `adjust_omc()` adjusts for outcome misclassification
-  - `adjust_sel()` adjusts for selection bias
-  - `adjust_uc()` adjusts for uncontrolled confounding
-
-Double biases:
-  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
-  - `adjust_emc_omc` adjusts for exposure misclassification and outcome misclassification
-  - `adjust_omc_sel()` adjusts for outcome misclassification and selection bias
-  - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
-  - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification
-  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias
-
-Triple biases:
-  - `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias
-  - `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` adjusts for uncontrolled confounding, outcome misclassification, and selection bias
+| Function | Adjusts for |
+| -------- | ----------- |
+| `adjust_emc()` | exposure misclassification |
+| `adjust_omc()` | outcome misclassification |
+| `adjust_sel()` | selection bias |
+| `adjust_uc()` | uncontrolled confounding |
+| `adjust_emc_sel()` | exposure misclassification & selection bias |
+| `adjust_emc_omc` | exposure misclassification & outcome misclassification |
+| `adjust_omc_sel()` | outcome misclassification & selection bias |
+| `adjust_uc_emc()` & `adjust_multinom_uc_emc()` | uncontrolled confounding & exposure misclassificaiton |
+| `adjust_uc_omc()` & `adjust_multinom_uc_omc()` | uncontrolled confounding & outcome misclassification |
+| `adjust_uc_sel()` | uncontrolled confounding & selection bias |
+| `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
+| `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
 
 To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/).
 
