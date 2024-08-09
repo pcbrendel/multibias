@@ -19,10 +19,10 @@ df_emc
 }
 \description{
 Data containing one source of bias, three known confounders, and
- 100,000 observations. This data is obtained from \code{df_emc_source}
- by removing the column X. The resulting data corresponds to
- what a researcher would see in the real-world: a misclassified exposure,
- Xstar, and no data on the true exposure. As seen in
- \code{df_emc_source}, the true, unbiased exposure-outcome odds ratio = 2.
+100,000 observations. This data is obtained from \code{df_emc_source}
+by removing the column \emph{X}. The resulting data corresponds to
+what a researcher would see in the real-world: a misclassified exposure,
+\emph{Xstar}, and no data on the true exposure. As seen in
+\code{df_emc_source}, the true, unbiased exposure-outcome odds ratio = 2.
 }
 \keyword{datasets}

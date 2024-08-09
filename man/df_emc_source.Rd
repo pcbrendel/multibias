@@ -3,7 +3,7 @@
 \docType{data}
 \name{df_emc_source}
 \alias{df_emc_source}
-\title{Data source for df_emc}
+\title{Data source for \code{df_emc}}
 \format{
 A dataframe with 100,000 rows and 6 columns:
 \describe{

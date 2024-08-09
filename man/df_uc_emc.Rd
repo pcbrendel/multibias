@@ -19,11 +19,11 @@ df_uc_emc
 }
 \description{
 Data containing two sources of bias, three known confounders, and
- 100,000 observations. This data is obtained from \code{df_uc_emc_source}
- by removing the columns \emph{X} and \emph{U}. The resulting data
- corresponds to what a researcher would see in the real-world: a
- misclassified exposure, \emph{Xstar}, and missing data on a confounder
- \emph{U}. As seen in \code{df_uc_emc_source}, the true, unbiased
- exposure-outcome odds ratio = 2.
+100,000 observations. This data is obtained from \code{df_uc_emc_source}
+by removing the columns \emph{X} and \emph{U}. The resulting data
+corresponds to what a researcher would see in the real-world: a
+misclassified exposure, \emph{Xstar}, and missing data on a confounder
+\emph{U}. As seen in \code{df_uc_emc_source}, the true, unbiased
+exposure-outcome odds ratio = 2.
 }
 \keyword{datasets}
