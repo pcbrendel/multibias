@@ -81,9 +81,9 @@ confidence interval as the vector: (lower bound, upper bound).
 interval, adjusted for uncontrolled confounding and outcome
 misclassificaiton. Two different options for the bias parameters are
 available here: 1) parameters from separate models of \emph{U} and \emph{Y}
-(u_model_coefs and y_model_coefs) or 2) parameters from a joint model of
-\emph{U} and \emph{Y} (u1y0_model_coefs, u0y1_model_coefs, and
-u1y1_model_coefs).
+(\code{u_model_coefs} and \code{y_model_coefs}) or 2) parameters from
+a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
+\code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
 }
 \details{
 Values for the regression coefficients can be applied as

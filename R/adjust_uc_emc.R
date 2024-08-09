@@ -4,9 +4,9 @@
 #' interval, adjusted for uncontrolled confounding and exposure
 #' misclassificaiton. Two different options for the bias parameters are
 #' available here: 1) parameters from separate models of \emph{U} and \emph{X}
-#' (u_model_coefs and x_model_coefs) or 2) parameters from a joint model of
-#' \emph{U} and \emph{X} (x1u0_model_coefs, x0u1_model_coefs, and
-#' x1u1_model_coefs).
+#' (\code{u_model_coefs} and \code{x_model_coefs}) or 2) parameters from a
+#' joint model of \emph{U} and \emph{X} (\code{x1u0_model_coefs},
+#' \code{x0u1_model_coefs}, and \code{x1u1_model_coefs}).
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability

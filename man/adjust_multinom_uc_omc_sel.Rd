@@ -38,33 +38,34 @@ j corresponds to the number of measured confounders.}
 \item{u1y0_model_coefs}{The regression coefficients corresponding to the
 model:
 \ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-where U is the binary unmeasured confounder, Y is the binary true outcome,
-X is the binary exposure, Y* is the binary misclassified outcome, C
-represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured confounders.}
+where \emph{U} is the binary unmeasured confounder, \emph{Y} is the binary
+true outcome, \emph{X} is the binary exposure, \emph{Y*} is the binary
+misclassified outcome, \emph{C} represents the vector of binary measured
+confounders (if any), and \emph{j} corresponds to the number of measured
+confounders.}
 
 \item{u1y1_model_coefs}{The regression coefficients corresponding to the
 model:
 \ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
-where U is the binary unmeasured confounder, Y is the binary true outcome,
-X is the binary exposure, Y* is the binary misclassified outcome, C
+where \emph{U} is the binary unmeasured confounder, \emph{Y} is the binary true outcome,
+\emph{X} is the binary exposure, \emph{Y*} is the binary misclassified outcome, \emph{C}
 represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured confounders.}
+\emph{j} corresponds to the number of measured confounders.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
-where S represents binary selection,
-X is the binary exposure, Y* is the binary misclassified outcome,
-C represents the vector of binary measured confounders (if any), and
-j corresponds to the number of measured confounders.}
+where \emph{S} represents binary selection,
+\emph{X} is the binary exposure, \emph{Y*} is the binary misclassified outcome,
+\emph{C} represents the vector of binary measured confounders (if any), and
+\emph{j} corresponds to the number of measured confounders.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
 \value{
 A list where the first item is the odds ratio estimate of the
- effect of the exposure on the outcome and the second item is the
- confidence interval as the vector: (lower bound, upper bound).
+effect of the exposure on the outcome and the second item is the
+confidence interval as the vector: (lower bound, upper bound).
 }
 \description{
 \code{adjust_multinom_uc_omc_sel} returns the exposure-outcome odds ratio and
@@ -73,8 +74,9 @@ misclassificaiton, and selection bias.
 }
 \details{
 This function uses one bias model, a multinomial logistic regression model,
-to predict the uncontrolled confounder (U) and outcome (Y). If separate bias
-models for U and Y are desired, use \code{adjust_uc_omc_sel}.
+to predict the uncontrolled confounder (\emph{U}) and outcome (\emph{Y}).
+If separate bias models for \emph{U} and \emph{Y} are desired, use
+\code{adjust_uc_omc_sel}.
 
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
