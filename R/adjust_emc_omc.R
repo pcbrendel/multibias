@@ -62,6 +62,7 @@
 #'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
+#' Using x_model_coefs and y_model_coefs ---------------------------------------
 #' adjust_emc_omc(
 #'   df_emc_omc,
 #'   exposure = "Xstar",
@@ -69,6 +70,17 @@
 #'   confounders = "C1",
 #'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
 #'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
+#' )
+#'
+#' Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs --------------
+#' adjust_emc_omc(
+#'   df_emc_omc,
+#'   exposure = "Xstar",
+#'   outcome = "Ystar",
+#'   confounders = "C1",
+#'   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
+#'   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
+#'   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
 #' )
 #'
 #' @import dplyr
@@ -97,6 +109,16 @@ adjust_emc_omc <- function(
   n <- nrow(data)
   len_c <- length(confounders)
 
+  xstar <- data[, exposure]
+  ystar <- data[, outcome]
+
+  if (sum(xstar %in% c(0, 1)) != n) {
+    stop("Exposure must be a binary integer.")
+  }
+  if (sum(ystar %in% c(0, 1)) != n) {
+    stop("Outcome must be a binary integer.")
+  }
+
   # check that user correctly specified bias parameters
   if (!((is.null(x_model_coefs) && is.null(y_model_coefs)) ||
           ((is.null(x1y0_model_coefs) && is.null(x0y1_model_coefs) &&
@@ -108,9 +130,6 @@ adjust_emc_omc <- function(
 
     len_x_coefs <- length(x_model_coefs)
     len_y_coefs <- length(y_model_coefs)
-
-    xstar <- data[, exposure]
-    ystar <- data[, outcome]
 
     if (sum(xstar %in% c(0, 1)) != n) {
       stop("Exposure must be a binary integer.")
@@ -243,15 +262,6 @@ adjust_emc_omc <- function(
     len_x0y1_coefs <- length(x0y1_model_coefs)
     len_x1y1_coefs <- length(x1y1_model_coefs)
 
-    xstar <- data[, exposure]
-    ystar <- data[, outcome]
-
-    if (sum(xstar %in% c(0, 1)) != n) {
-      stop("Exposure must be a binary integer.")
-    }
-    if (sum(ystar %in% c(0, 1)) != n) {
-      stop("Outcome must be a binary integer.")
-    }
     if (len_x1y0_coefs != 3 + len_c) {
       stop(
         paste0(
