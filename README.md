@@ -7,7 +7,7 @@
 
 ## Overview
 
-The multibias package is used to adjust for multiple biases in causal inference when working with observational data. Bias here refers to the case when the associational estimate of effect (e.g., $P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)$) does not equal the causal estimate of effect (e.g., $P(Y^{X=1}=1) / P(Y^{X=0}=1)$). The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
+The multibias package is used to adjust for multiple biases in causal inference when working with observational data. Bias here refers to the case when the associational estimate of effect (e.g., $`P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)`$) does not equal the causal estimate of effect (e.g., $`P(Y^{X=1}=1) / P(Y^{X=0}=1)`$). The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
