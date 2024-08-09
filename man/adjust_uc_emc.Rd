@@ -9,8 +9,11 @@ adjust_uc_emc(
   exposure,
   outcome,
   confounders = NULL,
-  u_model_coefs,
-  x_model_coefs,
+  u_model_coefs = NULL,
+  x_model_coefs = NULL,
+  x1u0_model_coefs = NULL,
+  x0u1_model_coefs = NULL,
+  x1u1_model_coefs = NULL,
   level = 0.95
 )
 }
@@ -38,25 +41,48 @@ outcome, and \emph{C} represents the vector of measured confounders
 (if any), and \emph{j} corresponds to the number of measured confounders.
 The number of parameters therefore equals 3 + \emph{j}.}
 
+\item{x1u0_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+outcome, \emph{C} represents the vector of measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
+
+\item{x0u1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+outcome, \emph{C} represents the vector of measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
+
+\item{x1u1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y + \gamma_{3,2+j} C_j, }}
+where \emph{X} is the binary true exposure, \emph{U} is the binary unmeasured
+confounder, \emph{X*} is the binary misclassified exposure, \emph{Y} is the
+outcome, \emph{C} represents the vector of measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.}
+
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
 \value{
 A list where the first item is the odds ratio estimate of the
- effect of the exposure on the outcome and the second item is the
- confidence interval as the vector: (lower bound, upper bound).
+effect of the exposure on the outcome and the second item is the
+confidence interval as the vector: (lower bound, upper bound).
 }
 \description{
 \code{adjust_uc_emc} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for uncontrolled confounding and exposure
-misclassificaiton.
+misclassificaiton. Two different options for the bias parameters are
+available here: 1) parameters from separate models of \emph{U} and \emph{X}
+(u_model_coefs and x_model_coefs) or 2) parameters from a joint model of
+\emph{U} and \emph{X} (x1u0_model_coefs, x0u1_model_coefs, and
+x1u1_model_coefs).
 }
 \details{
-This function uses two separate logistic regression models to predict the
- binary exposure (\emph{X}) and uncontrolled confounder (\emph{U}).
- If a single bias model for jointly modeling \emph{X} and \emph{U}
- is desired use \code{adjust_multinom_uc_emc}.
-
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
@@ -68,6 +94,7 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
+# Using u_model_coefs and x_model_coefs -------------------------------------
 adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",
@@ -75,6 +102,17 @@ adjust_uc_emc(
   confounders = "C1",
   u_model_coefs = c(-0.23, 0.63, 0.66),
   x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
+)
+
+Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ------------------
+adjust_uc_emc(
+  df_uc_emc,
+  exposure = "Xstar",
+  outcome = "Y",
+  confounders = "C1",
+  x1u0_model_coefs = c(-2.82, 1.62, 0.68, -0.06),
+  x0u1_model_coefs = c(-0.20, 0.00, 0.68, -0.05),
+  x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.27)
 )
 
 }
