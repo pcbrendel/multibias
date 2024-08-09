@@ -1,8 +1,8 @@
 # multibias 1.5.2
 
-* Expanded the number of known confounders in dataframes:
-  * `df_omc_sel`
-  * `df_omc_sel_source`
+* Merged `adjust_multinom_emc_omc` into `adjust_emc_omc`
+* Merged `adjust_multinom_uc_emc` into `adjust_uc_emc`
+* Merged `adjust_multinom_uc_omc` into `adjust_uc_omc`
 * The following functions now support more flexible combinations of continuous
   and binary exposure-outcome variables:
   * `adjust_emc_sel` (exposure must be binary)
@@ -10,6 +10,10 @@
   * `adjust_uc_emc` (exposure must be binary)
   * `adjust_uc_omc` (outcome must be binary)
   * `adjust_multinom_uc_emc` (exposure must be binary)
+  * `adjust_multinom_uc_omc` (outcome must be binary)
+* Expanded the number of known confounders in dataframes:
+  * `df_omc_sel`
+  * `df_omc_sel_source`
 
 # multibias 1.5.1
 

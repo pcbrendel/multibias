@@ -7,7 +7,7 @@
 
 ## Overview
 
-The multibias package is used to adjust for multiple biases in causal inference. The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
+The multibias package is used to adjust for multiple biases in causal inference when working with observational data. Bias here refers to the case when the associational estimate of effect (e.g., $P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)$) does not equal the causal estimate of effect (e.g., $P(Y^{X=1}=1) / P(Y^{X=0}=1)$). The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
@@ -22,8 +22,8 @@ The functions provide odds ratio estimates adjusted for any combination of: unco
 | `adjust_emc_sel()` | exposure misclassification & selection bias |
 | `adjust_emc_omc` | exposure misclassification & outcome misclassification |
 | `adjust_omc_sel()` | outcome misclassification & selection bias |
-| `adjust_uc_emc()` & `adjust_multinom_uc_emc()` | uncontrolled confounding & exposure misclassificaiton |
-| `adjust_uc_omc()` & `adjust_multinom_uc_omc()` | uncontrolled confounding & outcome misclassification |
+| `adjust_uc_emc()` | uncontrolled confounding & exposure misclassificaiton |
+| `adjust_uc_omc()` | uncontrolled confounding & outcome misclassification |
 | `adjust_uc_sel()` | uncontrolled confounding & selection bias |
 | `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
 | `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
