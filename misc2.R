@@ -66,21 +66,13 @@ adjust_uc <- function(
   level = 0.95
 ) {
 
-  # check that col names align
-  if (observed_data$exposure != validation_data$exposure) {
-    stop("Exposure in observed data must match that in validation data.")
-  }
-  if (observed_data$outcome != validation_data$outcome) {
-    stop("Outcome in observed data must match that in validation data.")
-  }
   if (all(observed_data$confounders %in% validation_data$confounders) == FALSE) {
     stop("All confounders in observed data must be present in validation data.")
   }
 
-  # check that df_validation has one more confounder than df_observed
   if (length(validation_data$confounders) -
         length(observed_data$confounders) != 1) {
-    stop("This function adjusts for unobserved confounding from one confounder:\nthe validation data should have one more confounder than the observed data.")
+    stop("This function is adjusting for unobserved confounding from one confounder.\nValidation data must have one more confounder than the observed data.")
   }
 
   n <- nrow(observed_data$data)
@@ -91,7 +83,7 @@ adjust_uc <- function(
   )
   df <- bind_cols(df, observed_data$data[, observed_data$confounders])
 
-  if (sum(df$Y %in% c(0, 1)) == n) {
+  if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
@@ -106,7 +98,19 @@ adjust_uc <- function(
   df_val$U <- validation_data$data[, uc]
   df_val <- bind_cols(df_val, validation_data$data[, observed_data$confounders])
 
-  if (sum(df_val$U %in% c(0, 1)) != n) {
+  if (all(df$X %in% 0:1)) {
+    if (!all(df_val$X %in% 0:1)) {
+      stop("Exposures from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (all(df$Y %in% 0:1)) {
+    if (!all(df_val$Y %in% 0:1)) {
+      stop("Outcomes from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (!all(df_val$U %in% 0:1)) {
     stop("Uncontrolled confounder from the validation data must be a binary integer.")
   }
 
@@ -180,36 +184,33 @@ adjust_uc(df_observed, df_validation)
 
 # ----
 
-adjust_emc <- function(
+adjust_em <- function(
   observed_data,
   validation_data,
   level = 0.95
 ) {
 
-  # check that col names align
-  if (observed_data$misclassified_exposure != validation_data$misclassified_exposure) {
-    stop("Misclassified exposure in observed data must match that in validation data.")
-  }
-  if (observed_data$outcome != validation_data$outcome) {
-    stop("Outcome in observed data must match that in validation data.")
-  }
   if (all(observed_data$confounders %in% validation_data$confounders) == FALSE) {
     stop("All confounders in observed data must be present in validation data.")
+  }
+
+  if (is.null(validation_data$misclassified_exposure)) {
+    stop("This function is adjusting for a misclassified exposure.\nValidation data must have an exposure and misclassified exposure specified.")
   }
 
   n <- nrow(observed_data$data)
 
   df <- data.frame(
-    Xstar = observed_data$data[, observed_data$misclassified_exposure],
+    Xstar = observed_data$data[, observed_data$exposure],
     Y = observed_data$data[, observed_data$outcome]
   )
   df <- bind_cols(df, observed_data$data[, observed_data$confounders])
 
-  if (sum(df$Xstar %in% c(0, 1)) != n) {
+  if (!all(df$Xstar %in% 0:1)) {
     stop("Observed, misclassified exposure must be a binary integer.")
   }
 
-  if (sum(df$Y %in% c(0, 1)) == n) {
+  if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
@@ -218,13 +219,25 @@ adjust_emc <- function(
   df_val <- data.frame(
     X = validation_data$data[, validation_data$exposure],
     Y = validation_data$data[, validation_data$outcome],
-    Xstar = validation_data$data[, validation_data$exposure]
+    Xstar = validation_data$data[, validation_data$misclassified_exposure]
   )
 
-  if (sum(df_val$X %in% c(0, 1)) != n) {
+  if (all(df$Xstar %in% 0:1)) {
+    if (!all(df_val$Xstar %in% 0:1) || !all(df_val$X %in% 0:1)) {
+      stop("Exposures from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (all(df$Y %in% 0:1)) {
+    if (!all(df_val$Y %in% 0:1)) {
+      stop("Outcomes from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (!all(df_val$Xstar %in% 0:1)) {
     stop("Validation, misclassified exposure must be a binary integer.")
   }
-  if (sum(df_val$X %in% c(0, 1)) != n) {
+  if (!all(df_val$X %in% 0:1)) {
     stop("Validation, true exposure must be a binary integer.")
   }
 
@@ -232,25 +245,29 @@ adjust_emc <- function(
                family = binomial(link = "logit"),
                data = df_val)
 
+  # sequence along coefs to predict X in observed data
+  x_mod_coefs <- coef(x_mod)
+  x_pred <- x_mod_coefs[1]
 
+  for (i in 2:length(x_mod_coefs)) {
+    var_name <- names(x_mod_coefs)[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+  }
 
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                      x1_y * df$Y + x1_c1 * df$C1))
+  df$Xpred <- rbinom(n, 1, plogis(x_pred))
 
-    if (y_binary) {
-      final <- glm(
-        Y ~ Xpred + C1,
-        family = binomial(link = "logit"),
-        data = df
-      )
-    } else {
-      final <- lm(
-        Y ~ Xpred + C1,
-        data = df
-      )
-    }
-
-
+  if (y_binary) {
+    final <- glm(
+      Y ~ Xpred + .,
+      family = binomial(link = "logit"),
+      data = df
+    )
+  } else {
+    final <- lm(
+      Y ~ Xpred + .,
+      data = df
+    )
+  }
 
   est <- summary(final)$coef[2, 1]
   se <- summary(final)$coef[2, 2]
@@ -289,4 +306,112 @@ df_validation <- create_causal_data(
 
 print(df_validation)
 
-adjust_uc(df_observed, df_validation)
+adjust_em(df_observed, df_validation)
+
+# ----
+
+adjust_om <- function(
+  observed_data,
+  validation_data,
+  level = 0.95
+) {
+
+  if (all(observed_data$confounders %in% validation_data$confounders) == FALSE) {
+    stop("All confounders in observed data must be present in validation data.")
+  }
+
+  if (is.null(validation_data$misclassified_outcome)) {
+    stop("This function is adjusting for a misclassified outcome\nValidation data must have an outcome and misclassified outcome specified.")
+  }
+
+  n <- nrow(observed_data$data)
+
+  df <- data.frame(
+    X = observed_data$data[, observed_data$exposure],
+    Ystar = observed_data$data[, observed_data$outcome]
+  )
+  df <- bind_cols(df, observed_data$data[, observed_data$confounders])
+
+  if (!all(df$Ystar %in% 0:1)) {
+    stop("Observed, misclassified outcome must be a binary integer.")
+  }
+
+  df_val <- data.frame(
+    X = validation_data$data[, validation_data$exposure],
+    Y = validation_data$data[, validation_data$outcome],
+    Ystar = validation_data$data[, validation_data$misclassified_outcome]
+  )
+
+  if (all(df$X %in% 0:1)) {
+    if (!all(df_val$X %in% 0:1)) {
+      stop("Exposures from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (all(df$Y %in% 0:1)) {
+    if (!all(df_val$Y %in% 0:1) || !all(df_val$Ystar %in% 0:1)) {
+      stop("Outcomes from both datasets must all be binary or all be continuous.")
+    }
+  }
+
+  if (!all(df_val$Ystar %in% 0:1)) {
+    stop("Validation, misclassified outcome must be a binary integer.")
+  }
+  if (!all(df_val$Y %in% 0:1)) {
+    stop("Validation, true outcome must be a binary integer.")
+  }
+
+  y_mod <- glm(Y ~ X + Ystar + .,
+               family = binomial(link = "logit"),
+               data = df_val)
+
+  # sequence along coefs to predict Y in observed data
+  y_mod_coefs <- coef(y_mod)
+  y_pred <- y_mod_coefs[1]
+
+  for (i in 2:length(y_mod_coefs)) {
+    var_name <- names(y_mod_coefs)[i]
+    y_pred <- y_pred + df[[var_name]] * y_mod_coefs[i]
+  }
+
+  df$Ypred <- rbinom(n, 1, plogis(y_pred))
+
+  final <- glm(
+    Ypred ~ X + .,
+    family = binomial(link = "logit"),
+    data = df
+  )
+
+  est <- summary(final)$coef[2, 1]
+  se <- summary(final)$coef[2, 2]
+  alpha <- 1 - level
+
+
+  estimate <- exp(est)
+  ci <- c(exp(est + se * qnorm(alpha / 2)),
+          exp(est + se * qnorm(1 - alpha / 2)))
+
+  return(list(estimate = estimate, ci = ci))
+
+}
+
+df_observed <- create_causal_data(
+  df_omc,
+  exposure = "X",
+  outcome = "Ystar",
+  confounders = c("C1", "C2", "C3"),
+)
+
+print(df_observed)
+
+df_validation <- create_causal_data(
+  df_omc_source,
+  exposure = "X",
+  outcome = "Y",
+  confounders = c("C1", "C2", "C3"),
+  misclassified_outcome = "Ystar"
+)
+
+print(df_validation)
+
+adjust_om(df_observed, df_validation)
