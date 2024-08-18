@@ -104,7 +104,7 @@ adjust_uc_emc(
   x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
 )
 
-Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ------------------
+# Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ----------------
 adjust_uc_emc(
   df_uc_emc,
   exposure = "Xstar",

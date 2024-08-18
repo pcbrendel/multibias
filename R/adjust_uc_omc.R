@@ -70,7 +70,7 @@
 #'   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
 #' )
 #'
-#' Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ------------------
+#' # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
 #' adjust_uc_omc(
 #'   df_uc_omc,
 #'   exposure = "X",

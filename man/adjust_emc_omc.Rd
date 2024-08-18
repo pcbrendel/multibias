@@ -99,7 +99,7 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-Using x_model_coefs and y_model_coefs ---------------------------------------
+# Using x_model_coefs and y_model_coefs -------------------------------------
 adjust_emc_omc(
   df_emc_omc,
   exposure = "Xstar",
@@ -109,7 +109,7 @@ adjust_emc_omc(
   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 )
 
-Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs --------------
+# Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 adjust_emc_omc(
   df_emc_omc,
   exposure = "Xstar",
