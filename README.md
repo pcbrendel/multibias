@@ -11,7 +11,9 @@ The multibias package is used to adjust for multiple biases in causal inference 
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**):
+The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**).
+
+Single bias adjustments:
 
 | Function | Adjusts for |
 | -------- | ----------- |
@@ -19,6 +21,11 @@ The functions provide odds ratio estimates adjusted for any combination of: unco
 | `adjust_omc()` | outcome misclassification |
 | `adjust_sel()` | selection bias |
 | `adjust_uc()` | uncontrolled confounding |
+
+Multiple bias adjustments:
+
+| Function | Adjusts for |
+| -------- | ----------- |
 | `adjust_emc_sel()` | exposure misclassification & selection bias |
 | `adjust_emc_omc` | exposure misclassification & outcome misclassification |
 | `adjust_omc_sel()` | outcome misclassification & selection bias |
@@ -46,5 +53,6 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
+* Ability to input a validation dataframe instead of bias parameters
 * Final triple bias combinations
-* Support for continuous exposure and outcome
+* Additional support for continuous exposure and outcome
