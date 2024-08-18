@@ -19,7 +19,7 @@
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
 #'  where \emph{U} is the binary unmeasured
 #'  confounder, \emph{X} is the exposure, \emph{Y} is the outcome, \emph{C}
-#'  represents the vector of binary measured confounders (if any), and \emph{j}
+#'  represents the vector of measured confounders (if any), and \emph{j}
 #'  corresponds to the number of measured confounders. The number of parameters
 #'  therefore equals 3 + \emph{j}.
 #' @param s_model_coefs The regression coefficients corresponding to the model:

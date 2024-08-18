@@ -5,6 +5,7 @@ library(nnet)
 
 set.seed(1234)
 n <- 100000
+effect_strength <- 2
 
 # DERIVE DATA
 c1 <- rbinom(n, 1, 0.5)
@@ -12,7 +13,7 @@ c2 <- rbinom(n, 1, 0.2)
 c3 <- rbinom(n, 1, 0.8)
 x <- rbinom(n, 1, plogis(-2 + log(1.5) * c1 + log(0.75) * c2 +
                            log(2.5) * c3))
-y <- rbinom(n, 1, plogis(-2.5 + log(2) * x + log(1.5) * c1 -
+y <- rbinom(n, 1, plogis(-2.5 + log(effect_strength) * x + log(1.5) * c1 -
                            log(2.5) * c2 - log(0.75) * c3))
 xstar <- rbinom(n, 1, plogis(-1 + log(5) * x + log(1.25) * y))
 ystar <- rbinom(n, 1, plogis(-1 + log(1.25) * x + log(5) * y))

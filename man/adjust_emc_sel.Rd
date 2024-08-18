@@ -22,21 +22,23 @@ adjust_emc_sel(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
-where X represents the binary true exposure, X* is the binary misclassified
-exposure, Y is the binary outcome, C represents the vector of binary
-measured confounders (if any), and j corresponds to the number of measured
-confounders. The number of parameters is therefore 3 + j.}
+where \emph{X} represents the binary true exposure, \emph{X*} is the
+binary misclassified exposure, \emph{Y} is the outcome,
+\emph{C} represents the vector of
+measured confounders (if any), and \emph{j} corresponds to the number of
+measured confounders. The number of parameters is therefore 3 + \emph{j}.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
-where S represents binary selection, X* is the binary misclassified
-exposure, Y is the binary outcome, C represents the vector of binary
-measured confounders (if any), and j corresponds to the number of
-measured confounders. The number of parameters is therefore 3 + j.}
+where \emph{S} represents binary selection, \emph{X*} is the
+binary misclassified exposure,
+\emph{Y} is the outcome, \emph{C} represents the vector of
+measured confounders (if any), and \emph{j} corresponds to the number of
+measured confounders. The number of parameters is therefore 3 + \emph{j}.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}

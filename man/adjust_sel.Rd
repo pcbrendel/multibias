@@ -21,12 +21,12 @@ adjust_sel(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-where \emph{S} represents binary selection, \emph{X} is the exposure, \emph{Y} is the
-outcome. The number of parameters is therefore 3.}
+where \emph{S} represents binary selection, \emph{X} is the exposure,
+and \emph{Y} is the outcome. The number of parameters is therefore 3.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}

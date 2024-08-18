@@ -4,6 +4,7 @@
 ^data-raw$
 ^LICENSE\.md$
 ^misc\.R$
+^misc2\.R$
 ^\.github$
 ^git$
 ^cran-comments\.md$

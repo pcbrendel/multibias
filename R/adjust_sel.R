@@ -16,8 +16,8 @@
 #' @inheritParams adjust_emc_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where \emph{S} represents binary selection, \emph{X} is the exposure, \emph{Y} is the
-#'  outcome. The number of parameters is therefore 3.
+#'  where \emph{S} represents binary selection, \emph{X} is the exposure,
+#'  and \emph{Y} is the outcome. The number of parameters is therefore 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the
 #'  confidence interval as the vector: (lower bound, upper bound).

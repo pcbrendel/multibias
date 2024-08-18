@@ -9,8 +9,11 @@ adjust_uc_omc(
   exposure,
   outcome,
   confounders = NULL,
-  u_model_coefs,
-  y_model_coefs,
+  u_model_coefs = NULL,
+  y_model_coefs = NULL,
+  u1y0_model_coefs = NULL,
+  u0y1_model_coefs = NULL,
+  u1y1_model_coefs = NULL,
   level = 0.95
 )
 }
@@ -22,40 +25,67 @@ adjust_uc_omc(
 \item{outcome}{String name of the outcome variable.}
 
 \item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders are allowed.}
+A maximum of three confounders is allowed.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-where U is the binary unmeasured confounder, X is the binary true
-exposure, Y is the binary true outcome. The number of parameters therefore
-equals 3.}
+where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+exposure, \emph{Y} is the binary true outcome. The number of parameters
+therefore equals 3.}
 
 \item{y_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-where Y represents binary true outcome, X is the binary exposure,
-Y* is the binary misclassified outcome,
-C represents the vector of binary measured confounders (if any),
-and j corresponds to the number of measured confounders. The number of
-parameters therefore equals 3 + j.}
+where \emph{Y} represents binary true outcome, \emph{X} is the exposure,
+\emph{Y*} is the binary misclassified outcome,
+\emph{C} represents the vector of measured confounders (if any),
+and \emph{j} corresponds to the number of measured confounders.
+The number of parameters therefore equals 3 + \emph{j}.}
+
+\item{u1y0_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
+where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
+binary true outcome, \emph{X} is the exposure, \emph{Y*} is the binary
+misclassified outcome, \emph{C} represents the vector of measured
+confounders (if any), and \emph{j} corresponds to the number of
+measured confounders.}
+
+\item{u0y1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(U=0,Y=1)/P(U=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=0,Y=1)/P(U=0,Y=0)) = \gamma_{2,0} + \gamma_{2,1} X + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j,}}
+where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
+binary true outcome, \emph{X} is the exposure, \emph{Y*} is the binary
+misclassified outcome, \emph{C} represents the vector of measured
+confounders (if any), and \emph{j} corresponds to the number of
+measured confounders.}
+
+\item{u1y1_model_coefs}{The regression coefficients corresponding to the
+model:
+\ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j,}}
+where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
+binary true outcome, \emph{X} is the exposure, \emph{Y*} is the binary
+misclassified outcome, \emph{C} represents the vector of measured
+confounders (if any), and \emph{j} corresponds to the number of
+measured confounders.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
 }
 \value{
 A list where the first item is the odds ratio estimate of the
- effect of the exposure on the outcome and the second item is the
- confidence interval as the vector: (lower bound, upper bound).
+effect of the exposure on the outcome and the second item is the
+confidence interval as the vector: (lower bound, upper bound).
 }
 \description{
 \code{adjust_uc_omc} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for uncontrolled confounding and outcome
-misclassificaiton.
+misclassificaiton. Two different options for the bias parameters are
+available here: 1) parameters from separate models of \emph{U} and \emph{Y}
+(\code{u_model_coefs} and \code{y_model_coefs}) or 2) parameters from
+a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
+\code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
 }
 \details{
-This function uses two separate logistic regression models to predict the
-uncontrolled confounder (U) and outcome (Y). If a single bias model for
-jointly modeling Y and U is desired use \code{adjust_multinom_uc_omc}.
-
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
@@ -67,13 +97,25 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
+# Using u_model_coefs and y_model_coefs -------------------------------------
 adjust_uc_omc(
   df_uc_omc,
-  "X",
-  "Ystar",
-  "C1",
+  exposure = "X",
+  outcome = "Ystar",
+  confounders = "C1",
   u_model_coefs = c(-0.22, 0.61, 0.70),
   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
+)
+
+# Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
+adjust_uc_omc(
+  df_uc_omc,
+  exposure = "X",
+  outcome = "Ystar",
+  confounders = "C1",
+  u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
+  u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
+  u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
 )
 
 }

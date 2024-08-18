@@ -1,4 +1,4 @@
-#' Data source for df_emc
+#' Data source for \code{df_emc}
 #'
 #' Data with complete information on one sources of bias, three known
 #'  confounders, and 100,000 observations. This data is used to derive

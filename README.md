@@ -7,29 +7,33 @@
 
 ## Overview
 
-The multibias package is used to adjust for multiple biases in causal inference. The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
+The multibias package is used to adjust for multiple biases in causal inference when working with observational data. Bias here refers to the case when the associational estimate of effect (e.g., $`P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)`$) does not equal the causal estimate of effect (e.g., $`P(Y^{X=1}=1) / P(Y^{X=0}=1)`$). The underlying methods are explained in the [article](https://doi.org/10.1093/ije/dyad001):
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**):
+The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**).
 
-Single biases:
-  - `adjust_emc()` adjusts for exposure misclassification
-  - `adjust_omc()` adjusts for outcome misclassification
-  - `adjust_sel()` adjusts for selection bias
-  - `adjust_uc()` adjusts for uncontrolled confounding
+Single bias adjustments:
 
-Double biases:
-  - `adjust_emc_sel()` adjusts for exposure misclassification and selection bias
-  - `adjust_emc_omc` & `adjust_multinom_emc_omc()` adjusts for exposure misclassification and outcome misclassification
-  - `adjust_omc_sel()` adjusts for outcome misclassification and selection bias
-  - `adjust_uc_emc()` & `adjust_multinom_uc_emc()` adjusts for uncontrolled confounding and exposure misclassificaiton
-  - `adjust_uc_omc()` & `adjust_multinom_uc_omc()` adjusts for uncontrolled confounding and outcome misclassification
-  - `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias
+| Function | Adjusts for |
+| -------- | ----------- |
+| `adjust_emc()` | exposure misclassification |
+| `adjust_omc()` | outcome misclassification |
+| `adjust_sel()` | selection bias |
+| `adjust_uc()` | uncontrolled confounding |
 
-Triple biases:
-  - `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` adjusts for uncontrolled confounding, exposure misclassification, and selection bias
-  - `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` adjusts for uncontrolled confounding, outcome misclassification, and selection bias
+Multiple bias adjustments:
+
+| Function | Adjusts for |
+| -------- | ----------- |
+| `adjust_emc_sel()` | exposure misclassification & selection bias |
+| `adjust_emc_omc` | exposure misclassification & outcome misclassification |
+| `adjust_omc_sel()` | outcome misclassification & selection bias |
+| `adjust_uc_emc()` | uncontrolled confounding & exposure misclassificaiton |
+| `adjust_uc_omc()` | uncontrolled confounding & outcome misclassification |
+| `adjust_uc_sel()` | uncontrolled confounding & selection bias |
+| `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
+| `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
 
 To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/).
 
@@ -49,5 +53,6 @@ devtools::install_github("pcbrendel/multibias")
 ```
 
 ## Coming soon
+* Ability to input a validation dataframe instead of bias parameters
 * Final triple bias combinations
-* Support for continuous exposure and outcome
+* Additional support for continuous exposure and outcome

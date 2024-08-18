@@ -19,11 +19,11 @@ df_uc_omc
 }
 \description{
 Data containing two sources of bias, three known confounders, and
- 100,000 observations. This data is obtained from \code{df_uc_omc_source}
- by removing the columns \emph{Y} and \emph{U}. The resulting data
- corresponds to what a researcher would see in the real-world: a
- misclassified outcome, \emph{Ystar}, and missing data on the binary
- confounder \emph{U}. As seen in \code{df_uc_omc_source}, the true, unbiased
- exposure-outcome odds ratio = 2.
+100,000 observations. This data is obtained from \code{df_uc_omc_source}
+by removing the columns \emph{Y} and \emph{U}. The resulting data
+corresponds to what a researcher would see in the real-world: a
+misclassified outcome, \emph{Ystar}, and missing data on the binary
+confounder \emph{U}. As seen in \code{df_uc_omc_source}, the true, unbiased
+exposure-outcome odds ratio = 2.
 }
 \keyword{datasets}
