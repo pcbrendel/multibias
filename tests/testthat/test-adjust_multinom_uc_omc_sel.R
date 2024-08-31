@@ -4,6 +4,10 @@ set.seed(1234)
 n <- 10000
 nreps <- 10
 
+# cont X just for testing that function runs
+df_uc_omc_sel$X_cont <- plogis(df_uc_omc_sel$X) +
+  rnorm(nrow(df_uc_omc_sel), mean = 0, sd = 0.1)
+
 # 0 confounders
 
 nobias_model <- glm(Y ~ X + U,
@@ -21,7 +25,7 @@ s_model <- glm(S ~ X + Ystar,
 
 single_run <- adjust_multinom_uc_omc_sel(
   df_uc_omc_sel,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   u1y0_model_coefs = c(-0.32, 0.59, 0.01),
   u0y1_model_coefs = c(-2.98, 0.71, 1.65),
@@ -82,7 +86,7 @@ s_model <- glm(S ~ X + Ystar + C1,
 
 single_run <- adjust_multinom_uc_omc_sel(
   df_uc_omc_sel,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = "C1",
   u1y0_model_coefs = c(-0.29, 0.60, 0.01, -0.08),
@@ -147,7 +151,7 @@ s_model <- glm(S ~ X + Ystar + C1 + C2,
 
 single_run <- adjust_multinom_uc_omc_sel(
   df_uc_omc_sel,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2"),
   u1y0_model_coefs = c(-0.31, 0.60, 0.01, -0.08, 0.10),
@@ -214,7 +218,7 @@ s_model <- glm(S ~ X + Ystar + C1 + C2 + C3,
 
 single_run <- adjust_multinom_uc_omc_sel(
   df_uc_omc_sel,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3"),
   u1y0_model_coefs = c(-0.20, 0.62, 0.01, -0.08, 0.10, -0.15),

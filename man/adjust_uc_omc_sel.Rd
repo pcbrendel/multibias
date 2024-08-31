@@ -29,20 +29,20 @@ A maximum of three confounders is allowed.}
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-binary exposure, and \emph{Y} is the binary true outcome.
+exposure, and \emph{Y} is the binary true outcome.
 The number of parameters therefore equals 3.}
 
 \item{y_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
 where \emph{Y} represents binary true outcome, \emph{X} is the
-binary exposure, \emph{Y}* is the binary misclassified outcome, \emph{C}
+exposure, \emph{Y}* is the binary misclassified outcome, \emph{C}
 represents the vector of measured confounders (if any),
 and \emph{j} corresponds to the number of measured
 confounders. The number of parameters therefore equals 3 + \emph{j}.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>2+j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
-where \emph{S} represents binary selection, \emph{X} is the binary exposure,
+where \emph{S} represents binary selection, \emph{X} is the exposure,
 \emph{Y*} is the binary misclassified outcome, \emph{C} represents
 the vector of measured confounders (if any), and \emph{j} corresponds
 to the number of measured confounders.
