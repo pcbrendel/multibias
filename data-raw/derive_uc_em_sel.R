@@ -138,10 +138,10 @@ adjust_uc_em_sel(
 # CREATE PACKAGE DATA
 df_uc_em_sel_source <- df
 head(df_uc_em_sel_source)
-use_data(df_uc_em_sel_source)
+use_data(df_uc_em_sel_source, overwrite = TRUE)
 
 row.names(s1df) <- NULL
 df_uc_em_sel <- s1df %>%
   select(Xstar, Y, C1, C2, C3) # only have access to these in real-world
 head(df_uc_em_sel)
-use_data(df_uc_em_sel)
+use_data(df_uc_em_sel, overwrite = TRUE)

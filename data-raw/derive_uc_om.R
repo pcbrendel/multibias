@@ -14,7 +14,7 @@ c3 <- rbinom(n, 1, 0.8)
 u <- rbinom(n, 1, .5)
 x <- rbinom(n, 1, plogis(-2 + log(1.5) * c1 + log(0.75) * c2 +
                            log(2.5) * c3 + log(2) * u))
-y <- rbinom(n, 1, plogis(-2.5 + log(effect_strength) * x_bi + log(1.5) * c1 -
+y <- rbinom(n, 1, plogis(-2.5 + log(effect_strength) * x + log(1.5) * c1 -
                            log(2.5) * c2 - log(0.75) * c3 + log(2) * u))
 ystar <- rbinom(n, 1, plogis(-1 + log(1.25) * x + log(5) * y))
 
