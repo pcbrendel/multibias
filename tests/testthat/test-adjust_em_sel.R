@@ -3,24 +3,24 @@ n <- 10000
 nreps <- 10
 
 # cont Y just for testing that function runs
-df_emc_sel$Y_cont <- plogis(df_emc_sel$Y) +
-  rnorm(nrow(df_emc_sel), mean = 0, sd = 0.1)
+df_em_sel$Y_cont <- plogis(df_em_sel$Y) +
+  rnorm(nrow(df_em_sel), mean = 0, sd = 0.1)
 
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_em_sel_source)
 
 x_model <- glm(X ~ Xstar + Y,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 s_model <- glm(S ~ Xstar + Y,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_em_sel(
+  df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
   x_model_coefs = c(
@@ -37,8 +37,8 @@ single_run <- adjust_emc_sel(
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em_sel(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
@@ -73,17 +73,17 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_em_sel_source)
 
 x_model <- glm(X ~ Xstar + Y + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 s_model <- glm(S ~ Xstar + Y + C1,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_em_sel(
+  df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
   confounders = "C1",
@@ -103,8 +103,8 @@ single_run <- adjust_emc_sel(
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em_sel(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
@@ -142,17 +142,17 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_em_sel_source)
 
 x_model <- glm(X ~ Xstar + Y + C1 + C2,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 s_model <- glm(S ~ Xstar + Y + C1 + C2,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_em_sel(
+  df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
   confounders = c("C1", "C2"),
@@ -174,8 +174,8 @@ single_run <- adjust_emc_sel(
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em_sel(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
@@ -215,17 +215,17 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2 + C3,
                     family = binomial(link = "logit"),
-                    data = df_emc_sel_source)
+                    data = df_em_sel_source)
 
 x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_emc_sel_source)
+               data = df_em_sel_source)
 
-single_run <- adjust_emc_sel(
-  df_emc_sel,
+single_run <- adjust_em_sel(
+  df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
@@ -249,8 +249,8 @@ single_run <- adjust_emc_sel(
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_emc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_emc_sel(
+  bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em_sel(
     bdf,
     exposure = "Xstar",
     outcome = "Y",

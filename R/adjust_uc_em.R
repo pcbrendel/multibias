@@ -1,6 +1,6 @@
 #' Adust for uncontrolled confounding and exposure misclassification.
 #'
-#' \code{adjust_uc_emc} returns the exposure-outcome odds ratio and confidence
+#' \code{adjust_uc_em} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding and exposure
 #' misclassificaiton. Two different options for the bias parameters are
 #' available here: 1) parameters from separate models of \emph{U} and \emph{X}
@@ -18,7 +18,7 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_emc_sel
+#' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 #' where \emph{U} is the binary unmeasured confounder, \emph{X} is the
@@ -58,8 +58,8 @@
 #'
 #' @examples
 #' # Using u_model_coefs and x_model_coefs -------------------------------------
-#' adjust_uc_emc(
-#'   df_uc_emc,
+#' adjust_uc_em(
+#'   df_uc_em,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
 #'   confounders = "C1",
@@ -68,8 +68,8 @@
 #' )
 #'
 #' # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ----------------
-#' adjust_uc_emc(
-#'   df_uc_emc,
+#' adjust_uc_em(
+#'   df_uc_em,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
 #'   confounders = "C1",
@@ -89,7 +89,7 @@
 #'
 #' @export
 
-adjust_uc_emc <- function(
+adjust_uc_em <- function(
   data,
   exposure,
   outcome,

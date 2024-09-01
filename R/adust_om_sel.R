@@ -1,6 +1,6 @@
 #' Adust for outcome misclassification and selection bias.
 #'
-#' \code{adjust_omc_sel} returns the exposure-outcome odds ratio and confidence
+#' \code{adjust_om_sel} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for outcome misclassification and selection bias.
 #'
 #' Values for the regression coefficients can be applied as
@@ -13,7 +13,7 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_emc_sel
+#' @inheritParams adjust_em_sel
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
 #'  where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
@@ -33,8 +33,8 @@
 #'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_omc_sel(
-#'   df_omc_sel,
+#' adjust_om_sel(
+#'   df_om_sel,
 #'   exposure = "X",
 #'   outcome = "Ystar",
 #'   confounders = "C1",
@@ -52,7 +52,7 @@
 #'
 #' @export
 
-adjust_omc_sel <- function(
+adjust_om_sel <- function(
   data,
   exposure,
   outcome,

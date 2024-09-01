@@ -1,6 +1,6 @@
 #' Adust for outcome misclassification.
 #'
-#' \code{adjust_omc} returns the exposure-outcome odds ratio and confidence
+#' \code{adjust_om} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for outcome misclassificaiton.
 #'
 #' Values for the regression coefficients can be applied as
@@ -13,7 +13,7 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_emc_sel
+#' @inheritParams adjust_em_sel
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \_delta_0 + \_delta_1 X + \_delta_2 Y^* + \_delta_{2+j} C_j, }}
 #'  where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
@@ -26,7 +26,7 @@
 #'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_omc(
+#' adjust_om(
 #'   evans,
 #'   exposure = "SMK",
 #'   outcome = "CHD",
@@ -45,7 +45,7 @@
 #'
 #' @export
 
-adjust_omc <- function(
+adjust_om <- function(
   data,
   exposure,
   outcome,

@@ -7,6 +7,7 @@ library(roxygen2)
 # library(available)
 
 load_all()
+build()
 
 # document
 roxygenize()
@@ -14,8 +15,8 @@ document()
 
 # testing
 usethis::use_testthat()
-use_test("adjust_emc_sel") # creates test
-test_active_file("tests/testthat/test-adjust_uc_emc_sel.R") # single test
+use_test("adjust_em_sel") # creates test
+test_active_file("tests/testthat/test-adjust_uc_em_sel.R") # single test
 test() # tests all
 
 # check
@@ -101,8 +102,8 @@ adjust_uc(
 # 2.27 (1.25, 4.10)
 
 full_model <- glm(CHD ~ SMK + HPT + AGE,
-                    data = evans,
-                    family = binomial(link = "logit"))
+                  data = evans,
+                  family = binomial(link = "logit"))
 or <- round(exp(coef(full_model)[2]), 2)
 or_ci_low <- round(exp(coef(biased_model)[2] -
                          1.96 * summary(full_model)$coef[2, 2]), 2)
@@ -115,7 +116,7 @@ print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
 
 # README example 2
 
-head(df_uc_emc_sel)
+head(df_uc_em_sel)
 
 biased_model <- glm(Y ~ Xstar + C1 + C2 + C3,
                     data = df_uc_emc_sel,
@@ -146,11 +147,11 @@ est <- vector(length = nreps)
 or <- foreach(i = 1:nreps, .combine = c,
               .packages = c("dplyr", "multibias")) %dopar% {
 
-  df_sample <- df_uc_emc_sel[sample(seq_len(nrow(df_uc_emc_sel)),
-                                    nrow(df_uc_emc_sel),
-                                    replace = TRUE), ]
+  df_sample <- df_uc_em_sel[sample(seq_len(nrow(df_uc_emc_sel)),
+                                   nrow(df_uc_emc_sel),
+                                   replace = TRUE), ]
 
-  est[i] <- adjust_uc_emc_sel(
+  est[i] <- adjust_uc_em_sel(
     df_sample,
     exposure = "Xstar",
     outcome = "Y",

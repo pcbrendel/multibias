@@ -113,7 +113,7 @@ which represents a fraction of all people in the source population from which we
 A simulated dataframe corresponding to this DAG, `df_uc_emc_sel` can be loaded from the `multibias` package. 
 
 ```{r, eval = TRUE}
-head(df_uc_emc_sel)
+head(df_uc_em_sel)
 ```
 
 In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources.
@@ -121,7 +121,7 @@ In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) e
 ```{r, eval = TRUE}
 biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, ,
                     family = binomial(link = "logit"),
-                    data = df_uc_emc_sel)
+                    data = df_uc_em_sel)
 biased_or <- round(exp(coef(biased_model)[2]), 2)
 print(paste0("Biased Odds Ratio: ", biased_or))
 ```
@@ -141,13 +141,13 @@ To perform the bias adjustment, it is necessary to obtain values of these bias p
 ```{r, eval = TRUE}
 u_model <- glm(U ~ X + Y,
                family = binomial(link = "logit"),
-               data = df_uc_emc_sel_source)
+               data = df_uc_em_sel_source)
 x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_uc_emc_sel_source)
+               data = df_uc_em_sel_source)
 s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_uc_emc_sel_source)
+               data = df_uc_em_sel_source)
 ```
 
 In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. Below we create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
@@ -164,17 +164,17 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
-Next we run the parallel for loop in which we apply the `adjust_uc_emc_sel()` function to bootstrap samples of the `df_uc_emc_sel` data. We specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the *U* model coefficients, the *X* model coefficients, and the *S* model coefficients. Since knowledge of the source data was known, the correct bias parameters can be applied.  Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will now have slightly different values for the bias parameters, corresponding to our uncertainty in their estimates.
+Next we run the parallel for loop in which we apply the `adjust_uc_em_sel()` function to bootstrap samples of the `df_uc_em_sel` data. We specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the *U* model coefficients, the *X* model coefficients, and the *S* model coefficients. Since knowledge of the source data was known, the correct bias parameters can be applied.  Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will now have slightly different values for the bias parameters, corresponding to our uncertainty in their estimates.
 
 ```{r, eval = FALSE}
 or <- foreach(i = 1:nreps, .combine = c,
               .packages = c("dplyr", "multibias")) %dopar% {
 
-  df_sample <- df_uc_emc_sel[sample(seq_len(nrow(df_uc_emc_sel)),
-                                    nrow(df_uc_emc_sel),
-                                    replace = TRUE), ]
+  df_sample <- df_uc_em_sel[sample(seq_len(nrow(df_uc_em_sel)),
+                                   nrow(df_uc_em_sel),
+                                   replace = TRUE), ]
 
-  est[i] <- adjust_uc_emc_sel(
+  est[i] <- adjust_uc_em_sel(
     df_sample,
     exposure = "Xstar",
     outcome = "Y",

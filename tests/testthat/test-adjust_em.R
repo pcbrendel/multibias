@@ -2,41 +2,41 @@ set.seed(1234)
 n <- 10000
 nreps <- 10
 
-# cont X just for testing that function runs
-df_omc$X_cont <- plogis(df_omc$X) + rnorm(nrow(df_omc), mean = 0, sd = 0.1)
+# cont Y just for testing that function runs
+df_em$Y_cont <- plogis(df_em$Y) + rnorm(nrow(df_em), mean = 0, sd = 0.1)
 
 # 0 confounders
 
 nobias_model <- glm(Y ~ X,
                     family = binomial(link = "logit"),
-                    data = df_omc_source)
+                    data = df_em_source)
 
-y_model <- glm(Y ~ X + Ystar,
+x_model <- glm(X ~ Xstar + Y,
                family = binomial(link = "logit"),
-               data = df_omc_source)
+               data = df_em_source)
 
-single_run <- adjust_omc(
-  df_omc,
-  exposure = "X_cont",
-  outcome = "Ystar",
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3]
+single_run <- adjust_em(
+  df_em,
+  exposure = "Xstar",
+  outcome = "Y_cont",
+  x_model_coefs = c(
+    x_model$coef[1],
+    x_model$coef[2],
+    x_model$coef[3]
   )
 )
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_omc(
+  bdf <- df_em[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em(
     bdf,
-    exposure = "X",
-    outcome = "Ystar",
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3]
+    exposure = "Xstar",
+    outcome = "Y",
+    x_model_coefs = c(
+      x_model$coef[1],
+      x_model$coef[2],
+      x_model$coef[3]
     )
   )
   est[i] <- results$estimate
@@ -59,38 +59,38 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1,
                     family = binomial(link = "logit"),
-                    data = df_omc_source)
+                    data = df_em_source)
 
-y_model <- glm(Y ~ X + Ystar + C1,
+x_model <- glm(X ~ Xstar + Y + C1,
                family = binomial(link = "logit"),
-               data = df_omc_source)
+               data = df_em_source)
 
-single_run <- adjust_omc(
-  df_omc,
-  exposure = "X_cont",
-  outcome = "Ystar",
+single_run <- adjust_em(
+  df_em,
+  exposure = "Xstar",
+  outcome = "Y_cont",
   confounders = "C1",
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4]
+  x_model_coefs = c(
+    x_model$coef[1],
+    x_model$coef[2],
+    x_model$coef[3],
+    x_model$coef[4]
   )
 )
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_omc(
+  bdf <- df_em[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em(
     bdf,
-    exposure = "X",
-    outcome = "Ystar",
+    exposure = "Xstar",
+    outcome = "Y",
     confounders = "C1",
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4]
+    x_model_coefs = c(
+      x_model$coef[1],
+      x_model$coef[2],
+      x_model$coef[3],
+      x_model$coef[4]
     )
   )
   est[i] <- results$estimate
@@ -113,40 +113,40 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2,
                     family = binomial(link = "logit"),
-                    data = df_omc_source)
+                    data = df_em_source)
 
-y_model <- glm(Y ~ X + Ystar + C1 + C2,
+x_model <- glm(X ~ Xstar + Y + C1 + C2,
                family = binomial(link = "logit"),
-               data = df_omc_source)
+               data = df_em_source)
 
-single_run <- adjust_omc(
-  df_omc,
-  exposure = "X_cont",
-  outcome = "Ystar",
+single_run <- adjust_em(
+  df_em,
+  exposure = "Xstar",
+  outcome = "Y_cont",
   confounders = c("C1", "C2"),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4],
-    y_model$coef[5]
+  x_model_coefs = c(
+    x_model$coef[1],
+    x_model$coef[2],
+    x_model$coef[3],
+    x_model$coef[4],
+    x_model$coef[5]
   )
 )
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_omc(
+  bdf <- df_em[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em(
     bdf,
-    exposure = "X",
-    outcome = "Ystar",
+    exposure = "Xstar",
+    outcome = "Y",
     confounders = c("C1", "C2"),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4],
-      y_model$coef[5]
+    x_model_coefs = c(
+      x_model$coef[1],
+      x_model$coef[2],
+      x_model$coef[3],
+      x_model$coef[4],
+      x_model$coef[5]
     )
   )
   est[i] <- results$estimate
@@ -169,42 +169,42 @@ test_that("odds ratio and confidence interval output", {
 
 nobias_model <- glm(Y ~ X + C1 + C2 + C3,
                     family = binomial(link = "logit"),
-                    data = df_omc_source)
+                    data = df_em_source)
 
-y_model <- glm(Y ~ X + Ystar + C1 + C2 + C3,
+x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
                family = binomial(link = "logit"),
-               data = df_omc_source)
+               data = df_em_source)
 
-single_run <- adjust_omc(
-  df_omc,
-  exposure = "X_cont",
-  outcome = "Ystar",
+single_run <- adjust_em(
+  df_em,
+  exposure = "Xstar",
+  outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4],
-    y_model$coef[5],
-    y_model$coef[6]
+  x_model_coefs = c(
+    x_model$coef[1],
+    x_model$coef[2],
+    x_model$coef[3],
+    x_model$coef[4],
+    x_model$coef[5],
+    x_model$coef[6]
   )
 )
 
 est <- vector()
 for (i in 1:nreps) {
-  bdf <- df_omc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_omc(
+  bdf <- df_em[sample(seq_len(n), n, replace = TRUE), ]
+  results <- adjust_em(
     bdf,
-    exposure = "X",
-    outcome = "Ystar",
+    exposure = "Xstar",
+    outcome = "Y",
     confounders = c("C1", "C2", "C3"),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4],
-      y_model$coef[5],
-      y_model$coef[6]
+    x_model_coefs = c(
+      x_model$coef[1],
+      x_model$coef[2],
+      x_model$coef[3],
+      x_model$coef[4],
+      x_model$coef[5],
+      x_model$coef[6]
     )
   )
   est[i] <- results$estimate

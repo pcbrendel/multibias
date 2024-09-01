@@ -13,7 +13,7 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_emc_sel
+#' @inheritParams adjust_em_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
 #'  where \emph{S} represents binary selection, \emph{X} is the exposure,

@@ -1,6 +1,6 @@
 #' Adust for exposure misclassification and selection bias.
 #'
-#' \code{adjust_emc_sel} returns the exposure-outcome odds ratio and confidence
+#' \code{adjust_em_sel} returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
 #' Values for the regression coefficients can be applied as
@@ -39,8 +39,8 @@
 #'  confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_emc_sel(
-#'   df_emc_sel,
+#' adjust_em_sel(
+#'   df_em_sel,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
 #'   confounders = "C1",
@@ -59,7 +59,7 @@
 #'
 #' @export
 
-adjust_emc_sel <- function(
+adjust_em_sel <- function(
   data,
   exposure,
   outcome,

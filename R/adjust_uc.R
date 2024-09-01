@@ -13,7 +13,7 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_emc_sel
+#' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
 #'  where \emph{U} is the binary unmeasured confounder, \emph{X} is the

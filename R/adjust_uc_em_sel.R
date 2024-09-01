@@ -64,6 +64,7 @@
 #' \emph{C} represents the vector of measured confounders (if any),
 #' and \emph{j} corresponds to the number of measured confounders.
 #' The number of parameters therefore equals 3 + \emph{j}.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
@@ -80,7 +81,7 @@
 #'   s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
 #' )
 #'
-#' # Using u_model_coefs, x_model_coefs, s_model_coefs -------------------------
+#' # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs, s_model_coefs
 #' adjust_uc_em_sel(
 #'   df_uc_em_sel,
 #'   exposure = "Xstar",
@@ -113,7 +114,7 @@ adjust_uc_em_sel <- function(
   x1u0_model_coefs = NULL,
   x0u1_model_coefs = NULL,
   x1u1_model_coefs = NULL,
-  s_model_coefs = NULL,
+  s_model_coefs,
   level = 0.95
 ) {
 
@@ -312,7 +313,7 @@ adjust_uc_em_sel <- function(
           Xpred = rbinom(
             n, 1,
             plogis(x1_0 + x1_xstar * .data$Xstar + x1_y * .data$Y +
-                    x1_c1 * .data$C1 + x1_c2 * .data$C2 + x1_c3 * .data$C3)
+                     x1_c1 * .data$C1 + x1_c2 * .data$C2 + x1_c3 * .data$C3)
           ),
           Upred = rbinom(n, 1, plogis(u1_0 + u1_x * .data$Xpred +
                                         u1_y * .data$Y)),
@@ -425,12 +426,12 @@ adjust_uc_em_sel <- function(
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xu_pred4) %>%
         mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-              Ubar = rep(c(1, 1, 0, 0), each = n),
-              pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
-                              Xbar == 1 & Ubar == 0 ~ X1U0,
-                              Xbar == 0 & Ubar == 1 ~ X0U1,
-                              Xbar == 1 & Ubar == 1 ~ X1U1),
-              pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y))
+               Ubar = rep(c(1, 1, 0, 0), each = n),
+               pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                               Xbar == 1 & Ubar == 0 ~ X1U0,
+                               Xbar == 0 & Ubar == 1 ~ X0U1,
+                               Xbar == 1 & Ubar == 1 ~ X1U1),
+               pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y))
 
       if (y_binary) {
         suppressWarnings({
@@ -484,13 +485,13 @@ adjust_uc_em_sel <- function(
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xu_pred4) %>%
         mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-              Ubar = rep(c(1, 1, 0, 0), each = n),
-              pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
-                              Xbar == 1 & Ubar == 0 ~ X1U0,
-                              Xbar == 0 & Ubar == 1 ~ X0U1,
-                              Xbar == 1 & Ubar == 1 ~ X1U1),
-              pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                            s1_c1 * .data$C1))
+               Ubar = rep(c(1, 1, 0, 0), each = n),
+               pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                               Xbar == 1 & Ubar == 0 ~ X1U0,
+                               Xbar == 0 & Ubar == 1 ~ X0U1,
+                               Xbar == 1 & Ubar == 1 ~ X1U1),
+               pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                             s1_c1 * .data$C1))
 
       if (y_binary) {
         suppressWarnings({
@@ -553,13 +554,13 @@ adjust_uc_em_sel <- function(
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xu_pred4) %>%
         mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-              Ubar = rep(c(1, 1, 0, 0), each = n),
-              pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
-                              Xbar == 1 & Ubar == 0 ~ X1U0,
-                              Xbar == 0 & Ubar == 1 ~ X0U1,
-                              Xbar == 1 & Ubar == 1 ~ X1U1),
-              pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                            s1_c1 * .data$C1 + s1_c2 * .data$C2))
+               Ubar = rep(c(1, 1, 0, 0), each = n),
+               pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                               Xbar == 1 & Ubar == 0 ~ X1U0,
+                               Xbar == 0 & Ubar == 1 ~ X0U1,
+                               Xbar == 1 & Ubar == 1 ~ X1U1),
+               pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                             s1_c1 * .data$C1 + s1_c2 * .data$C2))
 
       if (y_binary) {
         suppressWarnings({
@@ -627,14 +628,14 @@ adjust_uc_em_sel <- function(
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xu_pred4) %>%
         mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-              Ubar = rep(c(1, 1, 0, 0), each = n),
-              pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
-                              Xbar == 1 & Ubar == 0 ~ X1U0,
-                              Xbar == 0 & Ubar == 1 ~ X0U1,
-                              Xbar == 1 & Ubar == 1 ~ X1U1),
-              pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                            s1_c1 * .data$C1 + s1_c2 * .data$C2 +
-                            s1_c3 * .data$C3))
+               Ubar = rep(c(1, 1, 0, 0), each = n),
+               pXU = case_when(Xbar == 0 & Ubar == 0 ~ X0U0,
+                               Xbar == 1 & Ubar == 0 ~ X1U0,
+                               Xbar == 0 & Ubar == 1 ~ X0U1,
+                               Xbar == 1 & Ubar == 1 ~ X1U1),
+               pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+                             s1_c1 * .data$C1 + s1_c2 * .data$C2 +
+                             s1_c3 * .data$C3))
 
       if (y_binary) {
         suppressWarnings({
