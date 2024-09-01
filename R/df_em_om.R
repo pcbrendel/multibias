@@ -5,7 +5,7 @@
 #' by removing the columns \emph{X} and \emph{Y}. The resulting data corresponds
 #' to what a researcher would see in the real-world: a misclassified exposure,
 #' \emph{Xstar}, and a misclassified outcome, \emph{Ystar}. As seen in
-#' \code{df_emc_omc_source}, the true, unbiased exposure-outcome
+#' \code{df_em_om_source}, the true, unbiased exposure-outcome
 #' odds ratio = 2.
 #'
 #' @format A dataframe with 100,000 rows and 5 columns:
@@ -16,4 +16,4 @@
 #'     \item{C2}{2nd confounder, 1 = present and 0 = absent}
 #'     \item{C3}{3rd confounder, 1 = present and 0 = absent}
 #' }
-"df_emc_omc"
+"df_em_om"

@@ -15,4 +15,4 @@
 #'     \item{C2}{2nd confounder, 1 = present and 0 = absent}
 #'     \item{C3}{3rd confounder, 1 = present and 0 = absent}
 #' }
-"df_emc"
+"df_em"

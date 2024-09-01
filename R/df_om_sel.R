@@ -2,11 +2,11 @@
 #'
 #' Data containing two sources of bias, a known confounder, and
 #' 100,000 observations. This data is obtained by sampling with replacement
-#' with probability = \emph{S} from \code{df_omc_sel_source} then removing the
+#' with probability = \emph{S} from \code{df_om_sel_source} then removing the
 #' columns \emph{Y} and \emph{S}. The resulting data corresponds to what a
 #' researcher would see in the real-world: a misclassified outcome,
 #' \emph{Ystar}, and missing data for those not selected into the study
-#' (\emph{S}=0). As seen in \code{df_omc_sel_source}, the true, unbiased
+#' (\emph{S}=0). As seen in \code{df_om_sel_source}, the true, unbiased
 #' exposure-outcome odds ratio = 2.
 #'
 #' @format A dataframe with 100,000 rows and 5 columns:
@@ -17,4 +17,4 @@
 #'     \item{C2}{2nd confounder, 1 = present and 0 = absent}
 #'     \item{C3}{3rd confounder, 1 = present and 0 = absent}
 #' }
-"df_omc_sel"
+"df_om_sel"
