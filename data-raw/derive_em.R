@@ -1,4 +1,4 @@
-# code to prepare `df_emc` and `df_emc_source`
+# code to prepare `df_em` and `df_em_source`
 
 library(tidyverse)
 
@@ -50,7 +50,7 @@ x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
 summary(x_model)
 
 # ADJUST
-adjust_emc(
+adjust_em(
   df,
   "Xstar",
   "Y",
@@ -67,11 +67,11 @@ adjust_emc(
 # 1.87 (1.79, 1.94)
 
 # CREATE PACKAGE DATA
-df_emc_source <- df
-head(df_emc_source)
-use_data(df_emc_source, overwrite = TRUE)
+df_em_source <- df
+head(df_em_source)
+use_data(df_em_source, overwrite = TRUE)
 
-df_emc <- df %>%
+df_em <- df %>%
   select(Xstar, Y, C1, C2, C3) # only have access to these in real-world
-head(df_emc)
-use_data(df_emc, overwrite = TRUE)
+head(df_em)
+use_data(df_em, overwrite = TRUE)

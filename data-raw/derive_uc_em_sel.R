@@ -1,4 +1,4 @@
-# code to prepare `df_uc_emc_sel` and `df_uc_emc_sel_source`
+# code to prepare `df_uc_em_sel` and `df_uc_em_sel_source`
 
 library(tidyverse)
 library(nnet)
@@ -66,7 +66,7 @@ xu_model <- multinom(
 summary(xu_model)
 
 # ADJUST
-adjust_uc_emc_sel(
+adjust_uc_em_sel(
   s1df,
   "Xstar",
   "Y",
@@ -95,7 +95,7 @@ adjust_uc_emc_sel(
 )
 # 2.01 (1.96, 2.06)
 
-adjust_multinom_uc_emc_sel(
+adjust_uc_em_sel(
   df,
   "Xstar",
   "Y",
@@ -136,12 +136,12 @@ adjust_multinom_uc_emc_sel(
 # 2.01 (1.96, 2.07)
 
 # CREATE PACKAGE DATA
-df_uc_emc_sel_source <- df
-head(df_uc_emc_sel_source)
-use_data(df_uc_emc_sel_source)
+df_uc_em_sel_source <- df
+head(df_uc_em_sel_source)
+use_data(df_uc_em_sel_source)
 
 row.names(s1df) <- NULL
-df_uc_emc_sel <- s1df %>%
+df_uc_em_sel <- s1df %>%
   select(Xstar, Y, C1, C2, C3) # only have access to these in real-world
-head(df_uc_emc_sel)
-use_data(df_uc_emc_sel)
+head(df_uc_em_sel)
+use_data(df_uc_em_sel)

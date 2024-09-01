@@ -1,4 +1,4 @@
-# code to prepare `df_uc_omc_sel` and `df_uc_omc_sel_source`
+# code to prepare `df_uc_om_sel` and `df_uc_om_sel_source`
 
 library(tidyverse)
 library(nnet)
@@ -66,7 +66,7 @@ uy_model <- multinom(
 summary(uy_model)
 
 # ADJUST
-adjust_uc_omc_sel(
+adjust_uc_om_sel(
   s1df,
   "X",
   "Ystar",
@@ -95,7 +95,7 @@ adjust_uc_omc_sel(
 )
 # 2.04 (1.99, 2.10)
 
-adjust_multinom_uc_omc_sel(
+adjust_uc_om_sel(
   df,
   "X",
   "Ystar",
@@ -136,12 +136,12 @@ adjust_multinom_uc_omc_sel(
 # 2.02 (1.97, 2.08)
 
 # CREATE PACKAGE DATA
-df_uc_omc_sel_source <- df
-head(df_uc_omc_sel_source)
-use_data(df_uc_omc_sel_source)
+df_uc_om_sel_source <- df
+head(df_uc_om_sel_source)
+use_data(df_uc_om_sel_source)
 
 row.names(s1df) <- NULL
-df_uc_omc_sel <- s1df %>%
+df_uc_om_sel <- s1df %>%
   select(X, Ystar, C1, C2, C3) # only have access to these in real-world
-head(df_uc_omc_sel)
-use_data(df_uc_omc_sel)
+head(df_uc_om_sel)
+use_data(df_uc_om_sel)

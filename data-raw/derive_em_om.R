@@ -1,4 +1,4 @@
-# code to prepare `df_emc_omc` and `df_emc_omc_source`
+# code to prepare `df_em_om` and `df_em_om_source`
 
 library(tidyverse)
 library(nnet)
@@ -61,7 +61,7 @@ xy_model <- multinom(
 summary(xy_model)
 
 # ADJUST
-# adjust_emc_omc(
+# adjust_em_om(
 #   df,
 #   "Xstar",
 #   "Ystar",
@@ -77,7 +77,7 @@ summary(xy_model)
 # )
 # (, )
 
-adjust_multinom_emc_omc(
+adjust_em_om(
   df,
   "Xstar",
   "Ystar",
@@ -110,11 +110,11 @@ adjust_multinom_emc_omc(
 # 1.94 (1.86, 2.02)
 
 # CREATE PACKAGE DATA
-df_emc_omc_source <- df
-head(df_emc_omc_source)
-use_data(df_emc_omc_source, overwrite = TRUE)
+df_em_om_source <- df
+head(df_em_om_source)
+use_data(df_em_om_source, overwrite = TRUE)
 
-df_emc_omc <- df %>%
+df_em_om <- df %>%
   select(Xstar, Ystar, C1, C2, C3) # only have access to these in real-world
-head(df_emc_omc)
-use_data(df_emc_omc, overwrite = TRUE)
+head(df_em_om)
+use_data(df_em_om, overwrite = TRUE)

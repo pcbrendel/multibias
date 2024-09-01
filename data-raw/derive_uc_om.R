@@ -1,4 +1,4 @@
-# code to prepare `df_uc_omc` and `df_uc_omc_source`
+# code to prepare `df_uc_om` and `df_uc_om_source`
 
 library(tidyverse)
 library(nnet)
@@ -60,7 +60,7 @@ uy_model <- multinom(
 summary(uy_model)
 
 # ADJUST
-adjust_uc_omc(
+adjust_uc_om(
   df,
   "X",
   "Ystar",
@@ -81,7 +81,7 @@ adjust_uc_omc(
 )
 # 2.01 (1.95, 2.08)
 
-adjust_multinom_uc_omc(
+adjust_uc_om(
   df,
   "X",
   "Ystar",
@@ -114,11 +114,11 @@ adjust_multinom_uc_omc(
 # 1.99 (1.93, 2.07)
 
 # CREATE PACKAGE DATA
-df_uc_omc_source <- df
-head(df_uc_omc_source)
-use_data(df_uc_omc_source, overwrite = TRUE)
+df_uc_om_source <- df
+head(df_uc_om_source)
+use_data(df_uc_om_source, overwrite = TRUE)
 
-df_uc_omc <- df %>%
+df_uc_om <- df %>%
   select(X, Ystar, C1, C2, C3) # only access to these in real-world
-head(df_uc_omc)
-use_data(df_uc_omc, overwrite = TRUE)
+head(df_uc_om)
+use_data(df_uc_om, overwrite = TRUE)

@@ -1,4 +1,4 @@
-# code to prepare `df_omc` and `df_omc_source`
+# code to prepare `df_om` and `df_om_source`
 
 library(tidyverse)
 
@@ -51,7 +51,7 @@ summary(y_model)
 
 # ADJUST
 
-adjust_omc(
+adjust_om(
   df,
   "X",
   "Ystar",
@@ -68,11 +68,11 @@ adjust_omc(
 # 1.91 (1.83, 1.99)
 
 # CREATE PACKAGE DATA
-df_omc_source <- df
-head(df_omc_source)
-use_data(df_omc_source, overwrite = TRUE)
+df_om_source <- df
+head(df_om_source)
+use_data(df_om_source, overwrite = TRUE)
 
-df_omc <- df %>%
+df_om <- df %>%
   select(X, Ystar, C1, C2, C3) # only have access to these in real-world
-head(df_omc)
-use_data(df_omc, overwrite = TRUE)
+head(df_om)
+use_data(df_om, overwrite = TRUE)
