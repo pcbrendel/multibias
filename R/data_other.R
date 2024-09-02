@@ -1,7 +1,7 @@
 #' Evans County dataset
 #'
 #' Data from a cohort study in which white males in Evans County were followed
-#'  for 7 years, with coronary heart disease as the outcome of interest.
+#' for 7 years, with coronary heart disease as the outcome of interest.
 #'
 #' @format A dataframe with 609 rows and 9 columns:
 #' \describe{
