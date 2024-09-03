@@ -15,12 +15,12 @@
 #'
 #' @inheritParams adjust_em_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where \emph{S} represents binary selection, \emph{X} is the exposure,
-#'  and \emph{Y} is the outcome. The number of parameters is therefore 3.
+#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
+#' where \emph{S} represents binary selection, \emph{X} is the exposure,
+#' and \emph{Y} is the outcome. The number of parameters is therefore 3.
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_sel(
@@ -43,14 +43,12 @@
 #' @export
 
 adjust_sel <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  s_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    s_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
   len_s_coefs <- length(s_model_coefs)
@@ -78,7 +76,6 @@ adjust_sel <- function(
   s1_y <- s_model_coefs[3]
 
   if (is.null(confounders)) {
-
     df <- data.frame(X = x, Y = y)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
 
@@ -100,9 +97,7 @@ adjust_sel <- function(
         )
       })
     }
-
   } else if (len_c == 1) {
-
     c1 <- data[, confounders]
     df <- data.frame(X = x, Y = y, C1 = c1)
     df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
@@ -125,9 +120,7 @@ adjust_sel <- function(
         )
       })
     }
-
   } else if (len_c == 2) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
@@ -152,9 +145,7 @@ adjust_sel <- function(
         )
       })
     }
-
   } else if (len_c == 3) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
@@ -180,11 +171,8 @@ adjust_sel <- function(
         )
       })
     }
-
   } else if (len_c > 3) {
-
     stop("This function is currently not compatible with >3 confounders.")
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -193,14 +181,17 @@ adjust_sel <- function(
 
   if (y_binary) {
     estimate <- exp(est)
-    ci <- c(exp(est + se * qnorm(alpha / 2)),
-            exp(est + se * qnorm(1 - alpha / 2)))
+    ci <- c(
+      exp(est + se * qnorm(alpha / 2)),
+      exp(est + se * qnorm(1 - alpha / 2))
+    )
   } else {
     estimate <- est
-    ci <- c(est + se * qnorm(alpha / 2),
-            est + se * qnorm(1 - alpha / 2))
+    ci <- c(
+      est + se * qnorm(alpha / 2),
+      est + se * qnorm(1 - alpha / 2)
+    )
   }
 
   return(list(estimate = estimate, ci = ci))
-
 }

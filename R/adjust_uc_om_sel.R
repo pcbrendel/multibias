@@ -108,19 +108,17 @@
 #' @export
 
 adjust_uc_om_sel <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  u_model_coefs = NULL,
-  y_model_coefs = NULL,
-  u0y1_model_coefs = NULL,
-  u1y0_model_coefs = NULL,
-  u1y1_model_coefs = NULL,
-  s_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    u_model_coefs = NULL,
+    y_model_coefs = NULL,
+    u0y1_model_coefs = NULL,
+    u1y0_model_coefs = NULL,
+    u1y1_model_coefs = NULL,
+    s_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
 
@@ -132,14 +130,21 @@ adjust_uc_om_sel <- function(
   }
 
   # check that user correctly specified bias parameters
-  if (!((is.null(u_model_coefs) && is.null(y_model_coefs)) ||
-          ((is.null(u1y0_model_coefs) && is.null(u0y1_model_coefs) &&
-              is.null(u1y1_model_coefs))))) {
-    stop("In addition to s_model_coefs, bias parameters must be specified for: 1) u_model_coefs and y_model_coefs or 2) u1y0_model_coefs, u0y1_model_coefs, and u1y1_model_coefs.")
+  if (
+    !(
+      (is.null(u_model_coefs) && is.null(y_model_coefs)) ||
+        ((is.null(u1y0_model_coefs) && is.null(u0y1_model_coefs) &&
+          is.null(u1y1_model_coefs)))
+    )
+  ) {
+    stop(
+      "In addition to s_model_coefs, bias parameters must be specified for:\n
+       1) u_model_coefs and y_model_coefs or\n
+       2) u1y0_model_coefs, u0y1_model_coefs, and u1y1_model_coefs."
+    )
   }
 
   if (!is.null(y_model_coefs)) {
-
     len_u_coefs <- length(u_model_coefs)
     len_y_coefs <- length(y_model_coefs)
     len_s_coefs <- length(s_model_coefs)
@@ -164,20 +169,19 @@ adjust_uc_om_sel <- function(
       )
     }
 
-    u1_0     <- u_model_coefs[1]
-    u1_x     <- u_model_coefs[2]
-    u1_y     <- u_model_coefs[3]
+    u1_0 <- u_model_coefs[1]
+    u1_x <- u_model_coefs[2]
+    u1_y <- u_model_coefs[3]
 
-    y1_0     <- y_model_coefs[1]
-    y1_x     <- y_model_coefs[2]
+    y1_0 <- y_model_coefs[1]
+    y1_x <- y_model_coefs[2]
     y1_ystar <- y_model_coefs[3]
 
-    s1_0     <- s_model_coefs[1]
-    s1_x     <- s_model_coefs[2]
+    s1_0 <- s_model_coefs[1]
+    s1_x <- s_model_coefs[2]
     s1_ystar <- s_model_coefs[3]
 
     if (is.null(confounders)) {
-
       df <- data.frame(X = x, Ystar = ystar)
 
       df <- df %>%
@@ -201,9 +205,7 @@ adjust_uc_om_sel <- function(
           data = df
         )
       })
-
     } else if (len_c == 1) {
-
       c1 <- data[, confounders]
       df <- data.frame(X = x, Ystar = ystar, C1 = c1)
 
@@ -212,13 +214,19 @@ adjust_uc_om_sel <- function(
 
       df <- df %>%
         mutate(
-          Ypred = rbinom(n, 1, plogis(y1_0 + y1_x * .data$X +
-                                        y1_ystar * .data$Ystar +
-                                        y1_c1 * .data$C1)),
-          Upred = rbinom(n, 1, plogis(u1_0 + u1_x * .data$X +
-                                        u1_y * .data$Ypred)),
-          pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                        s1_c1 * .data$C1)
+          Ypred = rbinom(
+            n, 1, plogis(
+              y1_0 + y1_x * .data$X + y1_ystar * .data$Ystar +
+                y1_c1 * .data$C1
+            )
+          ),
+          Upred = rbinom(
+            n, 1, plogis(u1_0 + u1_x * .data$X + u1_y * .data$Ypred)
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1
+          )
         )
 
       suppressWarnings({
@@ -229,9 +237,7 @@ adjust_uc_om_sel <- function(
           data = df
         )
       })
-
     } else if (len_c == 2) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
 
@@ -252,10 +258,16 @@ adjust_uc_om_sel <- function(
                 y1_c1 * .data$C1 + y1_c2 * .data$C2
             )
           ),
-          Upred = rbinom(n, 1, plogis(u1_0 + u1_x * .data$X +
-                                        u1_y * .data$Ypred)),
-          pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                        s1_c1 * .data$C1 + s1_c2 * .data$C2)
+          Upred = rbinom(
+            n, 1, plogis(
+              u1_0 + u1_x * .data$X +
+                u1_y * .data$Ypred
+            )
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1 + s1_c2 * .data$C2
+          )
         )
 
       suppressWarnings({
@@ -266,9 +278,7 @@ adjust_uc_om_sel <- function(
           data = df
         )
       })
-
     } else if (len_c == 3) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
       c3 <- data[, confounders[3]]
@@ -286,14 +296,18 @@ adjust_uc_om_sel <- function(
       df <- df %>%
         mutate(
           Ypred = rbinom(
-            n, 1,
-            plogis(y1_0 + y1_x * .data$X + y1_ystar * .data$Ystar +
-                     y1_c1 * .data$C1 + y1_c2 * .data$C2 + y1_c3 * .data$C3)
+            n, 1, plogis(
+              y1_0 + y1_x * .data$X + y1_ystar * .data$Ystar +
+                y1_c1 * .data$C1 + y1_c2 * .data$C2 + y1_c3 * .data$C3
+            )
           ),
-          Upred = rbinom(n, 1, plogis(u1_0 + u1_x * .data$X +
-                                        u1_y * .data$Ypred)),
-          pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                        s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3)
+          Upred = rbinom(
+            n, 1, plogis(u1_0 + u1_x * .data$X + u1_y * .data$Ypred)
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
+          )
         )
 
       suppressWarnings({
@@ -304,15 +318,10 @@ adjust_uc_om_sel <- function(
           data = df
         )
       })
-
     } else if (len_c > 3) {
-
       stop("This function is currently not compatible with >3 confounders.")
-
     }
-
   } else if (!is.null(u1y0_model_coefs)) {
-
     len_u0y1_coefs <- length(u0y1_model_coefs)
     len_u1y0_coefs <- length(u1y0_model_coefs)
     len_u1y1_coefs <- length(u1y1_model_coefs)
@@ -351,24 +360,23 @@ adjust_uc_om_sel <- function(
       )
     }
 
-    s1_0       <- s_model_coefs[1]
-    s1_x       <- s_model_coefs[2]
-    s1_ystar   <- s_model_coefs[3]
+    s1_0 <- s_model_coefs[1]
+    s1_x <- s_model_coefs[2]
+    s1_ystar <- s_model_coefs[3]
 
-    u0y1_0     <- u0y1_model_coefs[1]
-    u0y1_x     <- u0y1_model_coefs[2]
+    u0y1_0 <- u0y1_model_coefs[1]
+    u0y1_x <- u0y1_model_coefs[2]
     u0y1_ystar <- u0y1_model_coefs[3]
 
-    u1y0_0     <- u1y0_model_coefs[1]
-    u1y0_x     <- u1y0_model_coefs[2]
+    u1y0_0 <- u1y0_model_coefs[1]
+    u1y0_x <- u1y0_model_coefs[2]
     u1y0_ystar <- u1y0_model_coefs[3]
 
-    u1y1_0     <- u1y1_model_coefs[1]
-    u1y1_x     <- u1y1_model_coefs[2]
+    u1y1_0 <- u1y1_model_coefs[1]
+    u1y1_x <- u1y1_model_coefs[2]
     u1y1_ystar <- u1y1_model_coefs[3]
 
     if (is.null(confounders)) {
-
       df <- data.frame(X = x, Ystar = ystar)
 
       p_u0y1 <- exp(u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar)
@@ -392,13 +400,17 @@ adjust_uc_om_sel <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_uy_pred4) %>%
-        mutate(Ubar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pUY = case_when(Ubar == 0 & Ybar == 0 ~ U0Y0,
-                               Ubar == 1 & Ybar == 0 ~ U1Y0,
-                               Ubar == 0 & Ybar == 1 ~ U0Y1,
-                               Ubar == 1 & Ybar == 1 ~ U1Y1),
-               pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar))
+        mutate(
+          Ubar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pUY = case_when(
+            Ubar == 0 & Ybar == 0 ~ U0Y0,
+            Ubar == 1 & Ybar == 0 ~ U1Y0,
+            Ubar == 0 & Ybar == 1 ~ U0Y1,
+            Ubar == 1 & Ybar == 1 ~ U1Y1
+          ),
+          pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar)
+        )
 
       suppressWarnings({
         final <- glm(
@@ -408,23 +420,27 @@ adjust_uc_om_sel <- function(
           data = combined
         )
       })
-
     } else if (len_c == 1) {
-
       c1 <- data[, confounders]
       df <- data.frame(X = x, Ystar = ystar, C1 = c1)
 
-      s1_c1   <- s_model_coefs[4]
+      s1_c1 <- s_model_coefs[4]
       u1y0_c1 <- u1y0_model_coefs[4]
       u0y1_c1 <- u0y1_model_coefs[4]
       u1y1_c1 <- u1y1_model_coefs[4]
 
-      p_u1y0 <- exp(u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
-                      u1y0_c1 * df$C1)
-      p_u0y1 <- exp(u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
-                      u0y1_c1 * df$C1)
-      p_u1y1 <- exp(u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
-                      u1y1_c1 * df$C1)
+      p_u1y0 <- exp(
+        u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
+          u1y0_c1 * df$C1
+      )
+      p_u0y1 <- exp(
+        u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
+          u0y1_c1 * df$C1
+      )
+      p_u1y1 <- exp(
+        u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
+          u1y1_c1 * df$C1
+      )
 
       denom <- (1 + p_u1y0 + p_u0y1 + p_u1y1)
 
@@ -443,14 +459,20 @@ adjust_uc_om_sel <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_uy_pred4) %>%
-        mutate(Ubar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pUY = case_when(Ubar == 0 & Ybar == 0 ~ U0Y0,
-                               Ubar == 1 & Ybar == 0 ~ U1Y0,
-                               Ubar == 0 & Ybar == 1 ~ U0Y1,
-                               Ubar == 1 & Ybar == 1 ~ U1Y1),
-               pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                             s1_c1 * .data$C1))
+        mutate(
+          Ubar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pUY = case_when(
+            Ubar == 0 & Ybar == 0 ~ U0Y0,
+            Ubar == 1 & Ybar == 0 ~ U1Y0,
+            Ubar == 0 & Ybar == 1 ~ U0Y1,
+            Ubar == 1 & Ybar == 1 ~ U1Y1
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -460,16 +482,14 @@ adjust_uc_om_sel <- function(
           data = combined
         )
       })
-
     } else if (len_c == 2) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
 
       df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2)
 
-      s1_c1   <- s_model_coefs[4]
-      s1_c2   <- s_model_coefs[5]
+      s1_c1 <- s_model_coefs[4]
+      s1_c2 <- s_model_coefs[5]
 
       u1y0_c1 <- u1y0_model_coefs[4]
       u1y0_c2 <- u1y0_model_coefs[5]
@@ -480,12 +500,18 @@ adjust_uc_om_sel <- function(
       u1y1_c1 <- u1y1_model_coefs[4]
       u1y1_c2 <- u1y1_model_coefs[5]
 
-      p_u1y0 <- exp(u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
-                      u1y0_c1 * df$C1 + u1y0_c2 * df$C2)
-      p_u0y1 <- exp(u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
-                      u0y1_c1 * df$C1 + u0y1_c2 * df$C2)
-      p_u1y1 <- exp(u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
-                      u1y1_c1 * df$C1 + u1y1_c2 * df$C2)
+      p_u1y0 <- exp(
+        u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
+          u1y0_c1 * df$C1 + u1y0_c2 * df$C2
+      )
+      p_u0y1 <- exp(
+        u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
+          u0y1_c1 * df$C1 + u0y1_c2 * df$C2
+      )
+      p_u1y1 <- exp(
+        u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
+          u1y1_c1 * df$C1 + u1y1_c2 * df$C2
+      )
 
       denom <- (1 + p_u1y0 + p_u0y1 + p_u1y1)
 
@@ -504,14 +530,20 @@ adjust_uc_om_sel <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_uy_pred4) %>%
-        mutate(Ubar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pUY = case_when(Ubar == 0 & Ybar == 0 ~ U0Y0,
-                               Ubar == 1 & Ybar == 0 ~ U1Y0,
-                               Ubar == 0 & Ybar == 1 ~ U0Y1,
-                               Ubar == 1 & Ybar == 1 ~ U1Y1),
-               pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                             s1_c1 * .data$C1 + s1_c2 * .data$C2))
+        mutate(
+          Ubar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pUY = case_when(
+            Ubar == 0 & Ybar == 0 ~ U0Y0,
+            Ubar == 1 & Ybar == 0 ~ U1Y0,
+            Ubar == 0 & Ybar == 1 ~ U0Y1,
+            Ubar == 1 & Ybar == 1 ~ U1Y1
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1 + s1_c2 * .data$C2
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -521,18 +553,16 @@ adjust_uc_om_sel <- function(
           data = combined
         )
       })
-
     } else if (len_c == 3) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
       c3 <- data[, confounders[3]]
 
       df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
 
-      s1_c1   <- s_model_coefs[4]
-      s1_c2   <- s_model_coefs[5]
-      s1_c3   <- s_model_coefs[6]
+      s1_c1 <- s_model_coefs[4]
+      s1_c2 <- s_model_coefs[5]
+      s1_c3 <- s_model_coefs[6]
 
       u1y0_c1 <- u1y0_model_coefs[4]
       u1y0_c2 <- u1y0_model_coefs[5]
@@ -546,12 +576,18 @@ adjust_uc_om_sel <- function(
       u1y1_c2 <- u1y1_model_coefs[5]
       u1y1_c3 <- u1y1_model_coefs[6]
 
-      p_u1y0 <- exp(u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
-                      u1y0_c1 * df$C1 + u1y0_c2 * df$C2 + u1y0_c3 * df$C3)
-      p_u0y1 <- exp(u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
-                      u0y1_c1 * df$C1 + u0y1_c2 * df$C2 + u0y1_c3 * df$C3)
-      p_u1y1 <- exp(u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
-                      u1y1_c1 * df$C1 + u1y1_c2 * df$C2 + u1y1_c3 * df$C3)
+      p_u1y0 <- exp(
+        u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar +
+          u1y0_c1 * df$C1 + u1y0_c2 * df$C2 + u1y0_c3 * df$C3
+      )
+      p_u0y1 <- exp(
+        u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar +
+          u0y1_c1 * df$C1 + u0y1_c2 * df$C2 + u0y1_c3 * df$C3
+      )
+      p_u1y1 <- exp(
+        u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar +
+          u1y1_c1 * df$C1 + u1y1_c2 * df$C2 + u1y1_c3 * df$C3
+      )
 
       denom <- (1 + p_u1y0 + p_u0y1 + p_u1y1)
 
@@ -570,15 +606,20 @@ adjust_uc_om_sel <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_uy_pred4) %>%
-        mutate(Ubar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pUY = case_when(Ubar == 0 & Ybar == 0 ~ U0Y0,
-                               Ubar == 1 & Ybar == 0 ~ U1Y0,
-                               Ubar == 0 & Ybar == 1 ~ U0Y1,
-                               Ubar == 1 & Ybar == 1 ~ U1Y1),
-               pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                             s1_c1 * .data$C1 + s1_c2 * .data$C2 +
-                             s1_c3 * .data$C3))
+        mutate(
+          Ubar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pUY = case_when(
+            Ubar == 0 & Ybar == 0 ~ U0Y0,
+            Ubar == 1 & Ybar == 0 ~ U1Y0,
+            Ubar == 0 & Ybar == 1 ~ U0Y1,
+            Ubar == 1 & Ybar == 1 ~ U1Y1
+          ),
+          pS = plogis(
+            s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+              s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -588,13 +629,9 @@ adjust_uc_om_sel <- function(
           data = combined
         )
       })
-
     } else if (len_c > 3) {
-
       stop("This function is currently not compatible with >3 confounders.")
-
     }
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -602,9 +639,10 @@ adjust_uc_om_sel <- function(
   alpha <- 1 - level
 
   estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  ci <- c(
+    exp(est + se * qnorm(alpha / 2)),
+    exp(est + se * qnorm(1 - alpha / 2))
+  )
 
   return(list(estimate = estimate, ci = ci))
-
 }

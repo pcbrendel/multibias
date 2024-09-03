@@ -48,20 +48,18 @@
 #' @export
 
 adjust_em <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  x_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
   len_x_coefs <- length(x_model_coefs)
 
   xstar <- data[, exposure]
-  y     <- data[, outcome]
+  y <- data[, outcome]
 
   if (sum(xstar %in% c(0, 1)) != n) {
     stop("Exposure must be a binary integer.")
@@ -82,12 +80,11 @@ adjust_em <- function(
     )
   }
 
-  x1_0     <- x_model_coefs[1]
+  x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
-  x1_y     <- x_model_coefs[3]
+  x1_y <- x_model_coefs[3]
 
   if (is.null(confounders)) {
-
     df <- data.frame(Xstar = xstar, Y = y)
     df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y))
 
@@ -103,16 +100,18 @@ adjust_em <- function(
         data = df
       )
     }
-
   } else if (len_c == 1) {
-
     c1 <- data[, confounders]
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
 
     x1_c1 <- x_model_coefs[4]
 
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                      x1_y * df$Y + x1_c1 * df$C1))
+    df$Xpred <- rbinom(
+      n, 1, plogis(
+        x1_0 + x1_xstar * df$Xstar +
+          x1_y * df$Y + x1_c1 * df$C1
+      )
+    )
 
     if (y_binary) {
       final <- glm(
@@ -126,9 +125,7 @@ adjust_em <- function(
         data = df
       )
     }
-
   } else if (len_c == 2) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
@@ -137,8 +134,12 @@ adjust_em <- function(
     x1_c1 <- x_model_coefs[4]
     x1_c2 <- x_model_coefs[5]
 
-    df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
-                                      x1_c1 * df$C1 + x1_c2 * df$C2))
+    df$Xpred <- rbinom(
+      n, 1, plogis(
+        x1_0 + x1_xstar * df$Xstar + x1_y * df$Y +
+          x1_c1 * df$C1 + x1_c2 * df$C2
+      )
+    )
 
     if (y_binary) {
       final <- glm(
@@ -152,9 +153,7 @@ adjust_em <- function(
         data = df
       )
     }
-
   } else if (len_c == 3) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
@@ -185,11 +184,8 @@ adjust_em <- function(
         data = df
       )
     }
-
   } else if (len_c > 3) {
-
     stop("This function is currently not compatible with >3 confounders.")
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -198,14 +194,17 @@ adjust_em <- function(
 
   if (y_binary) {
     estimate <- exp(est)
-    ci <- c(exp(est + se * qnorm(alpha / 2)),
-            exp(est + se * qnorm(1 - alpha / 2)))
+    ci <- c(
+      exp(est + se * qnorm(alpha / 2)),
+      exp(est + se * qnorm(1 - alpha / 2))
+    )
   } else {
     estimate <- est
-    ci <- c(est + se * qnorm(alpha / 2),
-            est + se * qnorm(1 - alpha / 2))
+    ci <- c(
+      est + se * qnorm(alpha / 2),
+      est + se * qnorm(1 - alpha / 2)
+    )
   }
 
   return(list(estimate = estimate, ci = ci))
-
 }

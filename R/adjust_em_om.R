@@ -94,18 +94,16 @@
 #' @export
 
 adjust_em_om <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  x_model_coefs = NULL,
-  y_model_coefs = NULL,
-  x1y0_model_coefs = NULL,
-  x0y1_model_coefs = NULL,
-  x1y1_model_coefs = NULL,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs = NULL,
+    y_model_coefs = NULL,
+    x1y0_model_coefs = NULL,
+    x0y1_model_coefs = NULL,
+    x1y1_model_coefs = NULL,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
 
@@ -120,14 +118,22 @@ adjust_em_om <- function(
   }
 
   # check that user correctly specified bias parameters
-  if (!((is.null(x_model_coefs) && is.null(y_model_coefs)) ||
-          ((is.null(x1y0_model_coefs) && is.null(x0y1_model_coefs) &&
-              is.null(x1y1_model_coefs))))) {
-    stop("Bias parameters must be specified for: 1) x_model_coefs and y_model_coefs or 2) x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs.")
+  if (
+    !(
+      (is.null(x_model_coefs) && is.null(y_model_coefs)) ||
+        ((is.null(x1y0_model_coefs) && is.null(x0y1_model_coefs) &&
+            is.null(x1y1_model_coefs))
+        )
+    )
+  ) {
+    stop(
+      "Bias parameters must be specified for:\n
+       1) x_model_coefs and y_model_coefs OR\n
+       2) x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs."
+    )
   }
 
   if (!is.null(x_model_coefs)) {
-
     len_x_coefs <- length(x_model_coefs)
     len_y_coefs <- length(y_model_coefs)
 
@@ -154,49 +160,56 @@ adjust_em_om <- function(
       )
     }
 
-    x1_0     <- x_model_coefs[1]
+    x1_0 <- x_model_coefs[1]
     x1_xstar <- x_model_coefs[2]
     x1_ystar <- x_model_coefs[3]
 
-    y1_0     <- y_model_coefs[1]
-    y1_x     <- y_model_coefs[2]
+    y1_0 <- y_model_coefs[1]
+    y1_x <- y_model_coefs[2]
     y1_ystar <- y_model_coefs[3]
 
     if (is.null(confounders)) {
-
       df <- data.frame(Xstar = xstar, Ystar = ystar)
-      df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                        x1_ystar * df$Ystar))
-      df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$Xpred +
-                                        y1_ystar * df$Ystar))
+      df$Xpred <- rbinom(
+        n, 1, plogis(
+          x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar
+        )
+      )
+      df$Ypred <- rbinom(
+        n, 1, plogis(
+          y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar
+        )
+      )
 
       final <- glm(
         Ypred ~ Xpred,
         family = binomial(link = "logit"),
         data = df
       )
-
     } else if (len_c == 1) {
-
       c1 <- data[, confounders]
       df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1)
 
       x1_c1 <- x_model_coefs[4]
       y1_c1 <- y_model_coefs[4]
 
-      df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                        x1_ystar * df$Ystar + x1_c1 * df$C1))
-      df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$Xpred +
-                                        y1_ystar * df$Ystar + y1_c1 * df$C1))
+      df$Xpred <- rbinom(
+        n, 1, plogis(
+          x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar + x1_c1 * df$C1
+        )
+      )
+      df$Ypred <- rbinom(
+        n, 1, plogis(
+          y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar + y1_c1 * df$C1
+        )
+      )
 
       final <- glm(
         Ypred ~ Xpred + C1,
         family = binomial(link = "logit"),
         data = df
       )
-
     } else if (len_c == 2) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
 
@@ -208,21 +221,25 @@ adjust_em_om <- function(
       y1_c1 <- y_model_coefs[4]
       y1_c2 <- y_model_coefs[5]
 
-      df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                        x1_ystar * df$Ystar +
-                                        x1_c1 * df$C1 + x1_c2 * df$C2))
-      df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$Xpred +
-                                        y1_ystar * df$Ystar +
-                                        y1_c1 * df$C1 + y1_c2 * df$C2))
+      df$Xpred <- rbinom(
+        n, 1, plogis(
+          x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar +
+            x1_c1 * df$C1 + x1_c2 * df$C2
+        )
+      )
+      df$Ypred <- rbinom(
+        n, 1, plogis(
+          y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar +
+            y1_c1 * df$C1 + y1_c2 * df$C2
+        )
+      )
 
       final <- glm(
         Ypred ~ Xpred + C1 + C2,
         family = binomial(link = "logit"),
         data = df
       )
-
     } else if (len_c == 3) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
       c3 <- data[, confounders[3]]
@@ -237,27 +254,30 @@ adjust_em_om <- function(
       y1_c2 <- y_model_coefs[5]
       y1_c3 <- y_model_coefs[6]
 
-      df$Xpred <- rbinom(n, 1, plogis(x1_0 + x1_xstar * df$Xstar +
-                                        x1_ystar * df$Ystar + x1_c1 * df$C1 +
-                                        x1_c2 * df$C2 + x1_c3 * df$C3))
-      df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$Xpred +
-                                        y1_ystar * df$Ystar +
-                                        y1_c1 * df$C1 + y1_c2 * df$C2))
+      df$Xpred <- rbinom(
+        n, 1, plogis(
+          x1_0 + x1_xstar * df$Xstar +
+            x1_ystar * df$Ystar + x1_c1 * df$C1 +
+            x1_c2 * df$C2 + x1_c3 * df$C3
+        )
+      )
+      df$Ypred <- rbinom(
+        n, 1, plogis(
+          y1_0 + y1_x * df$Xpred +
+            y1_ystar * df$Ystar +
+            y1_c1 * df$C1 + y1_c2 * df$C2
+        )
+      )
 
       final <- glm(
         Ypred ~ Xpred + C1 + C2 + C3,
         family = binomial(link = "logit"),
         data = df
       )
-
     } else if (len_c > 3) {
-
       stop("This function is currently not compatible with >3 confounders.")
-
     }
-
   } else if (!is.null(x1y0_model_coefs)) {
-
     len_x1y0_coefs <- length(x1y0_model_coefs)
     len_x0y1_coefs <- length(x0y1_model_coefs)
     len_x1y1_coefs <- length(x1y1_model_coefs)
@@ -287,20 +307,19 @@ adjust_em_om <- function(
       )
     }
 
-    x1y0_0     <- x1y0_model_coefs[1]
+    x1y0_0 <- x1y0_model_coefs[1]
     x1y0_xstar <- x1y0_model_coefs[2]
     x1y0_ystar <- x1y0_model_coefs[3]
 
-    x0y1_0     <- x0y1_model_coefs[1]
+    x0y1_0 <- x0y1_model_coefs[1]
     x0y1_xstar <- x0y1_model_coefs[2]
     x0y1_ystar <- x0y1_model_coefs[3]
 
-    x1y1_0     <- x1y1_model_coefs[1]
+    x1y1_0 <- x1y1_model_coefs[1]
     x1y1_xstar <- x1y1_model_coefs[2]
     x1y1_ystar <- x1y1_model_coefs[3]
 
     if (is.null(confounders)) {
-
       df <- data.frame(Xstar = xstar, Ystar = ystar)
 
       p_x1y0 <- exp(x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar)
@@ -324,12 +343,16 @@ adjust_em_om <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xy_pred4) %>%
-        mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pXY = case_when(Xbar == 0 & Ybar == 0 ~ X0Y0,
-                               Xbar == 1 & Ybar == 0 ~ X1Y0,
-                               Xbar == 0 & Ybar == 1 ~ X0Y1,
-                               Xbar == 1 & Ybar == 1 ~ X1Y1))
+        mutate(
+          Xbar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pXY = case_when(
+            Xbar == 0 & Ybar == 0 ~ X0Y0,
+            Xbar == 1 & Ybar == 0 ~ X1Y0,
+            Xbar == 0 & Ybar == 1 ~ X0Y1,
+            Xbar == 1 & Ybar == 1 ~ X1Y1
+          )
+        )
       suppressWarnings({
         final <- glm(
           Ybar ~ Xbar,
@@ -338,9 +361,7 @@ adjust_em_om <- function(
           data = combined
         )
       })
-
     } else if (len_c == 1) {
-
       c1 <- data[, confounders]
 
       df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1)
@@ -349,12 +370,18 @@ adjust_em_om <- function(
       x0y1_c1 <- x0y1_model_coefs[4]
       x1y1_c1 <- x1y1_model_coefs[4]
 
-      p_x1y0 <- exp(x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-                      x1y0_c1 * df$C1)
-      p_x0y1 <- exp(x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-                      x0y1_c1 * df$C1)
-      p_x1y1 <- exp(x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-                      x1y1_c1 * df$C1)
+      p_x1y0 <- exp(
+        x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
+          x1y0_c1 * df$C1
+      )
+      p_x0y1 <- exp(
+        x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
+          x0y1_c1 * df$C1
+      )
+      p_x1y1 <- exp(
+        x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
+          x1y1_c1 * df$C1
+      )
 
       denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
 
@@ -373,12 +400,16 @@ adjust_em_om <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xy_pred4) %>%
-        mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pXY = case_when(Xbar == 0 & Ybar == 0 ~ X0Y0,
-                               Xbar == 1 & Ybar == 0 ~ X1Y0,
-                               Xbar == 0 & Ybar == 1 ~ X0Y1,
-                               Xbar == 1 & Ybar == 1 ~ X1Y1))
+        mutate(
+          Xbar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pXY = case_when(
+            Xbar == 0 & Ybar == 0 ~ X0Y0,
+            Xbar == 1 & Ybar == 0 ~ X1Y0,
+            Xbar == 0 & Ybar == 1 ~ X0Y1,
+            Xbar == 1 & Ybar == 1 ~ X1Y1
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -388,9 +419,7 @@ adjust_em_om <- function(
           data = combined
         )
       })
-
     } else if (len_c == 2) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
 
@@ -405,12 +434,18 @@ adjust_em_om <- function(
       x1y1_c1 <- x1y1_model_coefs[4]
       x1y1_c2 <- x1y1_model_coefs[5]
 
-      p_x1y0 <- exp(x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-                      x1y0_c1 * df$C1 + x1y0_c2 * df$C2)
-      p_x0y1 <- exp(x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-                      x0y1_c1 * df$C1 + x0y1_c2 * df$C2)
-      p_x1y1 <- exp(x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-                      x1y1_c1 * df$C1 + x1y1_c2 * df$C2)
+      p_x1y0 <- exp(
+        x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
+          x1y0_c1 * df$C1 + x1y0_c2 * df$C2
+      )
+      p_x0y1 <- exp(
+        x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
+          x0y1_c1 * df$C1 + x0y1_c2 * df$C2
+      )
+      p_x1y1 <- exp(
+        x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
+          x1y1_c1 * df$C1 + x1y1_c2 * df$C2
+      )
 
       denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
 
@@ -429,12 +464,16 @@ adjust_em_om <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xy_pred4) %>%
-        mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pXY = case_when(Xbar == 0 & Ybar == 0 ~ X0Y0,
-                               Xbar == 1 & Ybar == 0 ~ X1Y0,
-                               Xbar == 0 & Ybar == 1 ~ X0Y1,
-                               Xbar == 1 & Ybar == 1 ~ X1Y1))
+        mutate(
+          Xbar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pXY = case_when(
+            Xbar == 0 & Ybar == 0 ~ X0Y0,
+            Xbar == 1 & Ybar == 0 ~ X1Y0,
+            Xbar == 0 & Ybar == 1 ~ X0Y1,
+            Xbar == 1 & Ybar == 1 ~ X1Y1
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -444,9 +483,7 @@ adjust_em_om <- function(
           data = combined
         )
       })
-
     } else if (len_c == 3) {
-
       c1 <- data[, confounders[1]]
       c2 <- data[, confounders[2]]
       c3 <- data[, confounders[3]]
@@ -465,12 +502,18 @@ adjust_em_om <- function(
       x1y1_c2 <- x1y1_model_coefs[5]
       x1y1_c3 <- x1y1_model_coefs[6]
 
-      p_x1y0 <- exp(x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-                      x1y0_c1 * df$C1 + x1y0_c2 * df$C2 + x1y0_c3 * df$C3)
-      p_x0y1 <- exp(x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-                      x0y1_c1 * df$C1 + x0y1_c2 * df$C2 + x0y1_c3 * df$C3)
-      p_x1y1 <- exp(x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-                      x1y1_c1 * df$C1 + x1y1_c2 * df$C2 + x1y1_c3 * df$C3)
+      p_x1y0 <- exp(
+        x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
+          x1y0_c1 * df$C1 + x1y0_c2 * df$C2 + x1y0_c3 * df$C3
+      )
+      p_x0y1 <- exp(
+        x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
+          x0y1_c1 * df$C1 + x0y1_c2 * df$C2 + x0y1_c3 * df$C3
+      )
+      p_x1y1 <- exp(
+        x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
+          x1y1_c1 * df$C1 + x1y1_c2 * df$C2 + x1y1_c3 * df$C3
+      )
 
       denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
 
@@ -489,12 +532,16 @@ adjust_em_om <- function(
 
       combined <- bind_rows(df, df, df, df) %>%
         bind_cols(df_xy_pred4) %>%
-        mutate(Xbar = rep(c(1, 0, 1, 0), each = n),
-               Ybar = rep(c(1, 1, 0, 0), each = n),
-               pXY = case_when(Xbar == 0 & Ybar == 0 ~ X0Y0,
-                               Xbar == 1 & Ybar == 0 ~ X1Y0,
-                               Xbar == 0 & Ybar == 1 ~ X0Y1,
-                               Xbar == 1 & Ybar == 1 ~ X1Y1))
+        mutate(
+          Xbar = rep(c(1, 0, 1, 0), each = n),
+          Ybar = rep(c(1, 1, 0, 0), each = n),
+          pXY = case_when(
+            Xbar == 0 & Ybar == 0 ~ X0Y0,
+            Xbar == 1 & Ybar == 0 ~ X1Y0,
+            Xbar == 0 & Ybar == 1 ~ X0Y1,
+            Xbar == 1 & Ybar == 1 ~ X1Y1
+          )
+        )
 
       suppressWarnings({
         final <- glm(
@@ -504,13 +551,9 @@ adjust_em_om <- function(
           data = combined
         )
       })
-
     } else if (len_c > 3) {
-
       stop("This function is currently not compatible with >3 confounders.")
-
     }
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -518,8 +561,10 @@ adjust_em_om <- function(
   alpha <- 1 - level
 
   estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
-  return(list(estimate = estimate, ci = ci))
+  ci <- c(
+    exp(est + se * qnorm(alpha / 2)),
+    exp(est + se * qnorm(1 - alpha / 2))
+  )
 
+  return(list(estimate = estimate, ci = ci))
 }

@@ -15,22 +15,22 @@
 #'
 #' @inheritParams adjust_em_sel
 #' @param y_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-#'  where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
-#'  \emph{Y*} is the binary misclassified outcome, \emph{C} represents
-#'  the vector of measured confounders (if any), and \emph{j} corresponds
-#'  to the number of measured confounders. The number of parameters is
-#'  therefore 3 + \emph{j}.
+#' \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
+#' where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
+#' \emph{Y*} is the binary misclassified outcome, \emph{C} represents
+#' the vector of measured confounders (if any), and \emph{j} corresponds
+#' to the number of measured confounders. The number of parameters is
+#' therefore 3 + \emph{j}.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
-#'  where \emph{S} represents binary selection,
-#'  \emph{X} is the exposure, \emph{Y*} is the binary misclassified outcome,
-#'  \emph{C} represents the vector of measured confounders (if any),
-#'  and \emph{j} corresponds to the number of measured confounders.
-#'  The number of parameters is therefore 3 + \emph{j}.
+#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
+#' where \emph{S} represents binary selection,
+#' \emph{X} is the exposure, \emph{Y*} is the binary misclassified outcome,
+#' \emph{C} represents the vector of measured confounders (if any),
+#' and \emph{j} corresponds to the number of measured confounders.
+#' The number of parameters is therefore 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_om_sel(
@@ -53,21 +53,19 @@
 #' @export
 
 adjust_om_sel <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  y_model_coefs,
-  s_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    y_model_coefs,
+    s_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
   len_y_coefs <- length(y_model_coefs)
   len_s_coefs <- length(s_model_coefs)
 
-  x     <- data[, exposure]
+  x <- data[, exposure]
   ystar <- data[, outcome]
 
 
@@ -93,26 +91,29 @@ adjust_om_sel <- function(
     )
   }
 
-  s1_0     <- s_model_coefs[1]
-  s1_x     <- s_model_coefs[2]
+  s1_0 <- s_model_coefs[1]
+  s1_x <- s_model_coefs[2]
   s1_ystar <- s_model_coefs[3]
 
-  y1_0     <- y_model_coefs[1]
-  y1_x     <- y_model_coefs[2]
+  y1_0 <- y_model_coefs[1]
+  y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
 
   if (is.null(confounders)) {
-
     df <- data.frame(X = x, Ystar = ystar)
 
     y1_pred <- plogis(y1_0 + y1_x * x + y1_ystar * ystar)
     y1_pred <- rep(y1_pred, times = 2)
 
     combined <- bind_rows(df, df) %>%
-      mutate(Ybar = rep(c(1, 0), each = n),
-             pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar),
-             pY = case_when(Ybar == 1 ~ y1_pred,
-                            Ybar == 0 ~ 1 - y1_pred))
+      mutate(
+        Ybar = rep(c(1, 0), each = n),
+        pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar),
+        pY = case_when(
+          Ybar == 1 ~ y1_pred,
+          Ybar == 0 ~ 1 - y1_pred
+        )
+      )
 
     suppressWarnings({
       final <- glm(
@@ -122,9 +123,7 @@ adjust_om_sel <- function(
         data = combined
       )
     })
-
   } else if (len_c == 1) {
-
     c1 <- data[, confounders]
     df <- data.frame(X = x, Ystar = ystar, C1 = c1)
     y1_c1 <- y_model_coefs[4]
@@ -136,10 +135,14 @@ adjust_om_sel <- function(
     combined <- bind_rows(df, df) %>%
       mutate(
         Ybar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                      s1_c1 * .data$C1),
-        pY = case_when(Ybar == 1 ~ y1_pred,
-                       Ybar == 0 ~ 1 - y1_pred)
+        pS = plogis(
+          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+            s1_c1 * .data$C1
+        ),
+        pY = case_when(
+          Ybar == 1 ~ y1_pred,
+          Ybar == 0 ~ 1 - y1_pred
+        )
       )
 
     suppressWarnings({
@@ -150,9 +153,7 @@ adjust_om_sel <- function(
         data = combined
       )
     })
-
   } else if (len_c == 2) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
@@ -164,17 +165,23 @@ adjust_om_sel <- function(
     y1_c1 <- y_model_coefs[4]
     y1_c2 <- y_model_coefs[5]
 
-    y1_pred <- plogis(y1_0 + y1_x * x +
-                        y1_ystar * ystar + y1_c1 * c1 + y1_c2 * c2)
+    y1_pred <- plogis(
+      y1_0 + y1_x * x +
+        y1_ystar * ystar + y1_c1 * c1 + y1_c2 * c2
+    )
     y1_pred <- rep(y1_pred, times = 2)
 
     combined <- bind_rows(df, df) %>%
       mutate(
         Ybar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                      s1_c1 * .data$C1 + s1_c2 * .data$C2),
-        pY = case_when(Ybar == 1 ~ y1_pred,
-                       Ybar == 0 ~ 1 - y1_pred)
+        pS = plogis(
+          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+            s1_c1 * .data$C1 + s1_c2 * .data$C2
+        ),
+        pY = case_when(
+          Ybar == 1 ~ y1_pred,
+          Ybar == 0 ~ 1 - y1_pred
+        )
       )
 
     suppressWarnings({
@@ -185,9 +192,7 @@ adjust_om_sel <- function(
         data = combined
       )
     })
-
   } else if (len_c == 3) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
@@ -210,10 +215,14 @@ adjust_om_sel <- function(
     combined <- bind_rows(df, df) %>%
       mutate(
         Ybar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-                      s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3),
-        pY = case_when(Ybar == 1 ~ y1_pred,
-                       Ybar == 0 ~ 1 - y1_pred)
+        pS = plogis(
+          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
+            s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
+        ),
+        pY = case_when(
+          Ybar == 1 ~ y1_pred,
+          Ybar == 0 ~ 1 - y1_pred
+        )
       )
 
     suppressWarnings({
@@ -224,11 +233,8 @@ adjust_om_sel <- function(
         data = combined
       )
     })
-
   } else if (len_c > 3) {
-
     stop("This function is currently not compatible with >3 confounders.")
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -236,9 +242,10 @@ adjust_om_sel <- function(
   alpha <- 1 - level
 
   estimate <- exp(est)
-  ci <- c(exp(est + se * qnorm(alpha / 2)),
-          exp(est + se * qnorm(1 - alpha / 2)))
+  ci <- c(
+    exp(est + se * qnorm(alpha / 2)),
+    exp(est + se * qnorm(1 - alpha / 2))
+  )
 
   return(list(estimate = estimate, ci = ci))
-
 }

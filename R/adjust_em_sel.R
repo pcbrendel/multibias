@@ -60,15 +60,13 @@
 #' @export
 
 adjust_em_sel <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  x_model_coefs,
-  s_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs,
+    s_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
   len_x_coefs <- length(x_model_coefs)
@@ -104,26 +102,29 @@ adjust_em_sel <- function(
     )
   }
 
-  s1_0     <- s_model_coefs[1]
+  s1_0 <- s_model_coefs[1]
   s1_xstar <- s_model_coefs[2]
-  s1_y     <- s_model_coefs[3]
+  s1_y <- s_model_coefs[3]
 
-  x1_0     <- x_model_coefs[1]
+  x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
-  x1_y     <- x_model_coefs[3]
+  x1_y <- x_model_coefs[3]
 
   if (is.null(confounders)) {
-
     df <- data.frame(Xstar = xstar, Y = y)
 
     x1_pred <- plogis(x1_0 + x1_xstar * xstar + x1_y * y)
     x1_pred <- rep(x1_pred, times = 2)
 
     combined <- bind_rows(df, df) %>%
-      mutate(Xbar = rep(c(1, 0), each = n),
-             pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y),
-             pX = case_when(Xbar == 1 ~ x1_pred,
-                            Xbar == 0 ~ 1 - x1_pred))
+      mutate(
+        Xbar = rep(c(1, 0), each = n),
+        pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y),
+        pX = case_when(
+          Xbar == 1 ~ x1_pred,
+          Xbar == 0 ~ 1 - x1_pred
+        )
+      )
 
     if (y_binary) {
       suppressWarnings({
@@ -143,9 +144,7 @@ adjust_em_sel <- function(
         )
       })
     }
-
   } else if (len_c == 1) {
-
     c1 <- data[, confounders]
     df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
     x1_c1 <- x_model_coefs[4]
@@ -157,10 +156,14 @@ adjust_em_sel <- function(
     combined <- bind_rows(df, df) %>%
       mutate(
         Xbar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                      s1_c1 * .data$C1),
-        pX = case_when(Xbar == 1 ~ x1_pred,
-                       Xbar == 0 ~ 1 - x1_pred)
+        pS = plogis(
+          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+            s1_c1 * .data$C1
+        ),
+        pX = case_when(
+          Xbar == 1 ~ x1_pred,
+          Xbar == 0 ~ 1 - x1_pred
+        )
       )
 
     if (y_binary) {
@@ -181,9 +184,7 @@ adjust_em_sel <- function(
         )
       })
     }
-
   } else if (len_c == 2) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
@@ -195,17 +196,23 @@ adjust_em_sel <- function(
     x1_c1 <- x_model_coefs[4]
     x1_c2 <- x_model_coefs[5]
 
-    x1_pred <- plogis(x1_0 + x1_xstar * xstar +
-                        x1_y * y + x1_c1 * c1 + x1_c2 * c2)
+    x1_pred <- plogis(
+      x1_0 + x1_xstar * xstar +
+        x1_y * y + x1_c1 * c1 + x1_c2 * c2
+    )
     x1_pred <- rep(x1_pred, times = 2)
 
     combined <- bind_rows(df, df) %>%
       mutate(
         Xbar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                      s1_c1 * .data$C1 + s1_c2 * .data$C2),
-        pX = case_when(Xbar == 1 ~ x1_pred,
-                       Xbar == 0 ~ 1 - x1_pred)
+        pS = plogis(
+          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+            s1_c1 * .data$C1 + s1_c2 * .data$C2
+        ),
+        pX = case_when(
+          Xbar == 1 ~ x1_pred,
+          Xbar == 0 ~ 1 - x1_pred
+        )
       )
 
     if (y_binary) {
@@ -226,9 +233,7 @@ adjust_em_sel <- function(
         )
       })
     }
-
   } else if (len_c == 3) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
@@ -251,10 +256,14 @@ adjust_em_sel <- function(
     combined <- bind_rows(df, df) %>%
       mutate(
         Xbar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-                      s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3),
-        pX = case_when(Xbar == 1 ~ x1_pred,
-                       Xbar == 0 ~ 1 - x1_pred)
+        pS = plogis(
+          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
+            s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
+        ),
+        pX = case_when(
+          Xbar == 1 ~ x1_pred,
+          Xbar == 0 ~ 1 - x1_pred
+        )
       )
 
     if (y_binary) {
@@ -275,11 +284,8 @@ adjust_em_sel <- function(
         )
       })
     }
-
   } else if (len_c > 3) {
-
     stop("This function is currently not compatible with >3 confounders.")
-
   }
 
   est <- summary(final)$coef[2, 1]
@@ -288,14 +294,17 @@ adjust_em_sel <- function(
 
   if (y_binary) {
     estimate <- exp(est)
-    ci <- c(exp(est + se * qnorm(alpha / 2)),
-            exp(est + se * qnorm(1 - alpha / 2)))
+    ci <- c(
+      exp(est + se * qnorm(alpha / 2)),
+      exp(est + se * qnorm(1 - alpha / 2))
+    )
   } else {
     estimate <- est
-    ci <- c(est + se * qnorm(alpha / 2),
-            est + se * qnorm(1 - alpha / 2))
+    ci <- c(
+      est + se * qnorm(alpha / 2),
+      est + se * qnorm(1 - alpha / 2)
+    )
   }
 
   return(list(estimate = estimate, ci = ci))
-
 }

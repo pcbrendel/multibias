@@ -15,15 +15,15 @@
 #'
 #' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#'  where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-#'  exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
-#'  measured confounders (if any),
-#'  and \emph{j} corresponds to the number of measured confounders.
-#'  The number of parameters therefore equals 3 + \emph{j}.
+#' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
+#' where \emph{U} is the binary unmeasured confounder, \emph{X} is the
+#' exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
+#' measured confounders (if any),
+#' and \emph{j} corresponds to the number of measured confounders.
+#' The number of parameters therefore equals 3 + \emph{j}.
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_uc(
@@ -47,14 +47,12 @@
 #' @export
 
 adjust_uc <- function(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  u_model_coefs,
-  level = 0.95
-) {
-
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    u_model_coefs,
+    level = 0.95) {
   n <- nrow(data)
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
@@ -77,12 +75,11 @@ adjust_uc <- function(
     )
   }
 
-  u1_0     <- u_model_coefs[1]
-  u1_x     <- u_model_coefs[2]
-  u1_y     <- u_model_coefs[3]
+  u1_0 <- u_model_coefs[1]
+  u1_x <- u_model_coefs[2]
+  u1_y <- u_model_coefs[3]
 
   if (is.null(confounders)) {
-
     df <- data.frame(X = x, Y = y)
     df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y))
 
@@ -98,16 +95,15 @@ adjust_uc <- function(
         data = df
       )
     }
-
   } else if (len_c == 1) {
-
     c1 <- data[, confounders]
     df <- data.frame(X = x, Y = y, C1 = c1)
 
     u1_c1 <- u_model_coefs[4]
 
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y +
-                                      u1_c1 * df$C1))
+    df$Upred <- rbinom(
+      n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y + u1_c1 * df$C1)
+    )
 
     if (y_binary) {
       final <- glm(
@@ -121,9 +117,7 @@ adjust_uc <- function(
         data = df
       )
     }
-
   } else if (len_c == 2) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
 
@@ -132,8 +126,11 @@ adjust_uc <- function(
     u1_c1 <- u_model_coefs[4]
     u1_c2 <- u_model_coefs[5]
 
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y +
-                                      u1_c1 * df$C1 + u1_c2 * df$C2))
+    df$Upred <- rbinom(
+      n, 1, plogis(
+        u1_0 + u1_x * df$X + u1_y * df$Y + u1_c1 * df$C1 + u1_c2 * df$C2
+      )
+    )
 
     if (y_binary) {
       final <- glm(
@@ -147,9 +144,7 @@ adjust_uc <- function(
         data = df
       )
     }
-
   } else if (len_c == 3) {
-
     c1 <- data[, confounders[1]]
     c2 <- data[, confounders[2]]
     c3 <- data[, confounders[3]]
@@ -180,7 +175,6 @@ adjust_uc <- function(
         data = df
       )
     }
-
   } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
   }
@@ -191,14 +185,17 @@ adjust_uc <- function(
 
   if (y_binary) {
     estimate <- exp(est)
-    ci <- c(exp(est + se * qnorm(alpha / 2)),
-            exp(est + se * qnorm(1 - alpha / 2)))
+    ci <- c(
+      exp(est + se * qnorm(alpha / 2)),
+      exp(est + se * qnorm(1 - alpha / 2))
+    )
   } else {
     estimate <- est
-    ci <- c(est + se * qnorm(alpha / 2),
-            est + se * qnorm(1 - alpha / 2))
+    ci <- c(
+      est + se * qnorm(alpha / 2),
+      est + se * qnorm(1 - alpha / 2)
+    )
   }
 
   return(list(estimate = estimate, ci = ci))
-
 }
