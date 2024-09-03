@@ -45,8 +45,8 @@ interval. Default is 0.95.}
 }
 \value{
 A list where the first item is the odds ratio estimate of the
- effect of the exposure on the outcome and the second item is the
- confidence interval as the vector: (lower bound, upper bound).
+effect of the exposure on the outcome and the second item is the
+confidence interval as the vector: (lower bound, upper bound).
 }
 \description{
 \code{adjust_om_sel} returns the exposure-outcome odds ratio and confidence
