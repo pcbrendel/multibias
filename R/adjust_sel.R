@@ -56,7 +56,7 @@ adjust_sel <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(y %in% c(0, 1)) == n) {
+  if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
