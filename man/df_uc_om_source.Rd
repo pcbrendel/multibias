@@ -7,13 +7,13 @@
 \format{
 A dataframe with 100,000 rows and 7 columns:
 \describe{
-    \item{X}{exposure, 1 = present and 0 = absent}
-    \item{Y}{outcome, 1 = present and 0 = absent}
-    \item{C1}{1st confounder, 1 = present and 0 = absent}
-    \item{C2}{2nd confounder, 1 = present and 0 = absent}
-    \item{C3}{3rd confounder, 1 = present and 0 = absent}
-    \item{U}{unmeasured confounder, 1 = present and 0 = absent}
-    \item{Ystar}{misclassified outcome, 1 = present and 0 = absent}
+\item{X}{exposure, 1 = present and 0 = absent}
+\item{Y}{outcome, 1 = present and 0 = absent}
+\item{C1}{1st confounder, 1 = present and 0 = absent}
+\item{C2}{2nd confounder, 1 = present and 0 = absent}
+\item{C3}{3rd confounder, 1 = present and 0 = absent}
+\item{U}{unmeasured confounder, 1 = present and 0 = absent}
+\item{Ystar}{misclassified outcome, 1 = present and 0 = absent}
 }
 }
 \usage{

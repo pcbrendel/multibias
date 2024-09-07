@@ -29,8 +29,8 @@ A maximum of three confounders is allowed.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
-where \emph{X} represents the binary true exposure, \emph{X*} is the
-binary misclassified exposure, \emph{Y*} is the binary misclassified
+where \emph{X} represents the binary true exposure, \emph{X}* is the
+binary misclassified exposure, \emph{Y}* is the binary misclassified
 outcome, \emph{C} represents the vector of
 measured confounders (if any), and \emph{j} corresponds to the number
 of measured confounders. The number of parameters is therefore 3 + \emph{j}.}
@@ -47,7 +47,7 @@ confounders. The number of parameters is therefore 3 + \emph{j}.}
 model:
 \ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
 where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
 is the binary misclassified outcome, \emph{C} represents the vector of
 measured confounders (if any), and \emph{j} corresponds to the
 number of measured confounders.}
@@ -56,7 +56,7 @@ number of measured confounders.}
 model:
 \ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j, }}
 where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
 is the binary misclassified outcome, \emph{C} represents the vector of
 measured confounders (if any),
 and \emph{j} corresponds to the number of measured confounders.}
@@ -65,7 +65,7 @@ and \emph{j} corresponds to the number of measured confounders.}
 model:
 \ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
 where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X*} is the binary misclassified exposure, \emph{Y*}
+true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
 is the binary misclassified outcome, \emph{C} represents the vector of
 measured confounders (if any),
 and \emph{j} corresponds to the number of measured confounders.}
