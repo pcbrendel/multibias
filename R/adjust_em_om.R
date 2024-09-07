@@ -1,5 +1,41 @@
 #' Adust for exposure misclassification and outcome misclassification.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_emc_omc()` was renamed to `adjust_em_om()`
+#' @keywords internal
+#'
+#' @export
+adjust_emc_omc <- function(
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs = NULL,
+    y_model_coefs = NULL,
+    x1y0_model_coefs = NULL,
+    x0y1_model_coefs = NULL,
+    x1y1_model_coefs = NULL,
+    level = 0.95) {
+  lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
+  adjust_em_om(
+    data,
+    exposure,
+    outcome,
+    confounders,
+    x_model_coefs,
+    y_model_coefs,
+    x1y0_model_coefs = NULL,
+    x0y1_model_coefs = NULL,
+    x1y1_model_coefs = NULL,
+    level
+  )
+}
+
+
+#' Adust for exposure misclassification and outcome misclassification.
+#'
 #' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and outcome
 #' misclassification. Two different options for the bias parameters are
@@ -110,10 +146,10 @@ adjust_em_om <- function(
   xstar <- data[, exposure]
   ystar <- data[, outcome]
 
-  if (sum(xstar %in% c(0, 1)) != n) {
+  if (!all(xstar %in% 0:1)) {
     stop("Exposure must be a binary integer.")
   }
-  if (sum(ystar %in% c(0, 1)) != n) {
+  if (!all(ystar %in% 0:1)) {
     stop("Outcome must be a binary integer.")
   }
 
@@ -122,7 +158,7 @@ adjust_em_om <- function(
     !(
       (is.null(x_model_coefs) && is.null(y_model_coefs)) ||
         ((is.null(x1y0_model_coefs) && is.null(x0y1_model_coefs) &&
-            is.null(x1y1_model_coefs))
+          is.null(x1y1_model_coefs))
         )
     )
   ) {
@@ -137,12 +173,7 @@ adjust_em_om <- function(
     len_x_coefs <- length(x_model_coefs)
     len_y_coefs <- length(y_model_coefs)
 
-    if (sum(xstar %in% c(0, 1)) != n) {
-      stop("Exposure must be a binary integer.")
-    }
-    if (sum(ystar %in% c(0, 1)) != n) {
-      stop("Outcome must be a binary integer.")
-    }
+
     if (len_x_coefs != 3 + len_c) {
       stop(
         paste0(
