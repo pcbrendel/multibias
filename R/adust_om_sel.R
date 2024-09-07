@@ -1,5 +1,38 @@
 #' Adust for outcome misclassification and selection bias.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_omc_sel()` was renamed to `adjust_om_sel()`
+#' @keywords internal
+#'
+#' @export
+adjust_omc_sel <- function(
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    y_model_coefs,
+    s_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn(
+    "1.5.3", "adjust_omc_sel()", "adjust_om_sel()"
+  )
+  adjust_om_sel(
+    data,
+    exposure,
+    outcome,
+    confounders,
+    y_model_coefs,
+    s_model_coefs,
+    level
+  )
+}
+
+
+
+#' Adust for outcome misclassification and selection bias.
+#'
 #' `adjust_om_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for outcome misclassification and selection bias.
 #'
@@ -69,7 +102,7 @@ adjust_om_sel <- function(
   ystar <- data[, outcome]
 
 
-  if (sum(ystar %in% c(0, 1)) != n) {
+  if (!all(ystar %in% 0:1)) {
     stop("Outcome must be a binary integer.")
   }
 

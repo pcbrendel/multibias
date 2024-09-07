@@ -1,6 +1,8 @@
 # multibias 1.5.3
+
 * All exposure misclassificaiton naming changed from  `emc` changed to `em`
 * All outcome misclassificaiton naming changed from  `omc` changed to `om`
+* Added lifecycle badges for above function renames
 * Merged `adjust_multinom_uc_em_sel` into `adjust_uc_em_sel`
 * Merged `adjust_multinom_uc_om_sel` into `adjust_uc_om_sel`
 * The following functions now support more flexible combinations of continuous
