@@ -48,9 +48,8 @@ model:
 \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
 where \emph{X} is the binary true exposure, \emph{U} is the binary
 unmeasured confounder, \emph{X}* is the binary misclassified exposure,
-\emph{Y} is the outcome, \emph{C}
-represents the vector of measured confounders (if any), and
-\emph{j} corresponds to the number of measured confounders.}
+\emph{Y} is the outcome, \emph{C} represents the vector of measured confounders
+(if any), and \emph{j} corresponds to the number of measured confounders.}
 
 \item{x0u1_model_coefs}{The regression coefficients corresponding to the
 model:

@@ -1,6 +1,46 @@
 #' Adust for uncontrolled confounding, exposure misclassification, and selection
 #' bias.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_uc_emc_sel()` was renamed to `adjust_uc_em_sel()`
+#' @keywords internal
+#'
+#' @export
+adjust_uc_emc_sel <- function(
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    u_model_coefs = NULL,
+    x_model_coefs = NULL,
+    x1u0_model_coefs = NULL,
+    x0u1_model_coefs = NULL,
+    x1u1_model_coefs = NULL,
+    s_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn(
+    "1.5.3", "adjust_uc_emc_sel()", "adjust_uc_em_sel()"
+  )
+  adjust_uc_em_sel(
+    data,
+    exposure,
+    outcome,
+    confounders,
+    u_model_coefs,
+    x_model_coefs,
+    x1u0_model_coefs,
+    x0u1_model_coefs,
+    x1u1_model_coefs,
+    s_model_coefs,
+    level
+  )
+}
+
+#' Adust for uncontrolled confounding, exposure misclassification, and selection
+#' bias.
+#'
 #' `adjust_uc_em_sel` returns the exposure-outcome odds ratio and
 #' confidence interval, adjusted for uncontrolled confounding, exposure
 #' misclassificaiton, and selection bias. Two different options for the bias
@@ -38,9 +78,8 @@
 #' \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
 #' where *X* is the binary true exposure, *U* is the binary
 #' unmeasured confounder, *X** is the binary misclassified exposure,
-#' *Y* is the outcome, *C*
-#' represents the vector of measured confounders (if any), and
-#' *j* corresponds to the number of measured confounders.
+#' *Y* is the outcome, *C* represents the vector of measured confounders
+#' (if any), and *j* corresponds to the number of measured confounders.
 #' @param x0u1_model_coefs The regression coefficients corresponding to the
 #' model:
 #' \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
@@ -122,10 +161,10 @@ adjust_uc_em_sel <- function(
   xstar <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(xstar %in% c(0, 1)) != n) {
+  if (!all(xstar %in% 0:1)) {
     stop("Exposure must be a binary integer.")
   }
-  if (sum(y %in% c(0, 1)) == n) {
+  if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE

@@ -1,5 +1,35 @@
 #' Adust for exposure misclassification and selection bias.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_emc_sel()` was renamed to `adjust_em_sel()`
+#' @keywords internal
+#'
+#' @export
+adjust_emc_sel <- function(
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs,
+    s_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn("1.5.3", "adjust_emc_sel()", "adjust_em_sel()")
+  adjust_em_sel(
+    data,
+    exposure,
+    outcome,
+    confounders,
+    x_model_coefs,
+    s_model_coefs,
+    level
+  )
+}
+
+
+#' Adust for exposure misclassification and selection bias.
+#'
 #' `adjust_em_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
@@ -75,11 +105,11 @@ adjust_em_sel <- function(
   xstar <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(xstar %in% c(0, 1)) != n) {
+  if (!all(xstar %in% 0:1)) {
     stop("Exposure must be a binary integer.")
   }
 
-  if (sum(y %in% c(0, 1)) == n) {
+  if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
