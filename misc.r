@@ -40,6 +40,8 @@ use_news_md()
 use_cran_comments()
 urlchecker::url_check()
 usethis::use_package("rlang", min_version = TRUE)
+usethis::use_roxygen_md()
+usethis::use_lifecycle()
 
 # vignette
 usethis::use_vignette("my-vignette")

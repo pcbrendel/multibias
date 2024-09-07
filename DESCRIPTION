@@ -22,6 +22,7 @@ Depends: R (>= 2.10)
 RoxygenNote: 7.2.3
 Imports:
     dplyr (>= 1.1.3),
+    lifecycle (>= 1.0.3),
     magrittr (>= 2.0.3),
     rlang (>= 1.1.1)
 Suggests:
@@ -32,3 +33,4 @@ URL: https://github.com/pcbrendel/multibias
 BugReports: https://github.com/pcbrendel/multibias/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
