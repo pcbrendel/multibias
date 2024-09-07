@@ -1,11 +1,11 @@
 #' Adust for uncontrolled confounding.
 #'
-#' \code{adjust_uc} returns the exposure-outcome odds ratio and confidence
+#' `adjust_uc` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding from a binary confounder.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
-#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
 #' estimate and confidence interval, this function should be run in loop across
@@ -16,11 +16,11 @@
 #' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#' where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-#' exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
+#' where *U* is the binary unmeasured confounder, *X* is the
+#' exposure, *Y* is the outcome, *C* represents the vector of
 #' measured confounders (if any),
-#' and \emph{j} corresponds to the number of measured confounders.
-#' The number of parameters therefore equals 3 + \emph{j}.
+#' and *j* corresponds to the number of measured confounders.
+#' The number of parameters therefore equals 3 + *j*.
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).

@@ -1,18 +1,18 @@
 #' Adust for uncontrolled confounding, exposure misclassification, and selection
 #' bias.
 #'
-#' \code{adjust_uc_em_sel} returns the exposure-outcome odds ratio and
+#' `adjust_uc_em_sel` returns the exposure-outcome odds ratio and
 #' confidence interval, adjusted for uncontrolled confounding, exposure
 #' misclassificaiton, and selection bias. Two different options for the bias
 #' parameters are availale here: 1) parameters from separate models
-#' of \emph{U} and \emph{X} (\code{u_model_coefs} and \code{x_model_coefs})
-#' or 2) parameters from a joint model of \emph{U} and \emph{X}
-#' (\code{x1u0_model_coefs}, \code{x0u1_model_coefs}, and
-#' \code{x1u1_model_coefs}). Both approaches require \code{s_model_coefs}.
+#' of *U* and *X* (`u_model_coefs` and `x_model_coefs`)
+#' or 2) parameters from a joint model of *U* and *X*
+#' (`x1u0_model_coefs`, `x0u1_model_coefs`, and
+#' `x1u1_model_coefs`). Both approaches require `s_model_coefs`.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
-#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
 #' estimate and confidence interval, this function should be run in loop across
@@ -23,47 +23,47 @@
 #' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-#' where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-#' binary true exposure, and \emph{Y} is the outcome.
+#' where *U* is the binary unmeasured confounder, *X* is the
+#' binary true exposure, and *Y* is the outcome.
 #' The number of parameters therefore equals 3.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
-#' where \emph{X} represents binary true exposure, \emph{X*} is the
-#' binary misclassified exposure, \emph{Y} is the outcome, \emph{C}
+#' where *X* represents binary true exposure, *X** is the
+#' binary misclassified exposure, *Y* is the outcome, *C*
 #' represents the vector of measured confounders (if any), and
-#' \emph{j} corresponds to the number of measured confounders.
-#' The number of parameters therefore equals 3 + \emph{j}.
+#' *j* corresponds to the number of measured confounders.
+#' The number of parameters therefore equals 3 + *j*.
 #' @param x1u0_model_coefs The regression coefficients corresponding to the
 #' model:
 #' \ifelse{html}{\out{log(P(X=1,U=0)/P(X=0,U=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=0)/P(X=0,U=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y + \gamma_{1,2+j} C_j, }}
-#' where \emph{X} is the binary true exposure, \emph{U} is the binary
-#' unmeasured confounder, \emph{X*} is the binary misclassified exposure,
-#' \emph{Y} is the outcome, \emph{C}
+#' where *X* is the binary true exposure, *U* is the binary
+#' unmeasured confounder, *X** is the binary misclassified exposure,
+#' *Y* is the outcome, *C*
 #' represents the vector of measured confounders (if any), and
-#' \emph{j} corresponds to the number of measured confounders.
+#' *j* corresponds to the number of measured confounders.
 #' @param x0u1_model_coefs The regression coefficients corresponding to the
 #' model:
 #' \ifelse{html}{\out{log(P(X=0,U=1)/P(X=0,U=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1)/P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y + \gamma_{2,2+j} C_j, }}
-#' where \emph{X} is the binary true exposure, \emph{U} is the binary
-#' unmeasured confounder, \emph{X*} is the binary misclassified exposure,
-#' \emph{Y} is the outcome,
-#' \emph{C} represents the vector of measured confounders (if any), and
-#' \emph{j} corresponds to the number of measured confounders.
+#' where *X* is the binary true exposure, *U* is the binary
+#' unmeasured confounder, *X** is the binary misclassified exposure,
+#' *Y* is the outcome,
+#' *C* represents the vector of measured confounders (if any), and
+#' *j* corresponds to the number of measured confounders.
 #' @param x1u1_model_coefs The regression coefficients corresponding to the
 #' model:
 #' \ifelse{html}{\out{log(P(X=1,U=1)/P(X=0,U=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,U=1)/P(X=0,U=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y + \gamma_{3,2+j} C_j, }}
-#' where \emph{X} is the binary true exposure, \emph{U} is the binary
-#' unmeasured confounder, \emph{X*} is the binary misclassified exposure,
-#' \emph{Y} is the outcome,
-#' \emph{C} represents the vector of measured confounders (if any),
-#' and \emph{j} corresponds to the number of measured confounders.
+#' where *X* is the binary true exposure, *U* is the binary
+#' unmeasured confounder, *X** is the binary misclassified exposure,
+#' *Y* is the outcome,
+#' *C* represents the vector of measured confounders (if any),
+#' and *j* corresponds to the number of measured confounders.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>2+j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta_{2+j} C_j, }}
-#' where \emph{S} represents binary selection, \emph{X*} is the
-#' binary misclassified exposure, \emph{Y} is the outcome,
-#' \emph{C} represents the vector of measured confounders (if any),
-#' and \emph{j} corresponds to the number of measured confounders.
-#' The number of parameters therefore equals 3 + \emph{j}.
+#' where *S* represents binary selection, *X** is the
+#' binary misclassified exposure, *Y* is the outcome,
+#' *C* represents the vector of measured confounders (if any),
+#' and *j* corresponds to the number of measured confounders.
+#' The number of parameters therefore equals 3 + *j*.
 #'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the

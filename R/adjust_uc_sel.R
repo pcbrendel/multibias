@@ -1,12 +1,12 @@
 #' Adust for uncontrolled confounding and selection bias.
 #'
-#' \code{adjust_uc_sel} returns the exposure-outcome odds ratio and confidence
+#' `adjust_uc_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding and exposure
 #' misclassificaiton.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
-#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
 #' estimate and confidence interval, this function should be run in loop across
@@ -17,15 +17,15 @@
 #' @inheritParams adjust_em_sel
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#'  where \emph{U} is the binary unmeasured
-#'  confounder, \emph{X} is the exposure, \emph{Y} is the outcome, \emph{C}
-#'  represents the vector of measured confounders (if any), and \emph{j}
+#'  where *U* is the binary unmeasured
+#'  confounder, *X* is the exposure, *Y* is the outcome, *C*
+#'  represents the vector of measured confounders (if any), and *j*
 #'  corresponds to the number of measured confounders. The number of parameters
-#'  therefore equals 3 + \emph{j}.
+#'  therefore equals 3 + *j*.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where \emph{S} represents binary selection, \emph{X} is the exposure,
-#'  and \emph{Y} is the outcome.
+#'  where *S* represents binary selection, *X* is the exposure,
+#'  and *Y* is the outcome.
 #'  The number of parameters therefore equals 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #'  effect of the exposure on the outcome and the second item is the

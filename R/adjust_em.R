@@ -1,11 +1,32 @@
 #' Adust for exposure misclassification.
 #'
-#' \code{adjust_em} returns the exposure-outcome odds ratio and confidence
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_emc()` was renamed to `adjust_em()`
+#' @keywords internal
+#'
+#' @export
+adjust_emc <- function(
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
+    x_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn("1.5.3", "adjust_emc()", "adjust_em()")
+  adjust_em(data, exposure, outcome, confounders, x_model_coefs, level)
+}
+
+
+#' Adust for exposure misclassification.
+#'
+#' `adjust_em` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassificaiton.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
-#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
 #' estimate and confidence interval, this function should be run in loop across
@@ -15,16 +36,16 @@
 #'
 #' @inheritParams adjust_em_sel
 #' @param x_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
-#'  where \emph{X} represents the binary true exposure, \emph{X*} is the binary
-#'  misclassified exposure, \emph{Y} is the outcome, \emph{C} represents
-#'  the vector of measured confounders (if any),
-#'  and \emph{j} corresponds to the number of measured confounders. The number
-#'  of parameters is therefore 3 + \emph{j}.
+#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
+#' where *X* represents the binary true exposure, *X** is the binary
+#' misclassified exposure, *Y* is the outcome, *C* represents
+#' the vector of measured confounders (if any),
+#' and *j* corresponds to the number of measured confounders. The number
+#' of parameters is therefore 3 + *j*.
 #'
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_em(
@@ -61,11 +82,11 @@ adjust_em <- function(
   xstar <- data[, exposure]
   y <- data[, outcome]
 
-  if (sum(xstar %in% c(0, 1)) != n) {
+  if (!all(xstar %in% 0:1)) {
     stop("Exposure must be a binary integer.")
   }
 
-  if (sum(y %in% c(0, 1)) == n) {
+  if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE

@@ -1,11 +1,11 @@
 #' Adust for selection bias.
 #'
-#' \code{adjust_sel} returns the exposure-outcome odds ratio and confidence
+#' `adjust_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for selection bias.
 #'
 #' Values for the regression coefficients can be applied as
 #' fixed values or as single draws from a probability
-#' distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
 #' estimate and confidence interval, this function should be run in loop across
@@ -16,8 +16,8 @@
 #' @inheritParams adjust_em_sel
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#' where \emph{S} represents binary selection, \emph{X} is the exposure,
-#' and \emph{Y} is the outcome. The number of parameters is therefore 3.
+#' where *S* represents binary selection, *X* is the exposure,
+#' and *Y* is the outcome. The number of parameters is therefore 3.
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
