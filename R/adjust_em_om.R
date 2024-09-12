@@ -146,12 +146,8 @@ adjust_em_om <- function(
   xstar <- data[, exposure]
   ystar <- data[, outcome]
 
-  if (!all(xstar %in% 0:1)) {
-    stop("Exposure must be a binary integer.")
-  }
-  if (!all(ystar %in% 0:1)) {
-    stop("Outcome must be a binary integer.")
-  }
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_binary(ystar, "Outcome must be a binary integer.")
 
   # check that user correctly specified bias parameters
   if (
@@ -173,23 +169,22 @@ adjust_em_om <- function(
     len_x_coefs <- length(x_model_coefs)
     len_y_coefs <- length(y_model_coefs)
 
-
-    if (len_x_coefs != 3 + len_c) {
-      stop(
-        paste0(
-          "Incorrect length of X model coefficients. ",
-          "Length should equal 3 + number of confounders."
-        )
+    force_len(
+      len_x_coefs,
+      3 + len_c,
+      paste0(
+        "Incorrect length of X model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
-    }
-    if (len_y_coefs != 3 + len_c) {
-      stop(
-        paste0(
-          "Incorrect length of Y model coefficients. ",
-          "Length should equal 3 + number of confounders."
-        )
+    )
+    force_len(
+      len_y_coefs,
+      3 + len_c,
+      paste0(
+        "Incorrect length of Y model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
-    }
+    )
 
     x1_0 <- x_model_coefs[1]
     x1_xstar <- x_model_coefs[2]
@@ -313,30 +308,30 @@ adjust_em_om <- function(
     len_x0y1_coefs <- length(x0y1_model_coefs)
     len_x1y1_coefs <- length(x1y1_model_coefs)
 
-    if (len_x1y0_coefs != 3 + len_c) {
-      stop(
-        paste0(
-          "Incorrect length of X1Y0 model coefficients. ",
-          "Length should equal 3 + number of confounders."
-        )
+    force_len(
+      len_x1y0_coefs,
+      3 + len_c,
+      paste0(
+        "Incorrect length of X1Y0 model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
-    }
-    if (len_x0y1_coefs != 3 + len_c) {
-      stop(
-        paste0(
-          "Incorrect length of X0Y1 model coefficients. ",
-          "Length should equal 3 + number of confounders."
-        )
+    )
+    force_len(
+      len_x0y1_coefs,
+      3 + len_c,
+      paste0(
+        "Incorrect length of X0Y1 model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
-    }
-    if (len_x1y1_coefs != 3 + len_c) {
-      stop(
-        paste0(
-          "Incorrect length of X1Y1 model coefficients. ",
-          "Length should equal 3 + number of confounders."
-        )
+    )
+    force_len(
+      len_x1y1_coefs,
+      3 + len_c,
+      paste0(
+        "Incorrect length of X1Y1 model coefficients. ",
+        "Length should equal 3 + number of confounders."
       )
-    }
+    )
 
     x1y0_0 <- x1y0_model_coefs[1]
     x1y0_xstar <- x1y0_model_coefs[2]

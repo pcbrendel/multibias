@@ -68,22 +68,27 @@ adjust_uc_sel <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
+  force_len(
+    len_u_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of U model coefficients. ",
+      "Length should equal 3 + number of confounders."
+    )
+  )
+  force_len(
+    len_s_coefs,
+    3,
+    paste0(
+      "Incorrect length of S model coefficients. ",
+      "Length should equal 3."
+    )
+  )
+
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
-  }
-
-  if (len_u_coefs != 3 + len_c) {
-    stop(
-      paste0(
-        "Incorrect length of U model coefficients. ",
-        "Length should equal 3 + number of confounders."
-      )
-    )
-  }
-  if (len_s_coefs != 3) {
-    stop("Incorrect length of S model coefficients. Length should equal 3.")
   }
 
   s1_0 <- s_model_coefs[1]

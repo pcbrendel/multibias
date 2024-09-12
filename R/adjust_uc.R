@@ -60,19 +60,19 @@ adjust_uc <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
+  force_len(
+    len_u_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of U model coefficients. ",
+      "Length should equal 3 + number of confounders."
+    )
+  )
+
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
-  }
-
-  if (len_u_coefs != 3 + len_c) {
-    stop(
-      paste0(
-        "Incorrect length of U model coefficients. ",
-        "Length should equal 3 + number of confounders."
-      )
-    )
   }
 
   u1_0 <- u_model_coefs[1]

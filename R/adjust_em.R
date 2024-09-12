@@ -82,23 +82,20 @@ adjust_em <- function(
   xstar <- data[, exposure]
   y <- data[, outcome]
 
-  if (!all(xstar %in% 0:1)) {
-    stop("Exposure must be a binary integer.")
-  }
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_len(
+    len_x_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of X model coefficients. ",
+      "Length should equal 3 + number of confounders."
+    )
+  )
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
-  }
-
-  if (len_x_coefs != 3 + len_c) {
-    stop(
-      paste0(
-        "Incorrect length of X model coefficients. ",
-        "Length should equal 3 + number of confounders."
-      )
-    )
   }
 
   x1_0 <- x_model_coefs[1]

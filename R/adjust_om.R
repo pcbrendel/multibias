@@ -80,24 +80,15 @@ adjust_om <- function(
   x <- data[, exposure]
   ystar <- data[, outcome]
 
-  if (all(x %in% 0:1)) {
-    x_binary <- TRUE
-  } else {
-    x_binary <- FALSE
-  }
-
-  if (!all(ystar %in% 0:1)) {
-    stop("Outcome must be a binary integer.")
-  }
-
-  if (len_y_coefs != 3 + len_c) {
-    stop(
-      paste0(
-        "Incorrect length of Y model coefficients. ",
-        "Length should equal 3 + number of confounders."
-      )
+  force_binary(ystar, "Outcome must be a binary integer.")
+  force_len(
+    len_y_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of Y model coefficients. ",
+      "Length should equal 3 + number of confounders."
     )
-  }
+  )
 
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]

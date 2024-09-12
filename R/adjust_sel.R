@@ -56,19 +56,19 @@ adjust_sel <- function(
   x <- data[, exposure]
   y <- data[, outcome]
 
+  force_len(
+    len_s_coefs,
+    3,
+    paste0(
+      "Incorrect length of S model coefficients. ",
+      "Length should equal 3."
+    )
+  )
+
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
   } else {
     y_binary <- FALSE
-  }
-
-  if (len_s_coefs != 3) {
-    stop(
-      paste0(
-        "Incorrect length of S model coefficients. ",
-        "Length should equal 3."
-      )
-    )
   }
 
   s1_0 <- s_model_coefs[1]
