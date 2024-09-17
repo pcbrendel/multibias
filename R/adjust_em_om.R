@@ -481,6 +481,8 @@ em_om_multinom <- function(
     stop("This function is currently not compatible with >3 confounders.")
   }
 
+  return(final)
+
 }
 
 #' Adust for exposure misclassification and outcome misclassification.
