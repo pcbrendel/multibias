@@ -44,7 +44,6 @@ uc_em_single <- function(
     confounders,
     u_model_coefs,
     x_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
@@ -199,7 +198,6 @@ uc_em_single <- function(
   }
 
   return(final)
-
 }
 
 
@@ -213,7 +211,6 @@ uc_em_multinom <- function(
     x1u0_model_coefs,
     x0u1_model_coefs,
     x1u1_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_x1u0_coefs <- length(x1u0_model_coefs)
@@ -544,7 +541,6 @@ uc_em_multinom <- function(
   }
 
   return(final)
-
 }
 
 #' Adust for uncontrolled confounding and exposure misclassification.
@@ -649,7 +645,6 @@ adjust_uc_em <- function(
     x0u1_model_coefs = NULL,
     x1u1_model_coefs = NULL,
     level = 0.95) {
-
   xstar <- data[, exposure]
   y <- data[, outcome]
 
