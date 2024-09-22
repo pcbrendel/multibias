@@ -11,14 +11,14 @@ The multibias package is used to adjust for multiple biases in causal inference 
 
 Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, *International Journal of Epidemiology*, Volume 52, Issue 4, Pages 1220–1230
 
-The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**emc**), outcome misclassification (**omc**), and selection bias (**sel**).
+The functions provide odds ratio estimates adjusted for any combination of: uncontrolled confounding (**uc**), exposure misclassification (**em**), outcome misclassification (**om**), and selection bias (**sel**).
 
 Single bias adjustments:
 
 | Function | Adjusts for |
 | -------- | ----------- |
-| `adjust_emc()` | exposure misclassification |
-| `adjust_omc()` | outcome misclassification |
+| `adjust_em()` | exposure misclassification |
+| `adjust_om()` | outcome misclassification |
 | `adjust_sel()` | selection bias |
 | `adjust_uc()` | uncontrolled confounding |
 
@@ -26,16 +26,14 @@ Multiple bias adjustments:
 
 | Function | Adjusts for |
 | -------- | ----------- |
-| `adjust_emc_sel()` | exposure misclassification & selection bias |
-| `adjust_emc_omc` | exposure misclassification & outcome misclassification |
-| `adjust_omc_sel()` | outcome misclassification & selection bias |
-| `adjust_uc_emc()` | uncontrolled confounding & exposure misclassificaiton |
-| `adjust_uc_omc()` | uncontrolled confounding & outcome misclassification |
+| `adjust_em_sel()` | exposure misclassification & selection bias |
+| `adjust_em_om` | exposure misclassification & outcome misclassification |
+| `adjust_om_sel()` | outcome misclassification & selection bias |
+| `adjust_uc_em()` | uncontrolled confounding & exposure misclassificaiton |
+| `adjust_uc_om()` | uncontrolled confounding & outcome misclassification |
 | `adjust_uc_sel()` | uncontrolled confounding & selection bias |
-| `adjust_uc_emc_sel()` & `adjust_multinom_uc_emc_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
-| `adjust_uc_omc_sel()` & `adjust_multinom_uc_omc_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
-
-To use these functions without R programming, go to the [multibias Shiny app](https://pcbrendel.shinyapps.io/multibias/).
+| `adjust_uc_em_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
+| `adjust_uc_om_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
 
 The package also includes several dataframes that are useful for demonstrating and validating the bias adjustment methods. Each dataframe contains different combinations of bias as identified by the same prefixing system (e.g., **uc** for uncontrolled confounding). For each bias combination, there is a dataframe with incomplete information (as would be encountered in the real world) (e.g., `df_uc`) and a dataframe with complete information that was used to derive the biased data (e.g., `df_uc_source`).
 
@@ -52,7 +50,13 @@ install.packages("multibias")
 devtools::install_github("pcbrendel/multibias")
 ```
 
-## Coming soon
-* Ability to input a validation dataframe instead of bias parameters
-* Final triple bias combinations
-* Additional support for continuous exposure and outcome
+## How it works
+
+1. Determine the desired biases to adjust for in your observational data for a given exposure-outcome effect and identify the corresponding `adjust` function.
+2. Obtain the necessary bias parameters (see function documentation) for bias adjustment. These values could come from the literature, validation data, or expert opinion. Each parameter can be represented as a single value or as a probability distribution.
+3. Run the `adjust` function after inputting:
+   1. The observational data
+   2. Column names of the exposure, outcome, and measured confounders
+   3. The bias parameters
+   4. Level for outupt confidence interval
+4. The `adjust` function will output the bias-adjusted exposure-outcome odds ratio and confidence interval.
