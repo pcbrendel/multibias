@@ -165,7 +165,6 @@ uc_om_single <- function(
 
 # bias adjust with multinomial coefs
 
-
 uc_om_multinom <- function(
     data,
     exposure,
