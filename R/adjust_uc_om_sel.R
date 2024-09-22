@@ -229,7 +229,6 @@ uc_om_sel_single <- function(
   }
 
   return(final)
-
 }
 
 
@@ -244,7 +243,6 @@ uc_om_sel_multinom <- function(
     u0y1_model_coefs,
     u1y1_model_coefs,
     s_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_u0y1_coefs <- length(u0y1_model_coefs)
@@ -553,7 +551,6 @@ uc_om_sel_multinom <- function(
   }
 
   return(final)
-
 }
 
 

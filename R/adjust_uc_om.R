@@ -45,7 +45,6 @@ uc_om_single <- function(
     confounders,
     u_model_coefs,
     y_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
@@ -159,7 +158,6 @@ uc_om_single <- function(
   }
 
   return(final)
-
 }
 
 
@@ -173,7 +171,6 @@ uc_om_multinom <- function(
     u1y0_model_coefs,
     u0y1_model_coefs,
     u1y1_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_u1y0_coefs <- length(u1y0_model_coefs)
@@ -457,7 +454,6 @@ uc_om_multinom <- function(
   }
 
   return(final)
-
 }
 
 
