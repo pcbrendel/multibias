@@ -1,5 +1,5 @@
 # causal data class
-create_causal_data <- function(
+causal_data <- function(
   data,
   exposure,
   outcome,
@@ -160,7 +160,7 @@ adjust_uc <- function(
 
 }
 
-df_observed <- create_causal_data(
+df_observed <- causal_data(
   df_uc,
   exposure = "X_bi",
   outcome = "Y_bi",
@@ -170,7 +170,7 @@ df_observed <- create_causal_data(
 
 print(df_observed)
 
-df_validation <- create_causal_data(
+df_validation <- causal_data(
   df_uc_source,
   exposure = "X_bi",
   outcome = "Y_bi",
@@ -287,7 +287,7 @@ adjust_em <- function(
 
 }
 
-df_observed <- create_causal_data(
+df_observed <- causal_data(
   df_emc,
   exposure = "Xstar",
   outcome = "Y",
@@ -296,7 +296,7 @@ df_observed <- create_causal_data(
 
 print(df_observed)
 
-df_validation <- create_causal_data(
+df_validation <- causal_data(
   df_emc_source,
   exposure = "X",
   outcome = "Y",
@@ -395,7 +395,7 @@ adjust_om <- function(
 
 }
 
-df_observed <- create_causal_data(
+df_observed <- causal_data(
   df_omc,
   exposure = "X",
   outcome = "Ystar",
@@ -404,7 +404,7 @@ df_observed <- create_causal_data(
 
 print(df_observed)
 
-df_validation <- create_causal_data(
+df_validation <- causal_data(
   df_omc_source,
   exposure = "X",
   outcome = "Y",
