@@ -16,7 +16,7 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_em_sel") # creates test
-test_active_file("tests/testthat/test-adjust_uc_em_sel.R") # single test
+test_file("tests/testthat/test-adjust_uc.R") # single test
 test() # tests all
 
 # check
