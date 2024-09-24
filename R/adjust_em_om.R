@@ -198,7 +198,6 @@ em_om_multinom <- function(
     x1y0_model_coefs,
     x0y1_model_coefs,
     x1y1_model_coefs) {
-
   n <- nrow(data)
   len_c <- length(confounders)
   len_x1y0_coefs <- length(x1y0_model_coefs)
@@ -482,7 +481,6 @@ em_om_multinom <- function(
   }
 
   return(final)
-
 }
 
 #' Adust for exposure misclassification and outcome misclassification.
@@ -591,7 +589,6 @@ adjust_em_om <- function(
     x0y1_model_coefs = NULL,
     x1y1_model_coefs = NULL,
     level = 0.95) {
-
   xstar <- data[, exposure]
   ystar <- data[, outcome]
 
