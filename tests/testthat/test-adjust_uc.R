@@ -4,18 +4,28 @@ nreps <- 10
 
 # 0 confounders
 
-nobias_model <- glm(Y_bi ~ X_bi + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_source)
+nobias_model <- glm(
+  Y_bi ~ X_bi + U,
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
-u_model <- glm(U ~ X_bi + Y_bi,
-               family = binomial(link = "logit"),
-               data = df_uc_source)
+u_model <- glm(
+  U ~ X_bi + Y_bi,
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
-single_run <- adjust_uc(
+df_observed <- data_observed(
   df_uc,
   exposure = "X_bi",
   outcome = "Y_bi",
+  confounders = NULL,
+  remove = c("X_cont", "Y_cont")
+)
+
+single_run <- adjust_uc(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -26,10 +36,15 @@ single_run <- adjust_uc(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc(
+  df_observed <- data_observed(
     bdf,
     exposure = "X_bi",
     outcome = "Y_bi",
+    confounders = NULL,
+    remove = c("X_cont", "Y_cont")
+  )
+  results <- adjust_uc(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -55,18 +70,25 @@ test_that("adjust_uc, 0 confounders: OR and CI output", {
 # 1 confounder
 
 nobias_model <- glm(Y_bi ~ X_bi + C1 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_source)
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
 u_model <- glm(U ~ X_bi + Y_bi + C1,
-               family = binomial(link = "logit"),
-               data = df_uc_source)
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
-single_run <- adjust_uc(
+df_observed <- data_observed(
   df_uc,
   exposure = "X_bi",
   outcome = "Y_bi",
   confounders = "C1",
+  remove = c("X_cont", "Y_cont")
+)
+
+single_run <- adjust_uc(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -78,11 +100,15 @@ single_run <- adjust_uc(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc(
+  df_observed <- data_observed(
     bdf,
     exposure = "X_bi",
     outcome = "Y_bi",
     confounders = "C1",
+    remove = c("X_cont", "Y_cont")
+  )
+  results <- adjust_uc(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -111,14 +137,20 @@ test_that("adjust_uc, 1 confounder: OR and CI output", {
 nobias_model <- lm(Y_cont ~ X_cont + C1 + C2 + U, data = df_uc_source)
 
 u_model <- glm(U ~ X_cont + Y_cont + C1 + C2,
-               family = binomial(link = "logit"),
-               data = df_uc_source)
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
-single_run <- adjust_uc(
+df_observed <- data_observed(
   df_uc,
   exposure = "X_cont",
   outcome = "Y_cont",
   confounders = c("C1", "C2"),
+  remove = c("X_bi", "Y_bi")
+)
+
+single_run <- adjust_uc(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -131,11 +163,15 @@ single_run <- adjust_uc(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc(
+  df_observed <- data_observed(
     bdf,
     exposure = "X_cont",
     outcome = "Y_cont",
     confounders = c("C1", "C2"),
+    remove = c("X_bi", "Y_bi")
+  )
+  results <- adjust_uc(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -163,17 +199,24 @@ test_that("adjust_uc, 2 confounders: OR and CI output", {
 # 3 confounders
 
 nobias_model <- lm(Y_cont ~ X_cont + C1 + C2 + C3 + U,
-                   data = df_uc_source)
+  data = df_uc_source
+)
 
 u_model <- glm(U ~ X_cont + Y_cont + C1 + C2 + C3,
-               family = binomial(link = "logit"),
-               data = df_uc_source)
+  family = binomial(link = "logit"),
+  data = df_uc_source
+)
 
-single_run <- adjust_uc(
+df_observed <- data_observed(
   df_uc,
   exposure = "X_cont",
   outcome = "Y_cont",
   confounders = c("C1", "C2", "C3"),
+  remove = c("X_bi", "Y_bi")
+)
+
+single_run <- adjust_uc(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -187,11 +230,15 @@ single_run <- adjust_uc(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc(
+  df_observed <- data_observed(
     bdf,
     exposure = "X_cont",
     outcome = "Y_cont",
     confounders = c("C1", "C2", "C3"),
+    remove = c("X_bi", "Y_bi")
+  )
+  results <- adjust_uc(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
