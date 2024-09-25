@@ -47,26 +47,26 @@ adjust_emc_sel <- function(
 #' @param exposure String name of the exposure variable.
 #' @param outcome String name of the outcome variable.
 #' @param confounders String name(s) of the confounder(s).
-#'  A maximum of three confounders is allowed.
+#' A maximum of three confounders is allowed.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
-#'  where *X* represents the binary true exposure, *X** is the
-#'  binary misclassified exposure, *Y* is the outcome,
-#'  *C* represents the vector of
-#'  measured confounders (if any), and *j* corresponds to the number of
-#'  measured confounders. The number of parameters is therefore 3 + *j*.
+#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
+#' where *X* represents the binary true exposure, *X** is the
+#' binary misclassified exposure, *Y* is the outcome,
+#' *C* represents the vector of
+#' measured confounders (if any), and *j* corresponds to the number of
+#' measured confounders. The number of parameters is therefore 3 + *j*.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
-#'  where *S* represents binary selection, *X** is the
-#'  binary misclassified exposure,
-#'  *Y* is the outcome, *C* represents the vector of
-#'  measured confounders (if any), and *j* corresponds to the number of
-#'  measured confounders. The number of parameters is therefore 3 + *j*.
+#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
+#' where *S* represents binary selection, *X** is the
+#' binary misclassified exposure,
+#' *Y* is the outcome, *C* represents the vector of
+#' measured confounders (if any), and *j* corresponds to the number of
+#' measured confounders. The number of parameters is therefore 3 + *j*.
 #' @param level Value from 0-1 representing the full range of the confidence
-#'  interval. Default is 0.95.
+#' interval. Default is 0.95.
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
 #' adjust_em_sel(
