@@ -61,15 +61,19 @@ u_y <- log(2.5)
 u_c <- log(2)
 ```
 
-Now let's plug these bias parameters into `adjust_uc()` to obtain our bias-adjusted odds ratio.
+Now let's plug these bias parameters into `adjust_uc()` along with our `data_observed` object to obtain our bias-adjusted odds ratio.
 
 ```{r, eval = TRUE}
-set.seed(1234)
-adjust_uc(
+df <- data_observed(
   data = evans,
   exposure = "SMK",
   outcome = "CHD",
-  confounders = "HPT",
+  confounders = "HPT"
+)
+
+set.seed(1234)
+adjust_uc(
+  df,
   u_model_coefs = c(u_0, u_x, u_y, u_c)
 )
 ```
