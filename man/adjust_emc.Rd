@@ -4,14 +4,7 @@
 \alias{adjust_emc}
 \title{Adust for exposure misclassification.}
 \usage{
-adjust_emc(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  x_model_coefs,
-  level = 0.95
-)
+adjust_emc(data_observed, x_model_coefs, level = 0.95)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
