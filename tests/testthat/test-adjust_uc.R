@@ -20,8 +20,7 @@ df_observed <- data_observed(
   df_uc,
   exposure = "X_bi",
   outcome = "Y_bi",
-  confounders = NULL,
-  remove = c("X_cont", "Y_cont")
+  confounders = NULL
 )
 
 single_run <- adjust_uc(
@@ -40,8 +39,7 @@ for (i in 1:nreps) {
     bdf,
     exposure = "X_bi",
     outcome = "Y_bi",
-    confounders = NULL,
-    remove = c("X_cont", "Y_cont")
+    confounders = NULL
   )
   results <- adjust_uc(
     df_observed,
@@ -83,8 +81,7 @@ df_observed <- data_observed(
   df_uc,
   exposure = "X_bi",
   outcome = "Y_bi",
-  confounders = "C1",
-  remove = c("X_cont", "Y_cont")
+  confounders = "C1"
 )
 
 single_run <- adjust_uc(
@@ -104,8 +101,7 @@ for (i in 1:nreps) {
     bdf,
     exposure = "X_bi",
     outcome = "Y_bi",
-    confounders = "C1",
-    remove = c("X_cont", "Y_cont")
+    confounders = "C1"
   )
   results <- adjust_uc(
     df_observed,
@@ -145,8 +141,7 @@ df_observed <- data_observed(
   df_uc,
   exposure = "X_cont",
   outcome = "Y_cont",
-  confounders = c("C1", "C2"),
-  remove = c("X_bi", "Y_bi")
+  confounders = c("C1", "C2")
 )
 
 single_run <- adjust_uc(
@@ -167,8 +162,7 @@ for (i in 1:nreps) {
     bdf,
     exposure = "X_cont",
     outcome = "Y_cont",
-    confounders = c("C1", "C2"),
-    remove = c("X_bi", "Y_bi")
+    confounders = c("C1", "C2")
   )
   results <- adjust_uc(
     df_observed,
@@ -211,8 +205,7 @@ df_observed <- data_observed(
   df_uc,
   exposure = "X_cont",
   outcome = "Y_cont",
-  confounders = c("C1", "C2", "C3"),
-  remove = c("X_bi", "Y_bi")
+  confounders = c("C1", "C2", "C3")
 )
 
 single_run <- adjust_uc(
@@ -234,8 +227,7 @@ for (i in 1:nreps) {
     bdf,
     exposure = "X_cont",
     outcome = "Y_cont",
-    confounders = c("C1", "C2", "C3"),
-    remove = c("X_bi", "Y_bi")
+    confounders = c("C1", "C2", "C3")
   )
   results <- adjust_uc(
     df_observed,
