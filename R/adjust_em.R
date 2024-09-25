@@ -8,11 +8,14 @@
 #'
 #' @export
 adjust_emc <- function(
-    data_observed,
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
     x_model_coefs,
     level = 0.95) {
   lifecycle::deprecate_warn("1.5.3", "adjust_emc()", "adjust_em()")
-  adjust_em(data_observed, x_model_coefs, level)
+  adjust_em(data, exposure, outcome, confounders, x_model_coefs, level)
 }
 
 
@@ -31,8 +34,7 @@ adjust_emc <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
+#' @inheritParams adjust_em_sel
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
 #' where *X* represents the binary true exposure, *X** is the binary
@@ -40,23 +42,18 @@ adjust_emc <- function(
 #' the vector of measured confounders (if any),
 #' and *j* corresponds to the number of measured confounders. The number
 #' of parameters is therefore 3 + *j*.
-#' @param level Value from 0-1 representing the full range of the confidence
-#'  interval. Default is 0.95.
 #'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
-#'   data = df_em,
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = "C1"
-#' )
 #' adjust_em(
-#'   df,
-#'   x_model_coefs = c(-2.10, 1.62, 0.63, 0.35)
+#'   evans,
+#'   exposure = "SMK",
+#'   outcome = "CHD",
+#'   confounders = "HPT",
+#'   x_model_coefs = c(qlogis(0.01), log(6), log(2), log(2))
 #' )
 #'
 #' @import dplyr
@@ -72,17 +69,18 @@ adjust_emc <- function(
 #' @export
 
 adjust_em <- function(
-    data_observed,
+    data,
+    exposure,
+    outcome,
+    confounders = NULL,
     x_model_coefs,
     level = 0.95) {
-  data <- data_observed$data
   n <- nrow(data)
-  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x_coefs <- length(x_model_coefs)
 
-  xstar <- data[, data_observed$exposure]
-  y <- data[, data_observed$outcome]
+  xstar <- data[, exposure]
+  y <- data[, outcome]
 
   force_binary(xstar, "Exposure must be a binary integer.")
   force_len(
