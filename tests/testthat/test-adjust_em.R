@@ -7,12 +7,14 @@ df_em$Y_cont <- plogis(df_em$Y) + rnorm(nrow(df_em), mean = 0, sd = 0.1)
 
 # 0 confounders
 
-nobias_model <- glm(Y ~ X,
+nobias_model <- glm(
+  Y ~ X,
   family = binomial(link = "logit"),
   data = df_em_source
 )
 
-x_model <- glm(X ~ Xstar + Y,
+x_model <- glm(
+  X ~ Xstar + Y,
   family = binomial(link = "logit"),
   data = df_em_source
 )
@@ -68,12 +70,14 @@ test_that("odds ratio and confidence interval output", {
 
 # 1 confounder
 
-nobias_model <- glm(Y ~ X + C1,
+nobias_model <- glm(
+  Y ~ X + C1,
   family = binomial(link = "logit"),
   data = df_em_source
 )
 
-x_model <- glm(X ~ Xstar + Y + C1,
+x_model <- glm(
+  X ~ Xstar + Y + C1,
   family = binomial(link = "logit"),
   data = df_em_source
 )
@@ -131,12 +135,14 @@ test_that("odds ratio and confidence interval output", {
 
 # 2 confounders
 
-nobias_model <- glm(Y ~ X + C1 + C2,
+nobias_model <- glm(
+  Y ~ X + C1 + C2,
   family = binomial(link = "logit"),
   data = df_em_source
 )
 
-x_model <- glm(X ~ Xstar + Y + C1 + C2,
+x_model <- glm(
+  X ~ Xstar + Y + C1 + C2,
   family = binomial(link = "logit"),
   data = df_em_source
 )
@@ -196,12 +202,14 @@ test_that("odds ratio and confidence interval output", {
 
 # 3 confounders
 
-nobias_model <- glm(Y ~ X + C1 + C2 + C3,
+nobias_model <- glm(
+  Y ~ X + C1 + C2 + C3,
   family = binomial(link = "logit"),
   data = df_em_source
 )
 
-x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
+x_model <- glm(
+  X ~ Xstar + Y + C1 + C2 + C3,
   family = binomial(link = "logit"),
   data = df_em_source
 )
