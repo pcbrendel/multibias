@@ -8,14 +8,11 @@
 #'
 #' @export
 adjust_omc <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     y_model_coefs,
     level = 0.95) {
   lifecycle::deprecate_warn("1.5.3", "adjust_omc()", "adjust_om()")
-  adjust_om(data, exposure, outcome, confounders, y_model_coefs, level)
+  adjust_om(data_observed, y_model_coefs, level)
 }
 
 
@@ -34,7 +31,8 @@ adjust_omc <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_em_sel
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \_delta_0 + \_delta_1 X + \_delta_2 Y^* + \_delta_{2+j} C_j, }}
 #' where *Y* represents the binary true outcome, *X* is the exposure,
@@ -42,17 +40,23 @@ adjust_omc <- function(
 #' *C* represents the vector of measured confounders (if any),
 #' and *j* corresponds to the number of measured confounders. The number
 #' of parameters is therefore 3 + *j*.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
+#' df <- data_observed(
+#'   data = df_om,
+#'   exposure = "X",
+#'   outcome = "Ystar",
+#'   confounders = "C1"
+#' )
 #' adjust_om(
-#'   evans,
-#'   exposure = "SMK",
-#'   outcome = "CHD",
-#'   confounders = "HPT",
-#'   y_model_coefs = c(qlogis(0.01), log(1.5), log(5), log(1.5))
+#'   df,
+#'   y_model_coefs = c(-3.1, 0.6, 1.6, 0.4)
 #' )
 #'
 #' @import dplyr
@@ -67,18 +71,17 @@ adjust_omc <- function(
 #' @export
 
 adjust_om <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     y_model_coefs,
     level = 0.95) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_y_coefs <- length(y_model_coefs)
 
-  x <- data[, exposure]
-  ystar <- data[, outcome]
+  x <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
 
   force_binary(ystar, "Outcome must be a binary integer.")
   force_len(
