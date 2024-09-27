@@ -13,22 +13,29 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_em_sel
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
 #' where *S* represents binary selection, *X* is the exposure,
 #' and *Y* is the outcome. The number of parameters is therefore 3.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
+#' df <- data_observed(
+#'   data = df_sel,
+#'   exposure = "X",
+#'   outcome = "Y",
+#'   confounders = "C1"
+#' )
 #' adjust_sel(
-#'   evans,
-#'   exposure = "SMK",
-#'   outcome = "CHD",
-#'   confounders = "HPT",
-#'   s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
+#'   df,
+#'   s_model_coefs = c(0, 0.9, 0.9)
 #' )
 #'
 #' @import dplyr
@@ -43,18 +50,17 @@
 #' @export
 
 adjust_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     s_model_coefs,
     level = 0.95) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_s_coefs <- length(s_model_coefs)
 
-  x <- data[, exposure]
-  y <- data[, outcome]
+  x <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_len(
     len_s_coefs,

@@ -4,24 +4,11 @@
 \alias{adjust_sel}
 \title{Adust for selection bias.}
 \usage{
-adjust_sel(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  s_model_coefs,
-  level = 0.95
-)
+adjust_sel(data_observed, s_model_coefs, level = 0.95)
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
@@ -52,12 +39,15 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
+df <- data_observed(
+  data = df_sel,
+  exposure = "X",
+  outcome = "Y",
+  confounders = "C1"
+)
 adjust_sel(
-  evans,
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "HPT",
-  s_model_coefs = c(qlogis(0.25), log(0.75), log(0.75))
+  df,
+  s_model_coefs = c(0, 0.9, 0.9)
 )
 
 }
