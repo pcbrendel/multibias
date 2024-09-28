@@ -5,10 +5,7 @@
 \title{Adust for exposure misclassification and outcome misclassification.}
 \usage{
 adjust_em_om(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
+  data_observed,
   x_model_coefs = NULL,
   y_model_coefs = NULL,
   x1y0_model_coefs = NULL,
@@ -18,14 +15,8 @@ adjust_em_om(
 )
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
@@ -99,22 +90,23 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-# Using x_model_coefs and y_model_coefs -------------------------------------
-adjust_em_om(
-  df_em_om,
+df <- data_observed(
+  data = df_em_om,
   exposure = "Xstar",
   outcome = "Ystar",
-  confounders = "C1",
+  confounders = "C1"
+)
+
+# Using x_model_coefs and y_model_coefs -------------------------------------
+adjust_em_om(
+  df,
   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 )
 
 # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 adjust_em_om(
-  df_em_om,
-  exposure = "Xstar",
-  outcome = "Ystar",
-  confounders = "C1",
+  df,
   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
