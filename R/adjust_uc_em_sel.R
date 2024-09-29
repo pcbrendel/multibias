@@ -9,10 +9,7 @@
 #'
 #' @export
 adjust_uc_emc_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     u_model_coefs = NULL,
     x_model_coefs = NULL,
     x1u0_model_coefs = NULL,
@@ -24,10 +21,7 @@ adjust_uc_emc_sel <- function(
     "1.5.3", "adjust_uc_emc_sel()", "adjust_uc_em_sel()"
   )
   adjust_uc_em_sel(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     u_model_coefs,
     x_model_coefs,
     x1u0_model_coefs,
@@ -42,17 +36,19 @@ adjust_uc_emc_sel <- function(
 # bias adjust with u_model_coefs and x_model_coefs
 
 uc_em_sel_single <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     u_model_coefs,
     x_model_coefs,
     s_model_coefs) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
   len_x_coefs <- length(x_model_coefs)
+
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_len(
     len_u_coefs,
@@ -70,9 +66,6 @@ uc_em_sel_single <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, exposure]
-  y <- data[, outcome]
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
@@ -279,19 +272,21 @@ uc_em_sel_single <- function(
 # bias adjust with multinomial coefs
 
 uc_em_sel_multinom <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x1u0_model_coefs,
     x0u1_model_coefs,
     x1u1_model_coefs,
     s_model_coefs) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x1u0_coefs <- length(x1u0_model_coefs)
   len_x0u1_coefs <- length(x0u1_model_coefs)
   len_x1u1_coefs <- length(x1u1_model_coefs)
+
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_len(
     len_x1u0_coefs,
@@ -317,9 +312,6 @@ uc_em_sel_multinom <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, exposure]
-  y <- data[, outcome]
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
@@ -659,7 +651,8 @@ uc_em_sel_multinom <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_em_sel
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 #' where *U* is the binary unmeasured confounder, *X* is the
@@ -702,18 +695,23 @@ uc_em_sel_multinom <- function(
 #' *C* represents the vector of measured confounders (if any),
 #' and *j* corresponds to the number of measured confounders.
 #' The number of parameters therefore equals 3 + *j*.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
 #'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' # Using u_model_coefs, x_model_coefs, s_model_coefs -------------------------
-#' adjust_uc_em_sel(
-#'   df_uc_em_sel,
+#' df <- data_observed(
+#'   data = df_uc_em_sel,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
-#'   confounders = c("C1", "C2", "C3"),
+#'   confounders = c("C1", "C2", "C3")
+#' )
+#' # Using u_model_coefs, x_model_coefs, s_model_coefs -------------------------
+#' adjust_uc_em_sel(
+#'   df,
 #'   u_model_coefs = c(-0.32, 0.59, 0.69),
 #'   x_model_coefs = c(-2.44, 1.62, 0.72, 0.32, -0.15, 0.85),
 #'   s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
@@ -721,10 +719,7 @@ uc_em_sel_multinom <- function(
 #'
 #' # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs, s_model_coefs
 #' adjust_uc_em_sel(
-#'   df_uc_em_sel,
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = c("C1", "C2", "C3"),
+#'   df,
 #'   x1u0_model_coefs = c(-2.78, 1.62, 0.61, 0.36, -0.27, 0.88),
 #'   x0u1_model_coefs = c(-0.17, -0.01, 0.71, -0.08, 0.07, -0.15),
 #'   x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.25, -0.06, 0.74),
@@ -743,10 +738,7 @@ uc_em_sel_multinom <- function(
 #' @export
 
 adjust_uc_em_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     u_model_coefs = NULL,
     x_model_coefs = NULL,
     x1u0_model_coefs = NULL,
@@ -754,8 +746,10 @@ adjust_uc_em_sel <- function(
     x1u1_model_coefs = NULL,
     s_model_coefs,
     level = 0.95) {
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  data <- data_observed$data
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
+  confounders <- data_observed$confounders
 
   len_c <- length(confounders)
   len_s_coefs <- length(s_model_coefs)
@@ -794,20 +788,14 @@ adjust_uc_em_sel <- function(
 
   if (!is.null(x_model_coefs)) {
     final <- uc_em_sel_single(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
+      data_observed = data_observed,
       u_model_coefs = u_model_coefs,
       x_model_coefs = x_model_coefs,
       s_model_coefs = s_model_coefs
     )
   } else if (!is.null(x1u0_model_coefs)) {
     final <- uc_em_sel_multinom(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
+      data_observed = data_observed,
       x1u0_model_coefs = x1u0_model_coefs,
       x0u1_model_coefs = x0u1_model_coefs,
       x1u1_model_coefs = x1u1_model_coefs,
