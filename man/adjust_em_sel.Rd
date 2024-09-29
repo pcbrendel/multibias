@@ -4,25 +4,11 @@
 \alias{adjust_em_sel}
 \title{Adust for exposure misclassification and selection bias.}
 \usage{
-adjust_em_sel(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  x_model_coefs,
-  s_model_coefs,
-  level = 0.95
-)
+adjust_em_sel(data_observed, x_model_coefs, s_model_coefs, level = 0.95)
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
@@ -64,11 +50,14 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-adjust_em_sel(
-  df_em_sel,
+df <- data_observed(
+  data = df_em_sel,
   exposure = "Xstar",
   outcome = "Y",
-  confounders = "C1",
+  confounders = "C1"
+)
+adjust_em_sel(
+  df,
   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
 )

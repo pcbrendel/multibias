@@ -8,19 +8,13 @@
 #'
 #' @export
 adjust_emc_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     x_model_coefs,
     s_model_coefs,
     level = 0.95) {
   lifecycle::deprecate_warn("1.5.3", "adjust_emc_sel()", "adjust_em_sel()")
   adjust_em_sel(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x_model_coefs,
     s_model_coefs,
     level
@@ -43,11 +37,8 @@ adjust_emc_sel <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @param data Dataframe for analysis.
-#' @param exposure String name of the exposure variable.
-#' @param outcome String name of the outcome variable.
-#' @param confounders String name(s) of the confounder(s).
-#' A maximum of three confounders is allowed.
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
 #' where *X* represents the binary true exposure, *X** is the
@@ -64,16 +55,20 @@ adjust_emc_sel <- function(
 #' measured confounders. The number of parameters is therefore 3 + *j*.
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_em_sel(
-#'   df_em_sel,
+#' df <- data_observed(
+#'   data = df_em_sel,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
-#'   confounders = "C1",
+#'   confounders = "C1"
+#' )
+#' adjust_em_sel(
+#'   df,
 #'   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
 #'   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
 #' )
@@ -90,20 +85,19 @@ adjust_emc_sel <- function(
 #' @export
 
 adjust_em_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     x_model_coefs,
     s_model_coefs,
     level = 0.95) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x_coefs <- length(x_model_coefs)
   len_s_coefs <- length(s_model_coefs)
 
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_binary(xstar, "Exposure must be a binary integer.")
   force_len(
