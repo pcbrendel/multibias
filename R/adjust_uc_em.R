@@ -8,10 +8,7 @@
 #'
 #' @export
 adjust_uc_emc <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     u_model_coefs = NULL,
     x_model_coefs = NULL,
     x1u0_model_coefs = NULL,
@@ -22,10 +19,7 @@ adjust_uc_emc <- function(
     "1.5.3", "adjust_uc_emc()", "adjust_uc_em()"
   )
   adjust_uc_em(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     u_model_coefs,
     x_model_coefs,
     x1u0_model_coefs,
@@ -38,13 +32,12 @@ adjust_uc_emc <- function(
 # bias adjust with u_model_coefs and x_model_coefs
 
 uc_em_single <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     u_model_coefs,
     x_model_coefs) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
   len_x_coefs <- length(x_model_coefs)
@@ -66,8 +59,8 @@ uc_em_single <- function(
     )
   )
 
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
@@ -204,14 +197,13 @@ uc_em_single <- function(
 # bias adjust with multinomial coefs
 
 uc_em_multinom <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x1u0_model_coefs,
     x0u1_model_coefs,
     x1u1_model_coefs) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x1u0_coefs <- length(x1u0_model_coefs)
   len_x0u1_coefs <- length(x0u1_model_coefs)
@@ -242,8 +234,8 @@ uc_em_multinom <- function(
     )
   )
 
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
@@ -563,7 +555,8 @@ uc_em_multinom <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_em_sel
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 #' where *U* is the binary unmeasured confounder, *X* is the
@@ -597,27 +590,30 @@ uc_em_multinom <- function(
 #' confounder, *X** is the binary misclassified exposure, *Y* is the
 #' outcome, *C* represents the vector of measured confounders (if any),
 #' and *j* corresponds to the number of measured confounders.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' # Using u_model_coefs and x_model_coefs -------------------------------------
-#' adjust_uc_em(
-#'   df_uc_em,
+#' df <- data_observed(
+#'   data = df_uc_em,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
-#'   confounders = "C1",
+#'   confounders = "C1"
+#' )
+#' # Using u_model_coefs and x_model_coefs -------------------------------------
+#' adjust_uc_em(
+#'   df,
 #'   u_model_coefs = c(-0.23, 0.63, 0.66),
 #'   x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
 #' )
 #'
 #' # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ----------------
 #' adjust_uc_em(
-#'   df_uc_em,
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = "C1",
+#'   df,
 #'   x1u0_model_coefs = c(-2.82, 1.62, 0.68, -0.06),
 #'   x0u1_model_coefs = c(-0.20, 0.00, 0.68, -0.05),
 #'   x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.27)
@@ -635,18 +631,16 @@ uc_em_multinom <- function(
 #' @export
 
 adjust_uc_em <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     u_model_coefs = NULL,
     x_model_coefs = NULL,
     x1u0_model_coefs = NULL,
     x0u1_model_coefs = NULL,
     x1u1_model_coefs = NULL,
     level = 0.95) {
-  xstar <- data[, exposure]
-  y <- data[, outcome]
+  data <- data_observed$data
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_binary(xstar, "Exposure must be a binary integer.")
 
@@ -673,19 +667,13 @@ adjust_uc_em <- function(
 
   if (!is.null(x_model_coefs)) {
     final <- uc_em_single(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
+      data_observed = data_observed,
       u_model_coefs = u_model_coefs,
       x_model_coefs = x_model_coefs
     )
   } else if (!is.null(x1u0_model_coefs)) {
     final <- uc_em_multinom(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
+      data_observed = data_observed,
       x1u0_model_coefs = x1u0_model_coefs,
       x0u1_model_coefs = x0u1_model_coefs,
       x1u1_model_coefs = x1u1_model_coefs
