@@ -14,29 +14,35 @@
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_em_sel
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param u_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#'  where *U* is the binary unmeasured
-#'  confounder, *X* is the exposure, *Y* is the outcome, *C*
-#'  represents the vector of measured confounders (if any), and *j*
-#'  corresponds to the number of measured confounders. The number of parameters
-#'  therefore equals 3 + *j*.
+#' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
+#' where *U* is the binary unmeasured
+#' confounder, *X* is the exposure, *Y* is the outcome, *C*
+#' represents the vector of measured confounders (if any), and *j*
+#' corresponds to the number of measured confounders. The number of parameters
+#' therefore equals 3 + *j*.
 #' @param s_model_coefs The regression coefficients corresponding to the model:
-#'  \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#'  where *S* represents binary selection, *X* is the exposure,
-#'  and *Y* is the outcome.
-#'  The number of parameters therefore equals 3.
+#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
+#' where *S* represents binary selection, *X* is the exposure,
+#' and *Y* is the outcome. The number of parameters therefore equals 3.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#
 #' @return A list where the first item is the odds ratio estimate of the
-#'  effect of the exposure on the outcome and the second item is the
-#'  confidence interval as the vector: (lower bound, upper bound).
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' adjust_uc_sel(
-#'   df_uc_sel,
+#' df <- data_observed(
+#'   data = df_uc_sel,
 #'   exposure = "X",
 #'   outcome = "Y",
-#'   confounders = c("C1", "C2", "C3"),
+#'   confounders = c("C1", "C2", "C3")
+#' )
+#' adjust_uc_sel(
+#'   df,
 #'   u_model_coefs = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
 #'   s_model_coefs = c(-0.01, 0.92, 0.94)
 #' )
@@ -53,20 +59,19 @@
 #' @export
 
 adjust_uc_sel <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     u_model_coefs,
     s_model_coefs,
     level = 0.95) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
   len_s_coefs <- length(s_model_coefs)
 
-  x <- data[, exposure]
-  y <- data[, outcome]
+  x <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
 
   force_len(
     len_u_coefs,
