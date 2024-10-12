@@ -2,6 +2,7 @@ set.seed(1234)
 n <- 20000
 nreps <- 10
 
+# adjust with coefs
 # 0 confounders
 
 nobias_model <- glm(
@@ -254,4 +255,26 @@ test_that("adjust_uc, 3 confounders: OR and CI output", {
     ptype = double(),
     size = 2
   )
+})
+
+# adjust with validation data
+
+or_val <- adjust_uc(
+  data_observed = data_observed(
+    df_uc,
+    exposure = "X_bi",
+    outcome = "Y_bi",
+    confounders = c("C1", "C2", "C3")
+  ),
+  data_validation = data_validation(
+    df_uc_source,
+    true_exposure = "X_bi",
+    true_outcome = "Y_bi",
+    confounders = c("C1", "C2", "C3", "U")
+  )
+)
+
+test_that("adjust_uc, validation data", {
+  expect_gt(or_val$estimate, or_true - 0.1)
+  expect_lt(or_val$estimate, or_true + 0.1)
 })
