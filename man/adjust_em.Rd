@@ -4,11 +4,22 @@
 \alias{adjust_em}
 \title{Adust for exposure misclassification.}
 \usage{
-adjust_em(data_observed, x_model_coefs, level = 0.95)
+adjust_em(
+  data_observed,
+  data_validation = NULL,
+  x_model_coefs = NULL,
+  level = 0.95
+)
 }
 \arguments{
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
+
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for the true and misclassified exposure corresponding to the
+observed exposure in \code{data_observed}.}
 
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
@@ -42,14 +53,30 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_em,
   exposure = "Xstar",
   outcome = "Y",
   confounders = "C1"
 )
+
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_em_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = "C1",
+  misclassified_exposure = "Xstar"
+)
+
 adjust_em(
-  df,
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
+# Using x_model_coefs -------------------------------------------------------
+adjust_em(
+  data_observed = df_observed,
   x_model_coefs = c(-2.10, 1.62, 0.63, 0.35)
 )
 
