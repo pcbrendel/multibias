@@ -1,7 +1,6 @@
 adjust_em_val <- function(
     data_observed,
     data_validation) {
-
   if (!all(data_observed$confounders %in% data_validation$confounders)) {
     stop("All confounders in observed data must be present in validation data.")
   }
@@ -36,7 +35,6 @@ adjust_em_val <- function(
     Xstar = data_validation$data[, data_validation$misclassified_exposure]
   )
 
-
   if (all(df$Xstar %in% 0:1)) {
     if (!all(df_val$Xstar %in% 0:1) || !all(df_val$X %in% 0:1)) {
       stop("Exposures from both datasets must both be binary or both be continuous.")
@@ -58,8 +56,9 @@ adjust_em_val <- function(
   }
 
   x_mod <- glm(X ~ Xstar + Y + .,
-               family = binomial(link = "logit"),
-               data = df_val)
+    family = binomial(link = "logit"),
+    data = df_val
+  )
 
   x_mod_coefs <- coef(x_mod)
   x_pred <- x_mod_coefs[1]
@@ -85,7 +84,6 @@ adjust_em_val <- function(
   }
 
   return(final)
-
 }
 
 

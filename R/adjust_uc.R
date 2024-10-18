@@ -11,7 +11,7 @@ adjust_uc_val <- function(
     stop(
       paste0(
         "This function adjusts for unobserved confounding from one confounder.",
-        "/n",
+        "\n",
         "Validation data must have one more confounder than the observed data."
       )
     )
@@ -61,7 +61,6 @@ adjust_uc_val <- function(
     data = df_val
   )
 
-  # sequence along coefs to predict U in observed data
   u_mod_coefs <- coef(u_mod)
   u_pred <- u_mod_coefs[1]
 
