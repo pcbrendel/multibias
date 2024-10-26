@@ -5,10 +5,7 @@
 \title{Adust for uncontrolled confounding and outcome misclassification.}
 \usage{
 adjust_uc_om(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
+  data_observed,
   u_model_coefs = NULL,
   y_model_coefs = NULL,
   u1y0_model_coefs = NULL,
@@ -18,14 +15,8 @@ adjust_uc_om(
 )
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
@@ -97,22 +88,22 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-# Using u_model_coefs and y_model_coefs -------------------------------------
-adjust_uc_om(
-  df_uc_om,
+df <- data_observed(
+  data = df_uc_om,
   exposure = "X",
   outcome = "Ystar",
-  confounders = "C1",
+  confounders = "C1"
+)
+# Using u_model_coefs and y_model_coefs -------------------------------------
+adjust_uc_om(
+  df,
   u_model_coefs = c(-0.22, 0.61, 0.70),
   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
 )
 
 # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
 adjust_uc_om(
-  df_uc_om,
-  exposure = "X",
-  outcome = "Ystar",
-  confounders = "C1",
+  df,
   u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
   u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
   u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)

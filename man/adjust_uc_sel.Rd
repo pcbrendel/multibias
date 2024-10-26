@@ -4,25 +4,11 @@
 \alias{adjust_uc_sel}
 \title{Adust for uncontrolled confounding and selection bias.}
 \usage{
-adjust_uc_sel(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  u_model_coefs,
-  s_model_coefs,
-  level = 0.95
-)
+adjust_uc_sel(data_observed, u_model_coefs, s_model_coefs, level = 0.95)
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
@@ -35,8 +21,7 @@ therefore equals 3 + \emph{j}.}
 \item{s_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
 where \emph{S} represents binary selection, \emph{X} is the exposure,
-and \emph{Y} is the outcome.
-The number of parameters therefore equals 3.}
+and \emph{Y} is the outcome. The number of parameters therefore equals 3.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -63,11 +48,14 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-adjust_uc_sel(
-  df_uc_sel,
+df <- data_observed(
+  data = df_uc_sel,
   exposure = "X",
   outcome = "Y",
-  confounders = c("C1", "C2", "C3"),
+  confounders = c("C1", "C2", "C3")
+)
+adjust_uc_sel(
+  df,
   u_model_coefs = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
   s_model_coefs = c(-0.01, 0.92, 0.94)
 )

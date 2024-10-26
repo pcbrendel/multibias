@@ -21,10 +21,15 @@ y_model <- glm(Y ~ X + Ystar,
                family = binomial(link = "logit"),
                data = df_uc_om_source)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
   exposure = "X_cont",
   outcome = "Ystar",
+  confounders = NULL
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -40,10 +45,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
+    confounders = NULL
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -84,11 +93,15 @@ y_model <- glm(Y ~ X + Ystar + C1,
                family = binomial(link = "logit"),
                data = df_uc_om_source)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
   exposure = "X_cont",
   outcome = "Ystar",
-  confounders = "C1",
+  confounders = "C1"
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -105,11 +118,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = "C1",
+    confounders = "C1"
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -151,11 +167,15 @@ y_model <- glm(Y ~ X + Ystar + C1 + C2,
                family = binomial(link = "logit"),
                data = df_uc_om_source)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
   exposure = "X_cont",
   outcome = "Ystar",
-  confounders = c("C1", "C2"),
+  confounders = c("C1", "C2")
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -173,11 +193,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = c("C1", "C2"),
+    confounders = c("C1", "C2")
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -220,11 +243,15 @@ y_model <- glm(Y ~ X + Ystar + C1 + C2 + C3,
                family = binomial(link = "logit"),
                data = df_uc_om_source)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
   exposure = "X_cont",
   outcome = "Ystar",
-  confounders = c("C1", "C2", "C3"),
+  confounders = c("C1", "C2", "C3")
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u_model_coefs = c(
     u_model$coef[1],
     u_model$coef[2],
@@ -243,11 +270,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = c("C1", "C2", "C3"),
+    confounders = c("C1", "C2", "C3")
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u_model_coefs = c(
       u_model$coef[1],
       u_model$coef[2],
@@ -298,10 +328,15 @@ nobias_model <- glm(Y ~ X + U,
 # )
 # summary(uy_model, digits = 2)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
+  confounders = NULL
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u1y0_model_coefs = c(-0.32, 0.59, 0.01),
   u0y1_model_coefs = c(-2.98, 0.71, 1.65),
   u1y1_model_coefs = c(-2.59, 1.27, 1.64)
@@ -310,10 +345,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
+    confounders = NULL
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u1y0_model_coefs = c(-0.32, 0.59, 0.01),
     u0y1_model_coefs = c(-2.98, 0.71, 1.65),
     u1y1_model_coefs = c(-2.59, 1.27, 1.64)
@@ -346,11 +385,15 @@ nobias_model <- glm(Y ~ X + C1 + U,
 # )
 # summary(uy_model, digits = 2)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
-  confounders = "C1",
+  confounders = "C1"
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
   u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
   u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
@@ -359,11 +402,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = "C1",
+    confounders = "C1"
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
     u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
     u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
@@ -396,11 +442,15 @@ nobias_model <- glm(Y ~ X + C1 + C2 + U,
 # )
 # summary(uy_model, digits = 2)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
-  confounders = c("C1", "C2"),
+  confounders = c("C1", "C2")
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u1y0_model_coefs = c(-0.31, 0.60, 0.01, -0.08, 0.10),
   u0y1_model_coefs = c(-3.07, 0.66, 1.65, 0.42, -0.85),
   u1y1_model_coefs = c(-2.63, 1.23, 1.64, 0.32, -0.77)
@@ -409,11 +459,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = c("C1", "C2"),
+    confounders = c("C1", "C2")
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u1y0_model_coefs = c(-0.31, 0.60, 0.01, -0.08, 0.10),
     u0y1_model_coefs = c(-3.07, 0.66, 1.65, 0.42, -0.85),
     u1y1_model_coefs = c(-2.63, 1.23, 1.64, 0.32, -0.77)
@@ -446,11 +499,15 @@ nobias_model <- glm(Y ~ X + C1 + C2 + C3 + U,
 # )
 # summary(uy_model, digits = 2)
 
-single_run <- adjust_uc_om(
+df_observed <- data_observed(
   df_uc_om,
-  exposure = "X",
+  exposure = "X_cont",
   outcome = "Ystar",
-  confounders = c("C1", "C2", "C3"),
+  confounders = c("C1", "C2", "C3")
+)
+
+single_run <- adjust_uc_om(
+  df_observed,
   u1y0_model_coefs = c(-0.2, 0.62, 0.01, -0.08, 0.10, -0.15),
   u0y1_model_coefs = c(-3.3, 0.63, 1.65, 0.42, -0.85, 0.26),
   u1y1_model_coefs = c(-2.7, 1.22, 1.64, 0.32, -0.77, 0.09)
@@ -459,11 +516,14 @@ single_run <- adjust_uc_om(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_uc_om(
+  df_observed <- data_observed(
     bdf,
     exposure = "X",
     outcome = "Ystar",
-    confounders = c("C1", "C2", "C3"),
+    confounders = c("C1", "C2", "C3")
+  )
+  results <- adjust_uc_om(
+    df_observed,
     u1y0_model_coefs = c(-0.2, 0.62, 0.01, -0.08, 0.10, -0.15),
     u0y1_model_coefs = c(-3.3, 0.63, 1.65, 0.42, -0.85, 0.26),
     u1y1_model_coefs = c(-2.7, 1.22, 1.64, 0.32, -0.77, 0.09)

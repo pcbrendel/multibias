@@ -8,10 +8,7 @@
 #'
 #' @export
 adjust_emc_omc <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     x_model_coefs = NULL,
     y_model_coefs = NULL,
     x1y0_model_coefs = NULL,
@@ -20,10 +17,7 @@ adjust_emc_omc <- function(
     level = 0.95) {
   lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
   adjust_em_om(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x_model_coefs,
     y_model_coefs,
     x1y0_model_coefs = NULL,
@@ -36,13 +30,12 @@ adjust_emc_omc <- function(
 # bias adjust with x_model_coefs and y_model_coefs
 
 em_om_single <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x_model_coefs,
     y_model_coefs) {
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x_coefs <- length(x_model_coefs)
   len_y_coefs <- length(y_model_coefs)
@@ -64,8 +57,8 @@ em_om_single <- function(
     )
   )
 
-  xstar <- data[, exposure]
-  ystar <- data[, outcome]
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
 
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
@@ -191,15 +184,13 @@ em_om_single <- function(
 # bias adjust with multinomial coefs
 
 em_om_multinom <- function(
-    data,
-    exposure,
-    outcome,
-    confounders,
+    data_observed,
     x1y0_model_coefs,
     x0y1_model_coefs,
     x1y1_model_coefs) {
-
+  data <- data_observed$data
   n <- nrow(data)
+  confounders <- data_observed$confounders
   len_c <- length(confounders)
   len_x1y0_coefs <- length(x1y0_model_coefs)
   len_x0y1_coefs <- length(x0y1_model_coefs)
@@ -230,8 +221,8 @@ em_om_multinom <- function(
     )
   )
 
-  xstar <- data[, exposure]
-  ystar <- data[, outcome]
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
 
   x1y0_0 <- x1y0_model_coefs[1]
   x1y0_xstar <- x1y0_model_coefs[2]
@@ -482,7 +473,6 @@ em_om_multinom <- function(
   }
 
   return(final)
-
 }
 
 #' Adust for exposure misclassification and outcome misclassification.
@@ -505,7 +495,8 @@ em_om_multinom <- function(
 #' confidence interval would then be obtained from the median and quantiles
 #' of the distribution of odds ratio estimates.
 #'
-#' @inheritParams adjust_uc
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
 #' where *X* represents the binary true exposure, *X** is the
@@ -544,27 +535,31 @@ em_om_multinom <- function(
 #' is the binary misclassified outcome, *C* represents the vector of
 #' measured confounders (if any),
 #' and *j* corresponds to the number of measured confounders.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#'
 #' @return A list where the first item is the odds ratio estimate of the
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' # Using x_model_coefs and y_model_coefs -------------------------------------
-#' adjust_em_om(
-#'   df_em_om,
+#' df <- data_observed(
+#'   data = df_em_om,
 #'   exposure = "Xstar",
 #'   outcome = "Ystar",
-#'   confounders = "C1",
+#'   confounders = "C1"
+#' )
+#'
+#' # Using x_model_coefs and y_model_coefs -------------------------------------
+#' adjust_em_om(
+#'   df,
 #'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
 #'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 #' )
 #'
 #' # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 #' adjust_em_om(
-#'   df_em_om,
-#'   exposure = "Xstar",
-#'   outcome = "Ystar",
-#'   confounders = "C1",
+#'   df,
 #'   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
 #'   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
 #'   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
@@ -581,19 +576,16 @@ em_om_multinom <- function(
 #' @export
 
 adjust_em_om <- function(
-    data,
-    exposure,
-    outcome,
-    confounders = NULL,
+    data_observed,
     x_model_coefs = NULL,
     y_model_coefs = NULL,
     x1y0_model_coefs = NULL,
     x0y1_model_coefs = NULL,
     x1y1_model_coefs = NULL,
     level = 0.95) {
-
-  xstar <- data[, exposure]
-  ystar <- data[, outcome]
+  data <- data_observed$data
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
 
   force_binary(xstar, "Exposure must be a binary integer.")
   force_binary(ystar, "Outcome must be a binary integer.")
@@ -616,19 +608,13 @@ adjust_em_om <- function(
 
   if (!is.null(x_model_coefs)) {
     final <- em_om_single(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
-      x_model_coefs = x_model_coefs,
-      y_model_coefs = y_model_coefs
+      data_observed,
+      x_model_coefs,
+      y_model_coefs
     )
   } else if (!is.null(x1y0_model_coefs)) {
     final <- em_om_multinom(
-      data = data,
-      exposure = exposure,
-      outcome = outcome,
-      confounders = confounders,
+      data_observed,
       x1y0_model_coefs,
       x0y1_model_coefs,
       x1y1_model_coefs

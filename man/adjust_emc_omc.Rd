@@ -5,10 +5,7 @@
 \title{Adust for exposure misclassification and outcome misclassification.}
 \usage{
 adjust_emc_omc(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
+  data_observed,
   x_model_coefs = NULL,
   y_model_coefs = NULL,
   x1y0_model_coefs = NULL,

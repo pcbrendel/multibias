@@ -4,14 +4,7 @@
 \alias{adjust_omc}
 \title{Adust for outcome misclassification.}
 \usage{
-adjust_omc(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  y_model_coefs,
-  level = 0.95
-)
+adjust_omc(data_observed, y_model_coefs, level = 0.95)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

@@ -6,10 +6,7 @@
 bias.}
 \usage{
 adjust_uc_om_sel(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
+  data_observed,
   u_model_coefs = NULL,
   y_model_coefs = NULL,
   u0y1_model_coefs = NULL,
@@ -20,14 +17,8 @@ adjust_uc_om_sel(
 )
 }
 \arguments{
-\item{data}{Dataframe for analysis.}
-
-\item{exposure}{String name of the exposure variable.}
-
-\item{outcome}{String name of the outcome variable.}
-
-\item{confounders}{String name(s) of the confounder(s).
-A maximum of three confounders is allowed.}
+\item{data_observed}{Object of class \code{data_observed} corresponding to the
+data to perform bias analysis on.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
@@ -111,12 +102,15 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-# Using u_model_coefs, y_model_coefs, s_model_coefs -------------------------
-adjust_uc_om_sel(
-  df_uc_om_sel,
+df <- data_observed(
+  data = df_uc_om_sel,
   exposure = "X",
   outcome = "Ystar",
-  confounders = c("C1", "C2", "C3"),
+  confounders = c("C1", "C2", "C3")
+)
+# Using u_model_coefs, y_model_coefs, s_model_coefs -------------------------
+adjust_uc_om_sel(
+  df,
   u_model_coefs = c(-0.32, 0.59, 0.69),
   y_model_coefs = c(-2.85, 0.71, 1.63, 0.40, -0.85, 0.22),
   s_model_coefs = c(0.00, 0.74, 0.19, 0.02, -0.06, 0.02)
@@ -124,10 +118,7 @@ adjust_uc_om_sel(
 
 # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs, s_model_coefs
 adjust_uc_om_sel(
-  df_uc_om_sel,
-  exposure = "X",
-  outcome = "Ystar",
-  confounders = c("C1", "C2", "C3"),
+  df,
   u1y0_model_coefs = c(-0.20, 0.62, 0.01, -0.08, 0.10, -0.15),
   u0y1_model_coefs = c(-3.28, 0.63, 1.65, 0.42, -0.85, 0.26),
   u1y1_model_coefs = c(-2.70, 1.22, 1.64, 0.32, -0.77, 0.09),

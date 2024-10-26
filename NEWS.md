@@ -1,3 +1,16 @@
+# multibias 1.6
+
+* Created new class `data_observed` to represent observed causal data
+* All `adjust` functions now take `data_observed` as input
+* Created new class `data_validation` to represent causal data that can be used
+  as validaiton data for bias adjustment
+* The following functions now accept `data_validation` as an input for bias
+  adjustment:
+  * `adjust_uc.R`
+  * `adjust_em.R`
+  * `adjust_om.R`
+  * `adjust_sel.R`
+
 # multibias 1.5.3
 
 * All exposure misclassificaiton naming changed from  `emc` changed to `em`

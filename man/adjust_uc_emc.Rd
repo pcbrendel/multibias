@@ -5,10 +5,7 @@
 \title{Adust for uncontrolled confounding and exposure misclassification.}
 \usage{
 adjust_uc_emc(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
+  data_observed,
   u_model_coefs = NULL,
   x_model_coefs = NULL,
   x1u0_model_coefs = NULL,

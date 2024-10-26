@@ -8,21 +8,33 @@ df_em_sel$Y_cont <- plogis(df_em_sel$Y) +
 
 # 0 confounders
 
-nobias_model <- glm(Y ~ X,
-                    family = binomial(link = "logit"),
-                    data = df_em_sel_source)
+nobias_model <- glm(
+  Y ~ X,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-x_model <- glm(X ~ Xstar + Y,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
-s_model <- glm(S ~ Xstar + Y,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
+x_model <- glm(
+  X ~ Xstar + Y,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-single_run <- adjust_em_sel(
+s_model <- glm(
+  S ~ Xstar + Y,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
+
+df_observed <- data_observed(
   df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
+  confounders = NULL
+)
+
+single_run <- adjust_em_sel(
+  df_observed,
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
@@ -38,10 +50,14 @@ single_run <- adjust_em_sel(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_em_sel(
+  df_observed <- data_observed(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
+    confounders = NULL
+  )
+  results <- adjust_em_sel(
+    df_observed,
     x_model_coefs = c(
       x_model$coef[1],
       x_model$coef[2],
@@ -71,22 +87,33 @@ test_that("odds ratio and confidence interval output", {
 
 # 1 confounder
 
-nobias_model <- glm(Y ~ X + C1,
-                    family = binomial(link = "logit"),
-                    data = df_em_sel_source)
+nobias_model <- glm(
+  Y ~ X + C1,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-x_model <- glm(X ~ Xstar + Y + C1,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
+x_model <- glm(
+  X ~ Xstar + Y + C1,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-single_run <- adjust_em_sel(
+s_model <- glm(
+  S ~ Xstar + Y + C1,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
+
+df_observed <- data_observed(
   df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
-  confounders = "C1",
+  confounders = "C1"
+)
+
+single_run <- adjust_em_sel(
+  df_observed,
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
@@ -104,11 +131,14 @@ single_run <- adjust_em_sel(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_em_sel(
+  df_observed <- data_observed(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
-    confounders = "C1",
+    confounders = "C1"
+  )
+  results <- adjust_em_sel(
+    df_observed,
     x_model_coefs = c(
       x_model$coef[1],
       x_model$coef[2],
@@ -141,21 +171,29 @@ test_that("odds ratio and confidence interval output", {
 # 2 confounders
 
 nobias_model <- glm(Y ~ X + C1 + C2,
-                    family = binomial(link = "logit"),
-                    data = df_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
 x_model <- glm(X ~ Xstar + Y + C1 + C2,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1 + C2,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-single_run <- adjust_em_sel(
+s_model <- glm(S ~ Xstar + Y + C1 + C2,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
+
+df_observed <- data_observed(
   df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
-  confounders = c("C1", "C2"),
+  confounders = c("C1", "C2")
+)
+
+single_run <- adjust_em_sel(
+  df_observed,
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
@@ -175,11 +213,14 @@ single_run <- adjust_em_sel(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_em_sel(
+  df_observed <- data_observed(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
-    confounders = c("C1", "C2"),
+    confounders = c("C1", "C2")
+  )
+  results <- adjust_em_sel(
+    df_observed,
     x_model_coefs = c(
       x_model$coef[1],
       x_model$coef[2],
@@ -214,21 +255,29 @@ test_that("odds ratio and confidence interval output", {
 # 3 confounders
 
 nobias_model <- glm(Y ~ X + C1 + C2 + C3,
-                    family = binomial(link = "logit"),
-                    data = df_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
 x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
-s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
-               family = binomial(link = "logit"),
-               data = df_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
 
-single_run <- adjust_em_sel(
+s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
+  family = binomial(link = "logit"),
+  data = df_em_sel_source
+)
+
+df_observed <- data_observed(
   df_em_sel,
   exposure = "Xstar",
   outcome = "Y_cont",
-  confounders = c("C1", "C2", "C3"),
+  confounders = c("C1", "C2", "C3")
+)
+
+single_run <- adjust_em_sel(
+  df_observed,
   x_model_coefs = c(
     x_model$coef[1],
     x_model$coef[2],
@@ -250,11 +299,14 @@ single_run <- adjust_em_sel(
 est <- vector()
 for (i in 1:nreps) {
   bdf <- df_em_sel[sample(seq_len(n), n, replace = TRUE), ]
-  results <- adjust_em_sel(
+  df_observed <- data_observed(
     bdf,
     exposure = "Xstar",
     outcome = "Y",
-    confounders = c("C1", "C2", "C3"),
+    confounders = c("C1", "C2", "C3")
+  )
+  results <- adjust_em_sel(
+    df_observed,
     x_model_coefs = c(
       x_model$coef[1],
       x_model$coef[2],

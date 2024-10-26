@@ -4,15 +4,7 @@
 \alias{adjust_omc_sel}
 \title{Adust for outcome misclassification and selection bias.}
 \usage{
-adjust_omc_sel(
-  data,
-  exposure,
-  outcome,
-  confounders = NULL,
-  y_model_coefs,
-  s_model_coefs,
-  level = 0.95
-)
+adjust_omc_sel(data_observed, y_model_coefs, s_model_coefs, level = 0.95)
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
