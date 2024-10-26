@@ -179,10 +179,12 @@ or <- foreach(i = 1:nreps, .combine = c,
                                    replace = TRUE), ]
 
   est[i] <- adjust_uc_em_sel(
-    df_sample,
-    exposure = "Xstar",
-    outcome = "Y",
-    confounders = c("C1", "C2", "C3"),
+    data_observed = data_observed(
+      data = df_sample,
+      exposure = "Xstar",
+      outcome = "Y",
+      confounders = c("C1", "C2", "C3")
+    ),
     u_model_coefs = c(
       rnorm(1, mean = u_model$coef[1], sd = summary(u_model)$coef[1, 2]),
       rnorm(1, mean = u_model$coef[2], sd = summary(u_model)$coef[2, 2]),
