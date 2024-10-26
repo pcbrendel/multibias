@@ -53,10 +53,11 @@ devtools::install_github("pcbrendel/multibias")
 ## How it works
 
 1. Determine the desired biases to adjust for in your observational data for a given exposure-outcome effect and identify the corresponding `adjust` function.
-2. Obtain the necessary bias parameters (see function documentation) for bias adjustment. These values could come from the literature, validation data, or expert opinion. Each parameter can be represented as a single value or as a probability distribution.
+2. Obtain one of the two sources for bias adjustment:
+   1. Bias parameters. These values could come from the literature, validation data, or expert opinion. Each parameter can be represented as a single value or as a probability distribution. See `adjust` function documentation.
+   2. Validation dataframe. The purpose of validation data is to use an external data source to transport the necessary causal relationships that are missing in the observed data.
 3. Run the `adjust` function after inputting:
-   1. The observational data
-   2. Column names of the exposure, outcome, and measured confounders
-   3. The bias parameters
-   4. Level for outupt confidence interval
+   1. The observed data as a `data_observed` object
+   2. The bias parameters or validation data as `data_validation` object
+   3. The level of the bias-adjusted effect estimate confidence interval
 4. The `adjust` function will output the bias-adjusted exposure-outcome odds ratio and confidence interval.
