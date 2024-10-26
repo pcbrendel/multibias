@@ -234,3 +234,26 @@ test_that("odds ratio and confidence interval output", {
     size = 2
   )
 })
+
+# adjust with validation data
+
+or_val <- adjust_sel(
+  data_observed = data_observed(
+    df_sel,
+    exposure = "X",
+    outcome = "Y",
+    confounders = c("C1", "C2", "C3")
+  ),
+  data_validation = data_validation(
+    df_sel_source,
+    true_exposure = "X",
+    true_outcome = "Y",
+    confounders = c("C1", "C2", "C3"),
+    selection = "S"
+  )
+)
+
+test_that("adjust_sel, validation data", {
+  expect_gt(or_val$estimate, or_true - 0.1)
+  expect_lt(or_val$estimate, or_true + 0.1)
+})
