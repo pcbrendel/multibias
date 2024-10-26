@@ -16,7 +16,7 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_em_sel") # creates test
-test_file("tests/testthat/test-adjust_om.R") # single test
+test_file("tests/testthat/test-adjust_sel.R") # single test
 test() # tests all
 
 # check
@@ -92,8 +92,8 @@ or <- foreach(
   i = 1:nreps, .combine = c,
   .packages = c("dplyr", "multibias")
 ) %dopar% {
-  df_sample <- df_uc_em_sel[sample(seq_len(nrow(df_uc_emc_sel)),
-    nrow(df_uc_emc_sel),
+  df_sample <- df_uc_em_sel[sample(
+    seq_len(nrow(df_uc_emc_sel)), nrow(df_uc_emc_sel),
     replace = TRUE
   ), ]
 

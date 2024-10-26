@@ -9,11 +9,14 @@ data_observed(data, exposure, outcome, confounders = NULL)
 \arguments{
 \item{data}{Dataframe for bias analysis.}
 
-\item{exposure}{String name of the exposure variable.}
+\item{exposure}{String name of the column in \code{data} corresponding to the
+exposure variable.}
 
-\item{outcome}{String name of the outcome variable.}
+\item{outcome}{String name of the column in \code{data} corresponding to the
+outcome variable.}
 
-\item{confounders}{String name(s) of the confounder(s).}
+\item{confounders}{String name(s) of the column(s) in \code{data} corresponding
+to the confounding variable(s).}
 }
 \description{
 \code{data_observed} combines the observed dataframe with specific identification
@@ -22,9 +25,9 @@ an essential input of all \code{adjust} functions.
 }
 \examples{
 df <- data_observed(
-  data = df_uc,
+  data = df_sel,
   exposure = "X",
-  outcome = "Ystar",
+  outcome = "Y",
   confounders = c("C1", "C2", "C3")
 )
 
