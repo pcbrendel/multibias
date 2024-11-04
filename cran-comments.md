@@ -1,1 +1,0 @@
-Updated problematic links in vignette with doi
