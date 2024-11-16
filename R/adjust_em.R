@@ -34,6 +34,10 @@ adjust_em_val <- function(
     Y = data_validation$data[, data_validation$true_outcome],
     Xstar = data_validation$data[, data_validation$misclassified_exposure]
   )
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data[, data_validation$confounders]
+  )
 
   if (all(df$Xstar %in% 0:1)) {
     if (!all(df_val$Xstar %in% 0:1) || !all(df_val$X %in% 0:1)) {
@@ -46,7 +50,7 @@ adjust_em_val <- function(
     }
   }
   if (!all(df$Xstar %in% 0:1)) {
-    stop("Misclassified exposure in observed data must be a binary integer.")
+    stop("Exposure in observed data must be a binary integer.")
   }
   if (!all(df_val$Xstar %in% 0:1)) {
     stop("Misclassified exposure in validation data must be a binary integer.")
@@ -72,13 +76,13 @@ adjust_em_val <- function(
 
   if (y_binary) {
     final <- glm(
-      Y ~ Xpred + .,
+      Y ~ Xpred + . - Xstar,
       family = binomial(link = "logit"),
       data = df
     )
   } else {
     final <- lm(
-      Y ~ Xpred + .,
+      Y ~ Xpred + . - Xstar,
       data = df
     )
   }
@@ -327,6 +331,12 @@ adjust_em <- function(
     data_validation = NULL,
     x_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(x_model_coefs)) ||
+      (is.null(data_validation) && is.null(x_model_coefs))
+  ) {
+    stop("One of data_validation or x_model_coefs must be non-null.")
+  }
   data <- data_observed$data
   n <- nrow(data)
   confounders <- data_observed$confounders

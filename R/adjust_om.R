@@ -28,6 +28,10 @@ adjust_om_val <- function(
     Y = data_validation$data[, data_validation$true_outcome],
     Ystar = data_validation$data[, data_validation$misclassified_outcome]
   )
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data[, data_validation$confounders]
+  )
 
   if (all(df$X %in% 0:1)) {
     if (!all(df_val$X %in% 0:1)) {
@@ -65,7 +69,7 @@ adjust_om_val <- function(
   df$Ypred <- rbinom(n, 1, plogis(y_pred))
 
   final <- glm(
-    Ypred ~ X + .,
+    Ypred ~ X + . - Ystar,
     family = binomial(link = "logit"),
     data = df
   )
@@ -277,6 +281,12 @@ adjust_om <- function(
     data_validation = NULL,
     y_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(y_model_coefs)) ||
+      (is.null(data_validation) && is.null(y_model_coefs))
+  ) {
+    stop("One of data_validation or y_model_coefs must be non-null.")
+  }
   data <- data_observed$data
   n <- nrow(data)
   confounders <- data_observed$confounders
