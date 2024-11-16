@@ -300,6 +300,12 @@ adjust_sel <- function(
     data_validation = NULL,
     s_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(s_model_coefs)) ||
+      (is.null(data_validation) && is.null(s_model_coefs))
+  ) {
+    stop("One of data_validation or s_model_coefs must be non-null.")
+  }
   data <- data_observed$data
   n <- nrow(data)
   confounders <- data_observed$confounders

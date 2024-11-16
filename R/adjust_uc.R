@@ -303,6 +303,12 @@ adjust_uc <- function(
     data_validation = NULL,
     u_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(u_model_coefs)) ||
+      (is.null(data_validation) && is.null(u_model_coefs))
+  ) {
+    stop("One of data_validation or u_model_coefs must be non-null.")
+  }
   data <- data_observed$data
   n <- nrow(data)
   confounders <- data_observed$confounders
