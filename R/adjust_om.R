@@ -292,9 +292,6 @@ adjust_om <- function(
   confounders <- data_observed$confounders
   len_c <- length(confounders)
 
-  x <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
-
   if (!is.null(data_validation)) {
     final <- adjust_om_val(
       data_observed,

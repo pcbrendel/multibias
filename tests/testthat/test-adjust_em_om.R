@@ -607,7 +607,7 @@ or_val <- adjust_em_om(
   )
 )
 
-test_that("adjust_em, validation data", {
+test_that("adjust_em_om, validation data", {
   expect_gt(or_val$estimate, or_true - 0.1)
   expect_lt(or_val$estimate, or_true + 0.1)
 })
