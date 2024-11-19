@@ -715,9 +715,9 @@ adjust_em_om <- function(
     )
   }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
+  # n <- nrow(data)
+  # confounders <- data_observed$confounders
+  # len_c <- length(confounders)
 
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(
