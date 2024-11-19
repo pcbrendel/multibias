@@ -1,90 +1,128 @@
-#' Adust for exposure misclassification and selection bias.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc_sel()` was renamed to `adjust_em_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc_sel <- function(
+adjust_em_sel_val <- function(
     data_observed,
-    x_model_coefs,
-    s_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc_sel()", "adjust_em_sel()")
-  adjust_em_sel(
-    data_observed,
-    x_model_coefs,
-    s_model_coefs,
-    level
+    data_validation) {
+  if (!all(data_observed$confounders %in% data_validation$confounders)) {
+    stop("All confounders in observed data must be present in validation data.")
+  }
+
+  if (is.null(data_validation$misclassified_exposure)) {
+    stop(
+      paste0(
+        "This function is adjusting for a misclassified exposure.",
+        "\n",
+        "Validation data must have a true and misclassified exposure specified."
+      )
+    )
+  }
+  if (is.null(data_validation$selection)) {
+    stop(
+      paste0(
+        "This function is adjusting for selection bias.",
+        "\n",
+        "Validation data must have a selection indicator column specified."
+      )
+    )
+  }
+
+  n <- nrow(data_observed$data)
+
+  df <- data.frame(
+    Xstar = data_observed$data[, data_observed$exposure],
+    Y = data_observed$data[, data_observed$outcome]
   )
+  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+
+  if (all(df$Y %in% 0:1)) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
+  }
+
+  df_val <- data.frame(
+    X = data_validation$data[, data_validation$true_exposure],
+    Y = data_validation$data[, data_validation$true_outcome],
+    Xstar = data_validation$data[, data_validation$misclassified_exposure],
+    S = data_validation$data[, data_validation$selection]
+  )
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data[, data_validation$confounders]
+  )
+
+  if (all(df$Xstar %in% 0:1)) {
+    if (!all(df_val$Xstar %in% 0:1) || !all(df_val$X %in% 0:1)) {
+      stop("Exposures from both datasets must both be binary or both be continuous.")
+    }
+  }
+  if (all(df$Y %in% 0:1)) {
+    if (!all(df_val$Y %in% 0:1)) {
+      stop("Outcomes from both datasets must both be binary or both be continuous.")
+    }
+  }
+  if (!all(df$Xstar %in% 0:1)) {
+    stop("Exposure in observed data must be a binary integer.")
+  }
+  if (!all(df_val$Xstar %in% 0:1)) {
+    stop("Misclassified exposure in validation data must be a binary integer.")
+  }
+  if (!all(df_val$X %in% 0:1)) {
+    stop("True exposure in validation data must be a binary integer.")
+  }
+
+  x_mod <- glm(X ~ Xstar + Y + . - S,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  x_mod_coefs <- coef(x_mod)
+  x_pred <- x_mod_coefs[1]
+
+  for (i in 2:length(x_mod_coefs)) {
+    var_name <- names(x_mod_coefs)[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+  }
+
+  df$Xpred <- rbinom(n, 1, plogis(x_pred))
+
+  s_mod <- glm(S ~ Xstar + Y + . - X,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  s_mod_coefs <- coef(s_mod)
+  s_pred <- s_mod_coefs[1]
+
+  for (i in 2:length(s_mod_coefs)) {
+    var_name <- names(s_mod_coefs)[i]
+    s_pred <- s_pred + df[[var_name]] * s_mod_coefs[i]
+  }
+
+  df$Spred <- plogis(s_pred)
+
+  if (y_binary) {
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + . - Xstar - Spred,
+        family = binomial(link = "logit"),
+        weights = (1 / df$Spred),
+        data = df
+      )
+    })
+  } else {
+    suppressWarnings({
+      final <- lm(
+        Y ~ Xpred + . - Xstar - Spred,
+        weights = (1 / df$Spred),
+        data = df
+      )
+    })
+  }
+
+  return(final)
 }
 
 
-#' Adust for exposure misclassification and selection bias.
-#'
-#' `adjust_em_sel` returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for exposure misclassification and selection bias.
-#'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
-#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
-#' the advantage of allowing the researcher to capture the uncertainty
-#' in the bias parameter estimates. To incorporate this uncertainty in the
-#' estimate and confidence interval, this function should be run in loop across
-#' bootstrap samples of the dataframe for analysis. The estimate and
-#' confidence interval would then be obtained from the median and quantiles
-#' of the distribution of odds ratio estimates.
-#'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
-#' @param x_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
-#' where *X* represents the binary true exposure, *X** is the
-#' binary misclassified exposure, *Y* is the outcome,
-#' *C* represents the vector of
-#' measured confounders (if any), and *j* corresponds to the number of
-#' measured confounders. The number of parameters is therefore 3 + *j*.
-#' @param s_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
-#' where *S* represents binary selection, *X** is the
-#' binary misclassified exposure,
-#' *Y* is the outcome, *C* represents the vector of
-#' measured confounders (if any), and *j* corresponds to the number of
-#' measured confounders. The number of parameters is therefore 3 + *j*.
-#' @param level Value from 0-1 representing the full range of the confidence
-#' interval. Default is 0.95.
-#'
-#' @return A list where the first item is the odds ratio estimate of the
-#' effect of the exposure on the outcome and the second item is the
-#' confidence interval as the vector: (lower bound, upper bound).
-#'
-#' @examples
-#' df <- data_observed(
-#'   data = df_em_sel,
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = "C1"
-#' )
-#' adjust_em_sel(
-#'   df,
-#'   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
-#'   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
-#' )
-#'
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom stats binomial
-#' @importFrom stats glm
-#' @importFrom stats lm
-#' @importFrom stats qnorm
-#' @importFrom stats plogis
-#' @importFrom rlang .data
-#'
-#' @export
-
-adjust_em_sel <- function(
+adjust_em_sel_coef <- function(
     data_observed,
     x_model_coefs,
     s_model_coefs,
@@ -307,6 +345,132 @@ adjust_em_sel <- function(
     }
   } else if (len_c > 3) {
     stop("This function is currently not compatible with >3 confounders.")
+  }
+
+  return(final)
+}
+
+
+#' Adust for exposure misclassification and selection bias.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_emc_sel()` was renamed to `adjust_em_sel()`
+#' @keywords internal
+#'
+#' @export
+adjust_emc_sel <- function(
+    data_observed,
+    x_model_coefs,
+    s_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn("1.5.3", "adjust_emc_sel()", "adjust_em_sel()")
+  adjust_em_sel(
+    data_observed,
+    x_model_coefs,
+    s_model_coefs,
+    level
+  )
+}
+
+
+#' Adust for exposure misclassification and selection bias.
+#'
+#' `adjust_em_sel` returns the exposure-outcome odds ratio and confidence
+#' interval, adjusted for exposure misclassification and selection bias.
+#'
+#' Values for the regression coefficients can be applied as
+#' fixed values or as single draws from a probability
+#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
+#' the advantage of allowing the researcher to capture the uncertainty
+#' in the bias parameter estimates. To incorporate this uncertainty in the
+#' estimate and confidence interval, this function should be run in loop across
+#' bootstrap samples of the dataframe for analysis. The estimate and
+#' confidence interval would then be obtained from the median and quantiles
+#' of the distribution of odds ratio estimates.
+#'
+#' @param data_observed Object of class `data_observed` corresponding to the
+#' data to perform bias analysis on.
+#' @param x_model_coefs The regression coefficients corresponding to the model:
+#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
+#' where *X* represents the binary true exposure, *X** is the
+#' binary misclassified exposure, *Y* is the outcome,
+#' *C* represents the vector of
+#' measured confounders (if any), and *j* corresponds to the number of
+#' measured confounders. The number of parameters is therefore 3 + *j*.
+#' @param s_model_coefs The regression coefficients corresponding to the model:
+#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
+#' where *S* represents binary selection, *X** is the
+#' binary misclassified exposure,
+#' *Y* is the outcome, *C* represents the vector of
+#' measured confounders (if any), and *j* corresponds to the number of
+#' measured confounders. The number of parameters is therefore 3 + *j*.
+#' @param level Value from 0-1 representing the full range of the confidence
+#' interval. Default is 0.95.
+#'
+#' @return A list where the first item is the odds ratio estimate of the
+#' effect of the exposure on the outcome and the second item is the
+#' confidence interval as the vector: (lower bound, upper bound).
+#'
+#' @examples
+#' df <- data_observed(
+#'   data = df_em_sel,
+#'   exposure = "Xstar",
+#'   outcome = "Y",
+#'   confounders = "C1"
+#' )
+#' adjust_em_sel(
+#'   df,
+#'   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
+#'   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
+#' )
+#'
+#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom stats binomial
+#' @importFrom stats glm
+#' @importFrom stats lm
+#' @importFrom stats qnorm
+#' @importFrom stats plogis
+#' @importFrom rlang .data
+#'
+#' @export
+
+adjust_em_sel <- function(
+    data_observed,
+    data_validation = NULL,
+    x_model_coefs = NULL,
+    s_model_coefs = NULL,
+    level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(x_model_coefs)) ||
+      (is.null(data_validation) && is.null(x_model_coefs))
+  ) {
+    stop("One of: 1. data_validation or 2. (x_model_coefs & s_model_coefs) must be non-null.")
+  }
+  data <- data_observed$data
+
+  xstar <- data[, data_observed$exposure]
+  y <- data[, data_observed$outcome]
+
+  if (all(y %in% 0:1)) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
+  }
+
+  if (!is.null(data_validation)) {
+    final <- adjust_em_sel_val(
+      data_observed,
+      data_validation
+    )
+  } else if (!is.null(x_model_coefs)) {
+    final <- adjust_em_sel_coef(
+      data_observed,
+      x_model_coefs,
+      s_model_coefs
+    )
   }
 
   est <- summary(final)$coef[2, 1]
