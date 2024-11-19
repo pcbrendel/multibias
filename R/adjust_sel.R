@@ -307,9 +307,6 @@ adjust_sel <- function(
     stop("One of data_validation or s_model_coefs must be non-null.")
   }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
 
   x <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
@@ -319,10 +316,6 @@ adjust_sel <- function(
   } else {
     y_binary <- FALSE
   }
-
-  s1_0 <- s_model_coefs[1]
-  s1_x <- s_model_coefs[2]
-  s1_y <- s_model_coefs[3]
 
   if (!is.null(data_validation)) {
     final <- adjust_sel_val(

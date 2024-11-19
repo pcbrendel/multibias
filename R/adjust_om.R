@@ -288,9 +288,6 @@ adjust_om <- function(
     stop("One of data_validation or y_model_coefs must be non-null.")
   }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
 
   if (!is.null(data_validation)) {
     final <- adjust_om_val(

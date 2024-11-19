@@ -338,9 +338,6 @@ adjust_em <- function(
     stop("One of data_validation or x_model_coefs must be non-null.")
   }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
 
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
