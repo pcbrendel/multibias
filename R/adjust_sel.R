@@ -227,8 +227,9 @@ adjust_sel_coef <- function(
 #' `adjust_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for selection bias.
 #'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Values for the bias parameters
+#' can be applied as fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the

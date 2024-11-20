@@ -79,13 +79,16 @@ confidence interval as the vector: (lower bound, upper bound).
 \description{
 \code{adjust_em_om} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for exposure misclassification and outcome
-misclassification. Two different options for the bias parameters are
-available here: 1) parameters from separate models of \emph{X} and \emph{Y}
+misclassification.
+}
+\details{
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters. Two different options for the bias parameters
+are available here: 1) parameters from separate models of \emph{X} and \emph{Y}
 (\code{x_model_coefs} and \code{y_model_coefs}) or 2) parameters from
 a joint model of \emph{X} and \emph{Y} (\code{x1y0_model_coefs},
 \code{x0y1_model_coefs}, and \code{x1y1_model_coefs}).
-}
-\details{
+
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
@@ -97,7 +100,7 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_em_om,
   exposure = "Xstar",
   outcome = "Ystar",
@@ -106,7 +109,7 @@ df <- data_observed(
 
 # Using validation data -----------------------------------------------------
 df_validation <- data_validation(
-  data = df_em_om,
+  data = df_em_om_source,
   true_exposure = "X",
   true_outcome = "Y",
   confounders = "C1",
@@ -121,7 +124,7 @@ adjust_em_om(
 
 # Using x_model_coefs and y_model_coefs -------------------------------------
 adjust_em_om(
-  df,
+  df_observed,
   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 )

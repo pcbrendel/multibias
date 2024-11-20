@@ -380,8 +380,9 @@ adjust_emc_sel <- function(
 #' `adjust_em_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Values for the bias parameters
+#' can be applied as fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
@@ -392,6 +393,13 @@ adjust_emc_sel <- function(
 #'
 #' @param data_observed Object of class `data_observed` corresponding to the
 #' data to perform bias analysis on.
+#' @param data_validation Object of class `data_validation` corresponding to
+#' the validation data used to adjust for bias in the observed data. Here, the
+#' validation data should have data for the same variables as in the observed
+#' data, plus data for the true and misclassified exposure,
+#' corresponding to the observed exposure in `data_observed`. There should also
+#' be a selection indicator representing whether the observation in
+#' `data_validation` was selected in `data_observed`.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
 #' where *X* represents the binary true exposure, *X** is the
@@ -414,14 +422,31 @@ adjust_emc_sel <- function(
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
+#' df_observed <- data_observed(
 #'   data = df_em_sel,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
 #'   confounders = "C1"
 #' )
+#'
+#' # Using validation data -----------------------------------------------------
+#' df_validation <- data_validation(
+#'   data = df_em_sel_source,
+#'   true_exposure = "X",
+#'   true_outcome = "Y",
+#'   confounders = "C1",
+#'   misclassified_exposure = "Xstar",
+#'   selection = "S"
+#' )
+#'
 #' adjust_em_sel(
-#'   df,
+#'   data_observed = df_observed,
+#'   data_validation = df_validation
+#' )
+#'
+#' # Using x_model_coefs and s_model_coefs -------------------------------------
+#' adjust_em_sel(
+#'   df_observed,
 #'   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
 #'   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
 #' )

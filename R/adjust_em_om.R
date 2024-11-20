@@ -574,8 +574,11 @@ adjust_emc_omc <- function(
 #'
 #' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and outcome
-#' misclassification. Two different options for the bias parameters are
-#' available here: 1) parameters from separate models of *X* and *Y*
+#' misclassification.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias parameters
+#' are available here: 1) parameters from separate models of *X* and *Y*
 #' (`x_model_coefs` and `y_model_coefs`) or 2) parameters from
 #' a joint model of *X* and *Y* (`x1y0_model_coefs`,
 #' `x0y1_model_coefs`, and `x1y1_model_coefs`).
@@ -643,7 +646,7 @@ adjust_emc_omc <- function(
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
+#' df_observed <- data_observed(
 #'   data = df_em_om,
 #'   exposure = "Xstar",
 #'   outcome = "Ystar",
@@ -652,7 +655,7 @@ adjust_emc_omc <- function(
 #'
 #' # Using validation data -----------------------------------------------------
 #' df_validation <- data_validation(
-#'   data = df_em_om,
+#'   data = df_em_om_source,
 #'   true_exposure = "X",
 #'   true_outcome = "Y",
 #'   confounders = "C1",
@@ -667,7 +670,7 @@ adjust_emc_omc <- function(
 #'
 #' # Using x_model_coefs and y_model_coefs -------------------------------------
 #' adjust_em_om(
-#'   df,
+#'   df_observed,
 #'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
 #'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 #' )
