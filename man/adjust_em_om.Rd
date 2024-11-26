@@ -124,14 +124,14 @@ adjust_em_om(
 
 # Using x_model_coefs and y_model_coefs -------------------------------------
 adjust_em_om(
-  df_observed,
+  data_observed = df_observed,
   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 )
 
 # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 adjust_em_om(
-  df,
+  data_observed = df_observed,
   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
