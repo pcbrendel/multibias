@@ -21,7 +21,11 @@ adjust_em_om_val <- function(
     Xstar = data_observed$data[, data_observed$exposure],
     Ystar = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   df_val <- data.frame(
     X = data_validation$data[, data_validation$true_exposure],
@@ -29,7 +33,11 @@ adjust_em_om_val <- function(
     Xstar = data_validation$data[, data_validation$misclassified_exposure],
     Ystar = data_validation$data[, data_validation$misclassified_outcome]
   )
-  df_val <- bind_cols(df_val, data_validation$data[, data_validation$confounders])
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_validation$confounders))
+  )
 
   if (!all(df$Xstar %in% 0:1)) {
     stop("Exposure in observed data must be a binary integer.")
@@ -670,14 +678,14 @@ adjust_emc_omc <- function(
 #'
 #' # Using x_model_coefs and y_model_coefs -------------------------------------
 #' adjust_em_om(
-#'   df_observed,
+#'   data_observed = df_observed,
 #'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
 #'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 #' )
 #'
 #' # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 #' adjust_em_om(
-#'   df,
+#'   data_observed = df_observed,
 #'   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
 #'   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
 #'   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)

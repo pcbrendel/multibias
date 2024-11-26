@@ -21,7 +21,11 @@ adjust_sel_val <- function(
     X = data_observed$data[, data_observed$exposure],
     Y = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE

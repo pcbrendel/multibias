@@ -30,7 +30,11 @@ adjust_em_sel_val <- function(
     Xstar = data_observed$data[, data_observed$exposure],
     Y = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
@@ -46,7 +50,8 @@ adjust_em_sel_val <- function(
   )
   df_val <- bind_cols(
     df_val,
-    data_validation$data[, data_validation$confounders]
+    data_validation$data %>%
+      select(all_of(data_validation$confounders))
   )
 
   if (all(df$Xstar %in% 0:1)) {

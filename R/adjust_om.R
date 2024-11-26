@@ -21,7 +21,11 @@ adjust_om_val <- function(
     X = data_observed$data[, data_observed$exposure],
     Ystar = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   df_val <- data.frame(
     X = data_validation$data[, data_validation$true_exposure],
@@ -30,7 +34,8 @@ adjust_om_val <- function(
   )
   df_val <- bind_cols(
     df_val,
-    data_validation$data[, data_validation$confounders]
+    data_validation$data %>%
+      select(all_of(data_validation$confounders))
   )
 
   if (all(df$X %in% 0:1)) {

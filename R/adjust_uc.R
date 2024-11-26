@@ -23,7 +23,11 @@ adjust_uc_val <- function(
     X = data_observed$data[, data_observed$exposure],
     Y = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
@@ -38,7 +42,11 @@ adjust_uc_val <- function(
 
   uc <- setdiff(data_validation$confounders, data_observed$confounders)
   df_val$U <- data_validation$data[, uc]
-  df_val <- bind_cols(df_val, data_validation$data[, data_observed$confounders])
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$X %in% 0:1)) {
     if (!all(df_val$X %in% 0:1)) {
