@@ -39,24 +39,30 @@ adjust_em_om_val <- function(
       select(all_of(data_validation$confounders))
   )
 
-  if (!all(df$Xstar %in% 0:1)) {
-    stop("Exposure in observed data must be a binary integer.")
-  }
-  if (!all(df$Ystar %in% 0:1)) {
-    stop("Outcome in observed data must be a binary integer.")
-  }
-  if (!all(df_val$Xstar %in% 0:1)) {
-    stop("Misclassified exposure in validation data must be a binary integer.")
-  }
-  if (!all(df_val$X %in% 0:1)) {
-    stop("True exposure in validation data must be a binary integer.")
-  }
-  if (!all(df_val$Ystar %in% 0:1)) {
-    stop("Misclassified outcome in validation data must be a binary integer.")
-  }
-  if (!all(df_val$Y %in% 0:1)) {
-    stop("True outcome in validation data must be a binary integer.")
-  }
+  force_binary(
+    df$Xstar,
+    "Exposure in observed data must be a binary integer."
+  )
+  force_binary(
+    df$Ystar,
+    "Outcome in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Xstar,
+    "Misclassified exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$X,
+    "True exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$Ystar,
+    "Misclassified outcome in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$Y,
+    "True outcome in validation data must be a binary integer."
+  )
 
   x_mod <- glm(X ~ Xstar + Ystar + . - Y,
     family = binomial(link = "logit"),
@@ -726,9 +732,6 @@ adjust_em_om <- function(
     )
   }
   data <- data_observed$data
-  # n <- nrow(data)
-  # confounders <- data_observed$confounders
-  # len_c <- length(confounders)
 
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(

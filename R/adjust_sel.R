@@ -49,9 +49,10 @@ adjust_sel_val <- function(
       stop("Outcomes from both datasets must match as binary or continuous.")
     }
   }
-  if (!all(df_val$S %in% 0:1)) {
-    stop("Selection indicator in validation data must be a binary integer.")
-  }
+  force_binary(
+    df_val$S,
+    "Selection indicator in validation data must be a binary integer."
+  )
 
   s_mod <- glm(S ~ X + Y,
     family = binomial(link = "logit"),

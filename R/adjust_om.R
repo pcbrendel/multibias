@@ -48,15 +48,18 @@ adjust_om_val <- function(
       stop("Outcomes from both datasets must both be binary or both be continuous.")
     }
   }
-  if (!all(df$Ystar %in% 0:1)) {
-    stop("Misclassified outcome in observed data must be a binary integer.")
-  }
-  if (!all(df_val$Ystar %in% 0:1)) {
-    stop("Misclassified outcome in validation data must be a binary integer.")
-  }
-  if (!all(df_val$Y %in% 0:1)) {
-    stop("True outcome in validation data must be a binary integer.")
-  }
+  force_binary(
+    df$Ystar,
+    "Outcome in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Ystar,
+    "Misclassified outcome in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$Y,
+    "True outcome in validation data must be a binary integer."
+  )
 
   y_mod <- glm(Y ~ X + Ystar + .,
     family = binomial(link = "logit"),

@@ -54,15 +54,18 @@ adjust_em_val <- function(
       stop("Outcomes from both datasets must both be binary or both be continuous.")
     }
   }
-  if (!all(df$Xstar %in% 0:1)) {
-    stop("Exposure in observed data must be a binary integer.")
-  }
-  if (!all(df_val$Xstar %in% 0:1)) {
-    stop("Misclassified exposure in validation data must be a binary integer.")
-  }
-  if (!all(df_val$X %in% 0:1)) {
-    stop("True exposure in validation data must be a binary integer.")
-  }
+  force_binary(
+    df$Xstar,
+    "Exposure in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Xstar,
+    "Misclassified exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$X,
+    "True exposure in validation data must be a binary integer."
+  )
 
   x_mod <- glm(X ~ Xstar + Y + .,
     family = binomial(link = "logit"),

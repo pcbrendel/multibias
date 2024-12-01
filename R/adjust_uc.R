@@ -53,16 +53,15 @@ adjust_uc_val <- function(
       stop("Exposures from both datasets must match as binary or continuous.")
     }
   }
-
   if (all(df$Y %in% 0:1)) {
     if (!all(df_val$Y %in% 0:1)) {
       stop("Outcomes from both datasets must match as binary or continuous.")
     }
   }
-
-  if (!all(df_val$U %in% 0:1)) {
-    stop("Uncontrolled confounder from the validation data must be a binary integer.")
-  }
+  force_binary(
+    df_val$U,
+    "Uncontrolled confounder in validation data must be a binary integer."
+  )
 
   u_mod <- glm(U ~ X + Y + .,
     family = binomial(link = "logit"),
