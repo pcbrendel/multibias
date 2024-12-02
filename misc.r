@@ -6,6 +6,9 @@ library(roxygen2)
 # library(gitcreds)
 # library(available)
 
+# # registerS3method("print", "data_observed", print.data_observed)
+# # registerS3method("print", "data_validation", print.data_validation)
+
 load_all()
 build()
 
@@ -16,8 +19,9 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_em_sel") # creates test
-test_file("tests/testthat/test-adjust_sel.R") # single test
+test_file("tests/testthat/test-adjust_uc.R") # single test
 test() # tests all
+devtools::run_examples(".")
 
 # check
 check()
