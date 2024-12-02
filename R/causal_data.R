@@ -35,14 +35,19 @@ data_observed <- function(
     is.character(confounders) | is.null(confounders)
   )
 
-  obj <- list(
-    data = data,
-    exposure = exposure,
-    outcome = outcome,
-    confounders = confounders
+  df <- data %>%
+    select(all_of(c(exposure, outcome, confounders)))
+
+  obj <- structure(
+    list(
+      data = df,
+      exposure = exposure,
+      outcome = outcome,
+      confounders = confounders
+    ),
+    class = "data_observed"
   )
 
-  class(obj) <- "data_observed"
   return(obj)
 }
 
@@ -55,7 +60,8 @@ print.data_observed <- function(x, ...) {
     cat("Confounders:", paste(x$confounders, collapse = ", "), "\n")
   }
   cat("Data head: \n")
-  print(x$data[1:5, ])
+  print(x$data[seq_len(min(5, nrow(x$data))), ])
+  invisible(x)
 }
 
 
@@ -116,8 +122,20 @@ data_validation <- function(
     (is.character(selection) & length(selection) == 1) | is.null(selection)
   )
 
+  cols <- c(
+    true_exposure,
+    true_outcome,
+    confounders,
+    misclassified_exposure,
+    misclassified_outcome,
+    selection
+  )
+
+  df <- data %>%
+    select(all_of(cols))
+
   obj <- list(
-    data = data,
+    data = df,
     true_exposure = true_exposure,
     true_outcome = true_outcome,
     confounders = confounders,
@@ -148,5 +166,6 @@ print.data_validation <- function(x, ...) {
     cat("Selection:", x$selection, "\n")
   }
   cat("Data head: \n")
-  print(x$data[1:5, ])
+  print(x$data[seq_len(min(5, nrow(x$data))), ])
+  invisible(x)
 }

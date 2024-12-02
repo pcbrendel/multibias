@@ -6,6 +6,7 @@
 \usage{
 adjust_em_om(
   data_observed,
+  data_validation = NULL,
   x_model_coefs = NULL,
   y_model_coefs = NULL,
   x1y0_model_coefs = NULL,
@@ -18,6 +19,12 @@ adjust_em_om(
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
 
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for the true and misclassified exposure and outcome
+corresponding to the observed exposure and outcome in \code{data_observed}.}
+
 \item{x_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
 where \emph{X} represents the binary true exposure, \emph{X}* is the
@@ -28,8 +35,8 @@ of measured confounders. The number of parameters is therefore 3 + \emph{j}.}
 
 \item{y_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(Y=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta{{2+j}} C_j, }}
-where \emph{Y} represents the binary true exposure,
-\emph{X} is the binary exposure, \emph{Y} is the binary
+where \emph{Y} represents the binary true outcome,
+\emph{X} is the binary exposure, \emph{Y}* is the binary
 misclassified outcome, \emph{C} represents the vector of measured
 confounders (if any), and \emph{j} corresponds to the number of measured
 confounders. The number of parameters is therefore 3 + \emph{j}.}
@@ -72,13 +79,16 @@ confidence interval as the vector: (lower bound, upper bound).
 \description{
 \code{adjust_em_om} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for exposure misclassification and outcome
-misclassification. Two different options for the bias parameters are
-available here: 1) parameters from separate models of \emph{X} and \emph{Y}
+misclassification.
+}
+\details{
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters. Two different options for the bias parameters
+are available here: 1) parameters from separate models of \emph{X} and \emph{Y}
 (\code{x_model_coefs} and \code{y_model_coefs}) or 2) parameters from
 a joint model of \emph{X} and \emph{Y} (\code{x1y0_model_coefs},
 \code{x0y1_model_coefs}, and \code{x1y1_model_coefs}).
-}
-\details{
+
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
@@ -90,23 +100,38 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_em_om,
   exposure = "Xstar",
   outcome = "Ystar",
   confounders = "C1"
 )
 
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_em_om_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = "C1",
+  misclassified_exposure = "Xstar",
+  misclassified_outcome = "Ystar"
+)
+
+adjust_em_om(
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
 # Using x_model_coefs and y_model_coefs -------------------------------------
 adjust_em_om(
-  df,
+  data_observed = df_observed,
   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 )
 
 # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 adjust_em_om(
-  df,
+  data_observed = df_observed,
   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)

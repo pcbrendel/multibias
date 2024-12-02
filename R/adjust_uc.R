@@ -23,7 +23,11 @@ adjust_uc_val <- function(
     X = data_observed$data[, data_observed$exposure],
     Y = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
@@ -38,23 +42,26 @@ adjust_uc_val <- function(
 
   uc <- setdiff(data_validation$confounders, data_observed$confounders)
   df_val$U <- data_validation$data[, uc]
-  df_val <- bind_cols(df_val, data_validation$data[, data_observed$confounders])
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
-  if (all(df$X %in% 0:1)) {
-    if (!all(df_val$X %in% 0:1)) {
-      stop("Exposures from both datasets must match as binary or continuous.")
-    }
-  }
-
-  if (all(df$Y %in% 0:1)) {
-    if (!all(df_val$Y %in% 0:1)) {
-      stop("Outcomes from both datasets must match as binary or continuous.")
-    }
-  }
-
-  if (!all(df_val$U %in% 0:1)) {
-    stop("Uncontrolled confounder from the validation data must be a binary integer.")
-  }
+  force_match(
+    df$X,
+    df_val$X,
+    "Exposures from both datasets must both be binary or both be continuous."
+  )
+  force_match(
+    df$Y,
+    df_val$Y,
+    "Outcomes from both datasets must both be binary or both be continuous."
+  )
+  force_binary(
+    df_val$U,
+    "Uncontrolled confounder in validation data must be a binary integer."
+  )
 
   u_mod <- glm(U ~ X + Y + .,
     family = binomial(link = "logit"),
@@ -228,8 +235,9 @@ adjust_uc_coef <- function(
 #' `adjust_uc` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding from a binary confounder.
 #'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Values for the bias parameters
+#' can be applied as fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
@@ -303,10 +311,13 @@ adjust_uc <- function(
     data_validation = NULL,
     u_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(u_model_coefs)) ||
+      (is.null(data_validation) && is.null(u_model_coefs))
+  ) {
+    stop("One of data_validation or u_model_coefs must be non-null.")
+  }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
 
   x <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]

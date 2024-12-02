@@ -1,35 +1,113 @@
-#' Adust for exposure misclassification and outcome misclassification.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc_omc()` was renamed to `adjust_em_om()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc_omc <- function(
+adjust_em_om_val <- function(
     data_observed,
-    x_model_coefs = NULL,
-    y_model_coefs = NULL,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
-  adjust_em_om(
-    data_observed,
-    x_model_coefs,
-    y_model_coefs,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level
+    data_validation) {
+  if (!all(data_observed$confounders %in% data_validation$confounders)) {
+    stop("All confounders in observed data must be present in validation data.")
+  }
+
+  if (is.null(data_validation$misclassified_exposure) && is.null(data_validation$misclassified_outcome)) {
+    stop(
+      paste0(
+        "This function is adjusting for a misclassified exposure and misclassified outcome.",
+        "\n",
+        "Validation data must include a true exposure, misclassified exposure, true outcome, and misclassified outcome."
+      )
+    )
+  }
+
+  n <- nrow(data_observed$data)
+
+  df <- data.frame(
+    Xstar = data_observed$data[, data_observed$exposure],
+    Ystar = data_observed$data[, data_observed$outcome]
   )
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
+
+  df_val <- data.frame(
+    X = data_validation$data[, data_validation$true_exposure],
+    Y = data_validation$data[, data_validation$true_outcome],
+    Xstar = data_validation$data[, data_validation$misclassified_exposure],
+    Ystar = data_validation$data[, data_validation$misclassified_outcome]
+  )
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_validation$confounders))
+  )
+
+  force_binary(
+    df$Xstar,
+    "Exposure in observed data must be a binary integer."
+  )
+  force_binary(
+    df$Ystar,
+    "Outcome in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Xstar,
+    "Misclassified exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$X,
+    "True exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$Ystar,
+    "Misclassified outcome in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$Y,
+    "True outcome in validation data must be a binary integer."
+  )
+
+  x_mod <- glm(X ~ Xstar + Ystar + . - Y,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  x_mod_coefs <- coef(x_mod)
+  x_pred <- x_mod_coefs[1]
+
+  for (i in 2:length(x_mod_coefs)) {
+    var_name <- names(x_mod_coefs)[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+  }
+
+  df$Xpred <- rbinom(n, 1, plogis(x_pred))
+
+  y_mod <- glm(Y ~ X + Ystar + . - Xstar,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  y_mod_coefs <- coef(y_mod)
+  y_pred <- y_mod_coefs[1]
+
+  for (i in 2:length(y_mod_coefs)) {
+    var_name <- names(y_mod_coefs)[i]
+    var_name <- gsub("X", "Xpred", var_name) # col X is not in df
+    y_pred <- y_pred + df[[var_name]] * y_mod_coefs[i]
+  }
+
+  df$Ypred <- rbinom(n, 1, plogis(y_pred))
+
+  final <- glm(
+    Ypred ~ Xpred + . - Xstar - Ystar,
+    family = binomial(link = "logit"),
+    data = df
+  )
+
+  return(final)
 }
+
 
 # bias adjust with x_model_coefs and y_model_coefs
 
-em_om_single <- function(
+adjust_em_om_coef_single <- function(
     data_observed,
     x_model_coefs,
     y_model_coefs) {
@@ -183,7 +261,7 @@ em_om_single <- function(
 
 # bias adjust with multinomial coefs
 
-em_om_multinom <- function(
+adjust_em_om_coef_multinom <- function(
     data_observed,
     x1y0_model_coefs,
     x0y1_model_coefs,
@@ -475,12 +553,46 @@ em_om_multinom <- function(
   return(final)
 }
 
+
+#' Adust for exposure misclassification and outcome misclassification.
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_emc_omc()` was renamed to `adjust_em_om()`
+#' @keywords internal
+#'
+#' @export
+adjust_emc_omc <- function(
+    data_observed,
+    x_model_coefs = NULL,
+    y_model_coefs = NULL,
+    x1y0_model_coefs = NULL,
+    x0y1_model_coefs = NULL,
+    x1y1_model_coefs = NULL,
+    level = 0.95) {
+  lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
+  adjust_em_om(
+    data_observed,
+    x_model_coefs,
+    y_model_coefs,
+    x1y0_model_coefs = NULL,
+    x0y1_model_coefs = NULL,
+    x1y1_model_coefs = NULL,
+    level
+  )
+}
+
+
 #' Adust for exposure misclassification and outcome misclassification.
 #'
 #' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and outcome
-#' misclassification. Two different options for the bias parameters are
-#' available here: 1) parameters from separate models of *X* and *Y*
+#' misclassification.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias parameters
+#' are available here: 1) parameters from separate models of *X* and *Y*
 #' (`x_model_coefs` and `y_model_coefs`) or 2) parameters from
 #' a joint model of *X* and *Y* (`x1y0_model_coefs`,
 #' `x0y1_model_coefs`, and `x1y1_model_coefs`).
@@ -497,6 +609,11 @@ em_om_multinom <- function(
 #'
 #' @param data_observed Object of class `data_observed` corresponding to the
 #' data to perform bias analysis on.
+#' @param data_validation Object of class `data_validation` corresponding to
+#' the validation data used to adjust for bias in the observed data. Here, the
+#' validation data should have data for the same variables as in the observed
+#' data, plus data for the true and misclassified exposure and outcome
+#' corresponding to the observed exposure and outcome in `data_observed`.
 #' @param x_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
 #' where *X* represents the binary true exposure, *X** is the
@@ -506,8 +623,8 @@ em_om_multinom <- function(
 #' of measured confounders. The number of parameters is therefore 3 + *j*.
 #' @param y_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(Y=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta{{2+j}} C_j, }}
-#' where *Y* represents the binary true exposure,
-#' *X* is the binary exposure, *Y* is the binary
+#' where *Y* represents the binary true outcome,
+#' *X* is the binary exposure, *Y** is the binary
 #' misclassified outcome, *C* represents the vector of measured
 #' confounders (if any), and *j* corresponds to the number of measured
 #' confounders. The number of parameters is therefore 3 + *j*.
@@ -543,23 +660,38 @@ em_om_multinom <- function(
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
+#' df_observed <- data_observed(
 #'   data = df_em_om,
 #'   exposure = "Xstar",
 #'   outcome = "Ystar",
 #'   confounders = "C1"
 #' )
 #'
+#' # Using validation data -----------------------------------------------------
+#' df_validation <- data_validation(
+#'   data = df_em_om_source,
+#'   true_exposure = "X",
+#'   true_outcome = "Y",
+#'   confounders = "C1",
+#'   misclassified_exposure = "Xstar",
+#'   misclassified_outcome = "Ystar"
+#' )
+#'
+#' adjust_em_om(
+#'   data_observed = df_observed,
+#'   data_validation = df_validation
+#' )
+#'
 #' # Using x_model_coefs and y_model_coefs -------------------------------------
 #' adjust_em_om(
-#'   df,
+#'   data_observed = df_observed,
 #'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
 #'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
 #' )
 #'
 #' # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 #' adjust_em_om(
-#'   df,
+#'   data_observed = df_observed,
 #'   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
 #'   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
 #'   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
@@ -577,43 +709,43 @@ em_om_multinom <- function(
 
 adjust_em_om <- function(
     data_observed,
+    data_validation = NULL,
     x_model_coefs = NULL,
     y_model_coefs = NULL,
     x1y0_model_coefs = NULL,
     x0y1_model_coefs = NULL,
     x1y1_model_coefs = NULL,
     level = 0.95) {
-  data <- data_observed$data
-  xstar <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
-
-  force_binary(xstar, "Exposure must be a binary integer.")
-  force_binary(ystar, "Outcome must be a binary integer.")
-
-  # check that user correctly specified bias parameters
   if (
-    !(
-      (is.null(x_model_coefs) && is.null(y_model_coefs)) ||
-        ((is.null(x1y0_model_coefs) && is.null(x0y1_model_coefs) &&
-          is.null(x1y1_model_coefs))
-        )
-    )
+    (!is.null(data_validation) && !is.null(y_model_coefs) && !is.null(x1y0_model_coefs)) ||
+      (is.null(data_validation) && is.null(y_model_coefs) && is.null(x1y0_model_coefs))
   ) {
     stop(
-      "Bias parameters must be specified for:\n
-       1) x_model_coefs and y_model_coefs OR\n
-       2) x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs."
+      paste(
+        "One of:",
+        "1. data_validation",
+        "2. (x_model_coefs & y_model_coefs)",
+        "3. (x1y0_model_coefs, x0y1_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
+        "must be non-null.",
+        sep = "\n"
+      )
     )
   }
+  data <- data_observed$data
 
-  if (!is.null(x_model_coefs)) {
-    final <- em_om_single(
+  if (!is.null(data_validation)) {
+    final <- adjust_em_om_val(
+      data_observed,
+      data_validation
+    )
+  } else if (!is.null(x_model_coefs)) {
+    final <- adjust_em_om_coef_single(
       data_observed,
       x_model_coefs,
       y_model_coefs
     )
   } else if (!is.null(x1y0_model_coefs)) {
-    final <- em_om_multinom(
+    final <- adjust_em_om_coef_multinom(
       data_observed,
       x1y0_model_coefs,
       x0y1_model_coefs,

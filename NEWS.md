@@ -1,3 +1,12 @@
+# multibias 1.6.1
+
+* The following functions now accept `data_validation` as an input for bias
+  adjustment:
+  * `adjust_em_om.R`
+  * `adjust_em_sel.R`
+* Bug fixes for validation data input in `adjust_em.R` and `adjust_om.R`
+* Bug fixes for data and printing in `data_observed` and `data_validation`
+
 # multibias 1.6
 
 * Created new class `data_observed` to represent observed causal data

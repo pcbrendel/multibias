@@ -21,7 +21,11 @@ adjust_em_val <- function(
     Xstar = data_observed$data[, data_observed$exposure],
     Y = data_observed$data[, data_observed$outcome]
   )
-  df <- bind_cols(df, data_observed$data[, data_observed$confounders])
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
+  )
 
   if (all(df$Y %in% 0:1)) {
     y_binary <- TRUE
@@ -34,26 +38,29 @@ adjust_em_val <- function(
     Y = data_validation$data[, data_validation$true_outcome],
     Xstar = data_validation$data[, data_validation$misclassified_exposure]
   )
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_validation$confounders))
+  )
 
-  if (all(df$Xstar %in% 0:1)) {
-    if (!all(df_val$Xstar %in% 0:1) || !all(df_val$X %in% 0:1)) {
-      stop("Exposures from both datasets must both be binary or both be continuous.")
-    }
-  }
-  if (all(df$Y %in% 0:1)) {
-    if (!all(df_val$Y %in% 0:1)) {
-      stop("Outcomes from both datasets must both be binary or both be continuous.")
-    }
-  }
-  if (!all(df$Xstar %in% 0:1)) {
-    stop("Misclassified exposure in observed data must be a binary integer.")
-  }
-  if (!all(df_val$Xstar %in% 0:1)) {
-    stop("Misclassified exposure in validation data must be a binary integer.")
-  }
-  if (!all(df_val$X %in% 0:1)) {
-    stop("True exposure in validation data must be a binary integer.")
-  }
+  force_match(
+    df$Y,
+    df_val$Y,
+    "Outcomes from both datasets must both be binary or both be continuous."
+  )
+  force_binary(
+    df$Xstar,
+    "Exposure in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Xstar,
+    "Misclassified exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$X,
+    "True exposure in validation data must be a binary integer."
+  )
 
   x_mod <- glm(X ~ Xstar + Y + .,
     family = binomial(link = "logit"),
@@ -72,13 +79,13 @@ adjust_em_val <- function(
 
   if (y_binary) {
     final <- glm(
-      Y ~ Xpred + .,
+      Y ~ Xpred + . - Xstar,
       family = binomial(link = "logit"),
       data = df
     )
   } else {
     final <- lm(
-      Y ~ Xpred + .,
+      Y ~ Xpred + . - Xstar,
       data = df
     )
   }
@@ -250,8 +257,9 @@ adjust_emc <- function(
 #' `adjust_em` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassificaiton.
 #'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Values for the bias parameters
+#' can be applied as fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
@@ -327,10 +335,13 @@ adjust_em <- function(
     data_validation = NULL,
     x_model_coefs = NULL,
     level = 0.95) {
+  if (
+    (!is.null(data_validation) && !is.null(x_model_coefs)) ||
+      (is.null(data_validation) && is.null(x_model_coefs))
+  ) {
+    stop("One of data_validation or x_model_coefs must be non-null.")
+  }
   data <- data_observed$data
-  n <- nrow(data)
-  confounders <- data_observed$confounders
-  len_c <- length(confounders)
 
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
