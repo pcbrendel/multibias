@@ -48,16 +48,16 @@ adjust_uc_val <- function(
       select(all_of(data_observed$confounders))
   )
 
-  if (all(df$X %in% 0:1)) {
-    if (!all(df_val$X %in% 0:1)) {
-      stop("Exposures from both datasets must match as binary or continuous.")
-    }
-  }
-  if (all(df$Y %in% 0:1)) {
-    if (!all(df_val$Y %in% 0:1)) {
-      stop("Outcomes from both datasets must match as binary or continuous.")
-    }
-  }
+  force_match(
+    df$X,
+    df_val$X,
+    "Exposures from both datasets must both be binary or both be continuous."
+  )
+  force_match(
+    df$Y,
+    df_val$Y,
+    "Outcomes from both datasets must both be binary or both be continuous."
+  )
   force_binary(
     df_val$U,
     "Uncontrolled confounder in validation data must be a binary integer."

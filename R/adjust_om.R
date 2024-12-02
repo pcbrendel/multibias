@@ -38,16 +38,11 @@ adjust_om_val <- function(
       select(all_of(data_validation$confounders))
   )
 
-  if (all(df$X %in% 0:1)) {
-    if (!all(df_val$X %in% 0:1)) {
-      stop("Exposures from both datasets must both be binary or both be continuous.")
-    }
-  }
-  if (all(df$Y %in% 0:1)) {
-    if (!all(df_val$Y %in% 0:1) || !all(df_val$Ystar %in% 0:1)) {
-      stop("Outcomes from both datasets must both be binary or both be continuous.")
-    }
-  }
+  force_match(
+    df$X,
+    df_val$X,
+    "Exposures from both datasets must both be binary or both be continuous."
+  )
   force_binary(
     df$Ystar,
     "Outcome in observed data must be a binary integer."
