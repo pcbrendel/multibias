@@ -51,6 +51,8 @@ data_observed <- function(
   return(obj)
 }
 
+#' @export
+
 print.data_observed <- function(x, ...) {
   cat("Observed Data\n")
   cat("------------------\n")
@@ -147,6 +149,8 @@ data_validation <- function(
   class(obj) <- "data_validation"
   return(obj)
 }
+
+#' @export
 
 print.data_validation <- function(x, ...) {
   cat("Validation Data\n")
