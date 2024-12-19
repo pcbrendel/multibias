@@ -4,11 +4,24 @@
 \alias{adjust_uc_sel}
 \title{Adust for uncontrolled confounding and selection bias.}
 \usage{
-adjust_uc_sel(data_observed, u_model_coefs, s_model_coefs, level = 0.95)
+adjust_uc_sel(
+  data_observed,
+  data_validation = NULL,
+  u_model_coefs = NULL,
+  s_model_coefs = NULL,
+  level = 0.95
+)
 }
 \arguments{
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
+
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for the confounder missing in \code{data_observed}. There
+should also be a selection indicator representing whether the observation in
+\code{data_validation} was selected in \code{data_observed}.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
@@ -37,8 +50,9 @@ interval, adjusted for uncontrolled confounding and exposure
 misclassificaiton.
 }
 \details{
-Values for the regression coefficients can be applied as
-fixed values or as single draws from a probability
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters. Values for the bias parameters
+can be applied as fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
 the advantage of allowing the researcher to capture the uncertainty
 in the bias parameter estimates. To incorporate this uncertainty in the
@@ -48,14 +62,29 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_uc_sel,
   exposure = "X",
   outcome = "Y",
   confounders = c("C1", "C2", "C3")
 )
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_uc_sel_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = c("C1", "C2", "C3", "U"),
+  selection = "S"
+)
+
 adjust_uc_sel(
-  df,
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
+# Using u_model_coefs and s_model_coefs -------------------------------------
+adjust_uc_sel(
+  data_observed = df_observed,
   u_model_coefs = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
   s_model_coefs = c(-0.01, 0.92, 0.94)
 )
