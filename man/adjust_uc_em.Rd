@@ -6,6 +6,7 @@
 \usage{
 adjust_uc_em(
   data_observed,
+  data_validation = NULL,
   u_model_coefs = NULL,
   x_model_coefs = NULL,
   x1u0_model_coefs = NULL,
@@ -17,6 +18,13 @@ adjust_uc_em(
 \arguments{
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
+
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for the true and misclassified exposure corresponding to the
+observed exposure in \code{data_observed}.
+There should also be data for the confounder missing in \code{data_observed}.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
@@ -85,22 +93,37 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_uc_em,
   exposure = "Xstar",
   outcome = "Y",
   confounders = "C1"
 )
+
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_uc_em_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = c("C1", "U"),
+  misclassified_exposure = "Xstar",
+)
+
+adjust_uc_em(
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
 # Using u_model_coefs and x_model_coefs -------------------------------------
 adjust_uc_em(
-  df,
+  data_observed = df_observed,
   u_model_coefs = c(-0.23, 0.63, 0.66),
   x_model_coefs = c(-2.47, 1.62, 0.73, 0.32)
 )
 
 # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs ----------------
 adjust_uc_em(
-  df,
+  data_observed = df_observed,
   x1u0_model_coefs = c(-2.82, 1.62, 0.68, -0.06),
   x0u1_model_coefs = c(-0.20, 0.00, 0.68, -0.05),
   x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.27)
