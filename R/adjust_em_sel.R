@@ -475,12 +475,26 @@ adjust_em_sel <- function(
     x_model_coefs = NULL,
     s_model_coefs = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(x_model_coefs)) ||
-      (is.null(data_validation) && is.null(x_model_coefs))
-  ) {
-    stop("One of: 1. data_validation or 2. (x_model_coefs & s_model_coefs) must be non-null.")
+  if (!is.null(data_validation)) {
+    if (!all(is.null(x_model_coefs), is.null(s_model_coefs))) {
+      stop("No bias parameters should be specified when 'data_validation' is used.")
+    }
+  } else if (!is.null(x_model_coefs) && !is.null(s_model_coefs)) {
+    if (!is.null(data_validation)) {
+      stop("No other bias-adjusting inputs should be specified when 'x_model_coefs' and 's_model_coefs' are used.")
+    }
+  } else {
+    stop(
+      paste(
+        "One of:",
+        "1. data_validation",
+        "2. (x_model_coefs & s_model_coefs)",
+        "must be non-null.",
+        sep = "\n"
+      )
+    )
   }
+
   data <- data_observed$data
 
   xstar <- data[, data_observed$exposure]

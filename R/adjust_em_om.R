@@ -105,8 +105,6 @@ adjust_em_om_val <- function(
 }
 
 
-# bias adjust with x_model_coefs and y_model_coefs
-
 adjust_em_om_coef_single <- function(
     data_observed,
     x_model_coefs,
@@ -118,6 +116,11 @@ adjust_em_om_coef_single <- function(
   len_x_coefs <- length(x_model_coefs)
   len_y_coefs <- length(y_model_coefs)
 
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
+
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_binary(ystar, "Outcome must be a binary integer.")
   force_len(
     len_x_coefs,
     3 + len_c,
@@ -134,9 +137,6 @@ adjust_em_om_coef_single <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
 
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
@@ -259,8 +259,6 @@ adjust_em_om_coef_single <- function(
   return(final)
 }
 
-# bias adjust with multinomial coefs
-
 adjust_em_om_coef_multinom <- function(
     data_observed,
     x1y0_model_coefs,
@@ -274,6 +272,11 @@ adjust_em_om_coef_multinom <- function(
   len_x0y1_coefs <- length(x0y1_model_coefs)
   len_x1y1_coefs <- length(x1y1_model_coefs)
 
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
+
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_binary(ystar, "Outcome must be a binary integer.")
   force_len(
     len_x1y0_coefs,
     3 + len_c,
@@ -298,9 +301,6 @@ adjust_em_om_coef_multinom <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
 
   x1y0_0 <- x1y0_model_coefs[1]
   x1y0_xstar <- x1y0_model_coefs[2]
@@ -716,6 +716,31 @@ adjust_em_om <- function(
     x0y1_model_coefs = NULL,
     x1y1_model_coefs = NULL,
     level = 0.95) {
+  if (!is.null(data_validation)) {
+    if (!all(is.null(x_model_coefs), is.null(y_model_coefs), is.null(x1y0_model_coefs), is.null(x0y1_model_coefs), is.null(x1y1_model_coefs))) {
+      stop("No bias parameters should be specified when 'data_validation' is used.")
+    }
+  } else if (!is.null(x_model_coefs) && !is.null(y_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(x1y0_model_coefs), is.null(x0y1_model_coefs), is.null(x1y1_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'x_model_coefs' and 'y_model_coefs' are used.")
+    }
+  } else if (!is.null(x1y0_model_coefs) && !is.null(x0y1_model_coefs) && !is.null(x1y1_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(x_model_coefs), is.null(y_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'x1y0_model_coefs', 'x0y1_model_coefs', and 'x1y1_model_coefs' are used.")
+    }
+  } else {
+    stop(
+      paste(
+        "One of:",
+        "1. data_validation",
+        "2. (x_model_coefs & y_model_coefs)",
+        "3. (x1y0_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
+        "must be non-null.",
+        sep = "\n"
+      )
+    )
+  }
+
   if (
     (!is.null(data_validation) && !is.null(y_model_coefs) && !is.null(x1y0_model_coefs)) ||
       (is.null(data_validation) && is.null(y_model_coefs) && is.null(x1y0_model_coefs))
@@ -725,7 +750,7 @@ adjust_em_om <- function(
         "One of:",
         "1. data_validation",
         "2. (x_model_coefs & y_model_coefs)",
-        "3. (x1y0_model_coefs, x0y1_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
+        "3. (x1y0_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
         "must be non-null.",
         sep = "\n"
       )
