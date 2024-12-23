@@ -80,9 +80,9 @@ available here: 1) parameters from separate models of \emph{U} and \emph{X}
 (\code{u_model_coefs} and \code{x_model_coefs}) or 2) parameters from a
 joint model of \emph{U} and \emph{X} (\code{x1u0_model_coefs},
 \code{x0u1_model_coefs}, and \code{x1u1_model_coefs}).
-}
-\details{
-Values for the regression coefficients can be applied as
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters.
+Values for the bias parameters can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
 the advantage of allowing the researcher to capture the uncertainty

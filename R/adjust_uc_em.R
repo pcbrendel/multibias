@@ -676,8 +676,10 @@ adjust_uc_emc <- function(
 #' (`u_model_coefs` and `x_model_coefs`) or 2) parameters from a
 #' joint model of *U* and *X* (`x1u0_model_coefs`,
 #' `x0u1_model_coefs`, and `x1u1_model_coefs`).
-#'
-#' Values for the regression coefficients can be applied as
+
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters.
+#' Values for the bias parameters can be applied as
 #' fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
