@@ -6,6 +6,7 @@
 \usage{
 adjust_uc_om(
   data_observed,
+  data_validation = NULL,
   u_model_coefs = NULL,
   y_model_coefs = NULL,
   u1y0_model_coefs = NULL,
@@ -17,6 +18,13 @@ adjust_uc_om(
 \arguments{
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
+
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for the true and misclassified outcome corresponding to the
+observed exposure in \code{data_observed}.
+There should also be data for the confounder missing in \code{data_observed}.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
@@ -77,7 +85,9 @@ a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
 \code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
 }
 \details{
-Values for the regression coefficients can be applied as
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters.
+Values for the bias parameters can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
 the advantage of allowing the researcher to capture the uncertainty
@@ -88,22 +98,37 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_uc_om,
   exposure = "X",
   outcome = "Ystar",
   confounders = "C1"
 )
+
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_uc_om_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = c("C1", "U"),
+  misclassified_outcome = "Ystar"
+)
+
+adjust_uc_om(
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
 # Using u_model_coefs and y_model_coefs -------------------------------------
 adjust_uc_om(
-  df,
+  data_observed = df_observed,
   u_model_coefs = c(-0.22, 0.61, 0.70),
   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
 )
 
 # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
 adjust_uc_om(
-  df,
+  data_observed = df_observed,
   u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
   u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
   u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
