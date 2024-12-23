@@ -741,21 +741,6 @@ adjust_em_om <- function(
     )
   }
 
-  if (
-    (!is.null(data_validation) && !is.null(y_model_coefs) && !is.null(x1y0_model_coefs)) ||
-      (is.null(data_validation) && is.null(y_model_coefs) && is.null(x1y0_model_coefs))
-  ) {
-    stop(
-      paste(
-        "One of:",
-        "1. data_validation",
-        "2. (x_model_coefs & y_model_coefs)",
-        "3. (x1y0_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
-        "must be non-null.",
-        sep = "\n"
-      )
-    )
-  }
   data <- data_observed$data
 
   if (!is.null(data_validation)) {
