@@ -78,15 +78,16 @@ confidence interval as the vector: (lower bound, upper bound).
 \description{
 \code{adjust_uc_om} returns the exposure-outcome odds ratio and confidence
 interval, adjusted for uncontrolled confounding and outcome
-misclassificaiton. Two different options for the bias parameters are
-available here: 1) parameters from separate models of \emph{U} and \emph{Y}
-(\code{u_model_coefs} and \code{y_model_coefs}) or 2) parameters from
-a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
-\code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
+misclassificaiton.
 }
 \details{
 Bias adjustment can be performed by inputting either a validation dataset or
-the necessary bias parameters.
+the necessary bias parameters. Two different options for the bias parameters
+are available here: 1) parameters from separate models of \emph{U} and \emph{Y}
+(\code{u_model_coefs} and \code{y_model_coefs}) or 2) parameters from
+a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
+\code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
+
 Values for the bias parameters can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has

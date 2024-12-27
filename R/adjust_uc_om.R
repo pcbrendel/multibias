@@ -115,7 +115,7 @@ adjust_uc_om_val <- function(
 }
 
 
-uc_om_single <- function(
+adjust_uc_om_coef_single <- function(
     data_observed,
     u_model_coefs,
     y_model_coefs) {
@@ -238,7 +238,7 @@ uc_om_single <- function(
 }
 
 
-uc_om_multinom <- function(
+adjust_uc_om_coef_multinom <- function(
     data_observed,
     u1y0_model_coefs,
     u0y1_model_coefs,
@@ -568,14 +568,15 @@ adjust_uc_omc <- function(
 #'
 #' `adjust_uc_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding and outcome
-#' misclassificaiton. Two different options for the bias parameters are
-#' available here: 1) parameters from separate models of *U* and *Y*
+#' misclassificaiton.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias parameters
+#' are available here: 1) parameters from separate models of *U* and *Y*
 #' (`u_model_coefs` and `y_model_coefs`) or 2) parameters from
 #' a joint model of *U* and *Y* (`u1y0_model_coefs`,
 #' `u0y1_model_coefs`, and `u1y1_model_coefs`).
 #'
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters.
 #' Values for the bias parameters can be applied as
 #' fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
@@ -727,13 +728,13 @@ adjust_uc_om <- function(
       data_validation
     )
   } else if (!is.null(u_model_coefs)) {
-    final <- uc_om_single(
+    final <- adjust_uc_om_coef_single(
       data_observed = data_observed,
       u_model_coefs = u_model_coefs,
       y_model_coefs = y_model_coefs
     )
   } else if (!is.null(u1y0_model_coefs)) {
-    final <- uc_om_multinom(
+    final <- adjust_uc_om_coef_multinom(
       data_observed = data_observed,
       u1y0_model_coefs = u1y0_model_coefs,
       u0y1_model_coefs = u0y1_model_coefs,

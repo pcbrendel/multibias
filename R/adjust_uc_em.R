@@ -292,8 +292,6 @@ adjust_uc_em_coef_single <- function(
 }
 
 
-# bias adjust with multinomial coefs
-
 adjust_uc_em_coef_multinom <- function(
     data_observed,
     x1u0_model_coefs,
@@ -671,14 +669,15 @@ adjust_uc_emc <- function(
 #'
 #' `adjust_uc_em` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding and exposure
-#' misclassificaiton. Two different options for the bias parameters are
-#' available here: 1) parameters from separate models of *U* and *X*
+#' misclassificaiton.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias parameters
+#' are available here: 1) parameters from separate models of *U* and *X*
 #' (`u_model_coefs` and `x_model_coefs`) or 2) parameters from a
 #' joint model of *U* and *X* (`x1u0_model_coefs`,
 #' `x0u1_model_coefs`, and `x1u1_model_coefs`).
-
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters.
+#'
 #' Values for the bias parameters can be applied as
 #' fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
