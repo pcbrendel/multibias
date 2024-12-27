@@ -1,41 +1,169 @@
-#' Adust for uncontrolled confounding, exposure misclassification, and selection
-#' bias.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_uc_emc_sel()` was renamed to `adjust_uc_em_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_uc_emc_sel <- function(
+adjust_uc_em_sel_val <- function(
     data_observed,
-    u_model_coefs = NULL,
-    x_model_coefs = NULL,
-    x1u0_model_coefs = NULL,
-    x0u1_model_coefs = NULL,
-    x1u1_model_coefs = NULL,
-    s_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn(
-    "1.5.3", "adjust_uc_emc_sel()", "adjust_uc_em_sel()"
+    data_validation) {
+  if (!all(data_observed$confounders %in% data_validation$confounders)) {
+    stop("All confounders in observed data must be present in validation data.")
+  }
+
+  if (
+    length(data_validation$confounders) - length(data_observed$confounders) != 1
+  ) {
+    stop(
+      paste0(
+        "This function adjusts for unobserved confounding from one confounder.",
+        "\n",
+        "Validation data must have one more confounder than the observed data."
+      )
+    )
+  }
+  if (is.null(data_validation$misclassified_exposure)) {
+    stop(
+      paste0(
+        "This function is adjusting for a misclassified exposure.",
+        "\n",
+        "Validation data must have a true and misclassified exposure specified."
+      )
+    )
+  }
+  if (is.null(data_validation$selection)) {
+    stop(
+      paste0(
+        "This function is adjusting for selection bias.",
+        "\n",
+        "Validation data must have a selection indicator column specified."
+      )
+    )
+  }
+
+  n <- nrow(data_observed$data)
+
+  df <- data.frame(
+    Xstar = data_observed$data[, data_observed$exposure],
+    Y = data_observed$data[, data_observed$outcome]
   )
-  adjust_uc_em_sel(
-    data_observed,
-    u_model_coefs,
-    x_model_coefs,
-    x1u0_model_coefs,
-    x0u1_model_coefs,
-    x1u1_model_coefs,
-    s_model_coefs,
-    level
+  df <- bind_cols(
+    df,
+    data_observed$data %>%
+      select(all_of(data_observed$confounders))
   )
+
+  if (all(df$Y %in% 0:1)) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
+  }
+
+  df_val <- data.frame(
+    X = data_validation$data[, data_validation$true_exposure],
+    Y = data_validation$data[, data_validation$true_outcome],
+    Xstar = data_validation$data[, data_validation$misclassified_exposure],
+    S = data_validation$data[, data_validation$selection]
+  )
+
+  uc <- setdiff(data_validation$confounders, data_observed$confounders)
+  df_val$U <- data_validation$data[, uc]
+  df_val <- bind_cols(
+    df_val,
+    data_validation$data %>%
+      select(all_of(data_observed$confounders))
+  )
+
+  force_match(
+    df$Y,
+    df_val$Y,
+    "Outcomes from both datasets must both be binary or both be continuous."
+  )
+  force_binary(
+    df_val$U,
+    "Uncontrolled confounder in validation data must be a binary integer."
+  )
+  force_binary(
+    df$Xstar,
+    "Exposure in observed data must be a binary integer."
+  )
+  force_binary(
+    df_val$Xstar,
+    "Misclassified exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$X,
+    "True exposure in validation data must be a binary integer."
+  )
+  force_binary(
+    df_val$S,
+    "Selection indicator in validation data must be a binary integer."
+  )
+
+  x_mod <- glm(X ~ Xstar + Y + . - U - S,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  x_mod_coefs <- coef(x_mod)
+  x_pred <- x_mod_coefs[1]
+
+  for (i in 2:length(x_mod_coefs)) {
+    var_name <- names(x_mod_coefs)[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+  }
+
+  df$Xpred <- rbinom(n, 1, plogis(x_pred))
+
+  u_mod <- glm(U ~ X + Y,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  u_mod_coefs <- coef(u_mod)
+  u_pred <- u_mod_coefs[1]
+
+  for (i in 2:length(u_mod_coefs)) {
+    var_name <- names(u_mod_coefs)[i]
+    var_name <- gsub("X", "Xpred", var_name) # col X is not in df
+    u_pred <- u_pred + df[[var_name]] * u_mod_coefs[i]
+  }
+
+  df$Upred <- rbinom(n, 1, plogis(u_pred))
+
+  s_mod <- glm(S ~ Xstar + Y + . - X - U,
+    family = binomial(link = "logit"),
+    data = df_val
+  )
+
+  s_mod_coefs <- coef(s_mod)
+  s_pred <- s_mod_coefs[1]
+
+  for (i in 2:length(s_mod_coefs)) {
+    var_name <- names(s_mod_coefs)[i]
+    s_pred <- s_pred + df[[var_name]] * s_mod_coefs[i]
+  }
+
+  df$Spred <- plogis(s_pred)
+
+  if (y_binary) {
+    suppressWarnings({
+      final <- glm(
+        Y ~ Xpred + Upred + . - Xstar - Spred,
+        family = binomial(link = "logit"),
+        weights = (1 / df$Spred),
+        data = df
+      )
+    })
+  } else {
+    suppressWarnings({
+      final <- lm(
+        Y ~ Xpred + Upred + . - Xstar - Spred,
+        weights = (1 / df$Spred),
+        data = df
+      )
+    })
+  }
+
+  return(final)
 }
 
 
-# bias adjust with u_model_coefs and x_model_coefs
-
-uc_em_sel_single <- function(
+adjust_uc_em_sel_coef_single <- function(
     data_observed,
     u_model_coefs,
     x_model_coefs,
@@ -46,10 +174,12 @@ uc_em_sel_single <- function(
   len_c <- length(confounders)
   len_u_coefs <- length(u_model_coefs)
   len_x_coefs <- length(x_model_coefs)
+  len_s_coefs <- length(s_model_coefs)
 
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
 
+  force_binary(xstar, "Exposure must be a binary integer.")
   force_len(
     len_u_coefs,
     3,
@@ -63,6 +193,14 @@ uc_em_sel_single <- function(
     3 + len_c,
     paste0(
       "Incorrect length of X model coefficients. ",
+      "Length should equal 3 + number of confounders."
+    )
+  )
+  force_len(
+    len_s_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of S model coefficients. ",
       "Length should equal 3 + number of confounders."
     )
   )
@@ -269,9 +407,7 @@ uc_em_sel_single <- function(
 }
 
 
-# bias adjust with multinomial coefs
-
-uc_em_sel_multinom <- function(
+adjust_uc_em_sel_coef_multinom <- function(
     data_observed,
     x1u0_model_coefs,
     x0u1_model_coefs,
@@ -284,10 +420,12 @@ uc_em_sel_multinom <- function(
   len_x1u0_coefs <- length(x1u0_model_coefs)
   len_x0u1_coefs <- length(x0u1_model_coefs)
   len_x1u1_coefs <- length(x1u1_model_coefs)
+  len_s_coefs <- length(s_model_coefs)
 
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
 
+  force_binary(xstar, "Exposure must be a binary integer.")
   force_len(
     len_x1u0_coefs,
     3 + len_c,
@@ -309,6 +447,14 @@ uc_em_sel_multinom <- function(
     3 + len_c,
     paste0(
       "Incorrect length of X1U1 model coefficients. ",
+      "Length should equal 3 + number of confounders."
+    )
+  )
+  force_len(
+    len_s_coefs,
+    3 + len_c,
+    paste0(
+      "Incorrect length of S model coefficients. ",
       "Length should equal 3 + number of confounders."
     )
   )
@@ -632,16 +778,54 @@ uc_em_sel_multinom <- function(
 #' Adust for uncontrolled confounding, exposure misclassification, and selection
 #' bias.
 #'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `adjust_uc_emc_sel()` was renamed to `adjust_uc_em_sel()`
+#' @keywords internal
+#'
+#' @export
+adjust_uc_emc_sel <- function(
+    data_observed,
+    u_model_coefs = NULL,
+    x_model_coefs = NULL,
+    x1u0_model_coefs = NULL,
+    x0u1_model_coefs = NULL,
+    x1u1_model_coefs = NULL,
+    s_model_coefs,
+    level = 0.95) {
+  lifecycle::deprecate_warn(
+    "1.5.3", "adjust_uc_emc_sel()", "adjust_uc_em_sel()"
+  )
+  adjust_uc_em_sel(
+    data_observed,
+    u_model_coefs,
+    x_model_coefs,
+    x1u0_model_coefs,
+    x0u1_model_coefs,
+    x1u1_model_coefs,
+    s_model_coefs,
+    level
+  )
+}
+
+
+#' Adust for uncontrolled confounding, exposure misclassification, and selection
+#' bias.
+#'
 #' `adjust_uc_em_sel` returns the exposure-outcome odds ratio and
 #' confidence interval, adjusted for uncontrolled confounding, exposure
-#' misclassificaiton, and selection bias. Two different options for the bias
+#' misclassificaiton, and selection bias.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias
 #' parameters are availale here: 1) parameters from separate models
 #' of *U* and *X* (`u_model_coefs` and `x_model_coefs`)
 #' or 2) parameters from a joint model of *U* and *X*
 #' (`x1u0_model_coefs`, `x0u1_model_coefs`, and
 #' `x1u1_model_coefs`). Both approaches require `s_model_coefs`.
 #'
-#' Values for the regression coefficients can be applied as
+#' Values for the bias parameters can be applied as
 #' fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
@@ -653,6 +837,13 @@ uc_em_sel_multinom <- function(
 #'
 #' @param data_observed Object of class `data_observed` corresponding to the
 #' data to perform bias analysis on.
+#' @param data_validation Object of class `data_validation` corresponding to
+#' the validation data used to adjust for bias in the observed data. Here, the
+#' validation data should have data for the same variables as in the observed
+#' data, plus data for: 1) the true and misclassified exposure corresponding
+#' to the observed exposure in `data_observed`, 2) the confounder missing in
+#' `data_observed`, 3) a selection indicator representing whether the
+#' observation in `data_validation` was selected in `data_observed`.
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 #' where *U* is the binary unmeasured confounder, *X* is the
@@ -703,15 +894,31 @@ uc_em_sel_multinom <- function(
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
+#' df_observed <- data_observed(
 #'   data = df_uc_em_sel,
 #'   exposure = "Xstar",
 #'   outcome = "Y",
 #'   confounders = c("C1", "C2", "C3")
 #' )
+#'
+#' # Using validation data -----------------------------------------------------
+#' df_validation <- data_validation(
+#'   data = df_uc_em_sel_source,
+#'   true_exposure = "X",
+#'   true_outcome = "Y",
+#'   confounders = c("C1", "C2", "C3", "U"),
+#'   misclassified_exposure = "Xstar",
+#'   selection = "S"
+#' )
+#'
+#' adjust_uc_em_sel(
+#'   data_observed = df_observed,
+#'   data_validation = df_validation
+#' )
+#'
 #' # Using u_model_coefs, x_model_coefs, s_model_coefs -------------------------
 #' adjust_uc_em_sel(
-#'   df,
+#'   data_observed = df_observed,
 #'   u_model_coefs = c(-0.32, 0.59, 0.69),
 #'   x_model_coefs = c(-2.44, 1.62, 0.72, 0.32, -0.15, 0.85),
 #'   s_model_coefs = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
@@ -719,7 +926,7 @@ uc_em_sel_multinom <- function(
 #'
 #' # Using x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs, s_model_coefs
 #' adjust_uc_em_sel(
-#'   df,
+#'   data_observed = df_observed,
 #'   x1u0_model_coefs = c(-2.78, 1.62, 0.61, 0.36, -0.27, 0.88),
 #'   x0u1_model_coefs = c(-0.17, -0.01, 0.71, -0.08, 0.07, -0.15),
 #'   x1u1_model_coefs = c(-2.36, 1.62, 1.29, 0.25, -0.06, 0.74),
@@ -739,31 +946,49 @@ uc_em_sel_multinom <- function(
 
 adjust_uc_em_sel <- function(
     data_observed,
+    data_validation = NULL,
     u_model_coefs = NULL,
     x_model_coefs = NULL,
     x1u0_model_coefs = NULL,
     x0u1_model_coefs = NULL,
     x1u1_model_coefs = NULL,
-    s_model_coefs,
+    s_model_coefs = NULL,
     level = 0.95) {
+  if (!is.null(data_validation)) {
+    if (!all(is.null(u_model_coefs), is.null(x_model_coefs),
+             is.null(x1u0_model_coefs), is.null(x0u1_model_coefs),
+             is.null(x1u1_model_coefs), is.null(s_model_coefs))) {
+      stop("No bias parameters should be specified when 'data_validation' is used.")
+    }
+  } else if (!is.null(u_model_coefs) && !is.null(x_model_coefs) &&
+               !is.null(s_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(x1u0_model_coefs),
+             is.null(x0u1_model_coefs), is.null(x1u1_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'u_model_coefs', 'x_model_coefs', and 's_model_coefs' are used.")
+    }
+  } else if (!is.null(x1u0_model_coefs) && !is.null(x0u1_model_coefs) &&
+               !is.null(x1u1_model_coefs) && !is.null(s_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(u_model_coefs),
+             is.null(x_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'x1u0_model_coefs', 'x0u1_model_coefs', 'x1u1_model_coefs', and 's_model_coefs' are used.")
+    }
+  } else {
+    stop(
+      paste(
+        "One of:",
+        "1. data_validation",
+        "2. (u_model_coefs, x_model_coefs, s_model_coefs)",
+        "3. (x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs, s_model_coefs)",
+        "must be non-null.",
+        sep = "\n"
+      )
+    )
+  }
+
   data <- data_observed$data
+
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
-  confounders <- data_observed$confounders
-
-  len_c <- length(confounders)
-  len_s_coefs <- length(s_model_coefs)
-
-  force_binary(xstar, "Exposure must be a binary integer.")
-
-  force_len(
-    len_s_coefs,
-    3 + len_c,
-    paste0(
-      "Incorrect length of S model coefficients. ",
-      "Length should equal 3 + number of confounders."
-    )
-  )
 
   if (all(y %in% 0:1)) {
     y_binary <- TRUE
@@ -771,30 +996,20 @@ adjust_uc_em_sel <- function(
     y_binary <- FALSE
   }
 
-  # check that user correctly specified bias parameters
-  if (
-    !(
-      (is.null(u_model_coefs) && is.null(x_model_coefs)) ||
-        ((is.null(x1u0_model_coefs) && is.null(x0u1_model_coefs) &&
-          is.null(x1u1_model_coefs)))
+  if (!is.null(data_validation)) {
+    final <- adjust_uc_em_sel_val(
+      data_observed,
+      data_validation
     )
-  ) {
-    stop(
-      "In addition to s_model_coefs, bias parameters must be specified for:\n
-       1) u_model_coefs and x_model_coefs OR\n
-       2) x1u0_model_coefs, x0u1_model_coefs, and x1u1_model_coefs."
-    )
-  }
-
-  if (!is.null(x_model_coefs)) {
-    final <- uc_em_sel_single(
+  } else if (!is.null(x_model_coefs)) {
+    final <- adjust_uc_em_sel_coef_single(
       data_observed = data_observed,
       u_model_coefs = u_model_coefs,
       x_model_coefs = x_model_coefs,
       s_model_coefs = s_model_coefs
     )
   } else if (!is.null(x1u0_model_coefs)) {
-    final <- uc_em_sel_multinom(
+    final <- adjust_uc_em_sel_coef_multinom(
       data_observed = data_observed,
       x1u0_model_coefs = x1u0_model_coefs,
       x0u1_model_coefs = x0u1_model_coefs,
