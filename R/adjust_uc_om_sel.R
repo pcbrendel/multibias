@@ -551,7 +551,10 @@ uc_om_sel_multinom <- function(
 #'
 #' `adjust_uc_om_sel` returns the exposure-outcome odds ratio and
 #' confidence interval, adjusted for uncontrolled confounding, outcome
-#' misclassificaiton, and selection bias. Two different options for the bias
+#' misclassificaiton, and selection bias.
+#'
+#' Bias adjustment can be performed by inputting either a validation dataset or
+#' the necessary bias parameters. Two different options for the bias
 #' parameters are availale here: 1) parameters from separate models
 #' of *U* and *Y* (`u_model_coefs` and `y_model_coefs`)
 #' or 2) parameters from a joint model of *U* and *Y*
@@ -570,6 +573,13 @@ uc_om_sel_multinom <- function(
 #'
 #' @param data_observed Object of class `data_observed` corresponding to the
 #' data to perform bias analysis on.
+#' @param data_validation Object of class `data_validation` corresponding to
+#' the validation data used to adjust for bias in the observed data. Here, the
+#' validation data should have data for the same variables as in the observed
+#' data, plus data for: 1) the true and misclassified outcome corresponding
+#' to the observed outcome in `data_observed`, 2) the confounder missing in
+#' `data_observed`, 3) a selection indicator representing whether the
+#' observation in `data_validation` was selected in `data_observed`.
 #' @param u_model_coefs The regression coefficients corresponding to the model:
 #' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
 #' where *U* is the binary unmeasured confounder, *X* is the
@@ -624,15 +634,31 @@ uc_om_sel_multinom <- function(
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
 #' @examples
-#' df <- data_observed(
+#' df_observed <- data_observed(
 #'   data = df_uc_om_sel,
 #'   exposure = "X",
 #'   outcome = "Ystar",
 #'   confounders = c("C1", "C2", "C3")
 #' )
+#'
+#' # Using validation data -----------------------------------------------------
+#' df_validation <- data_validation(
+#'   data = df_uc_om_sel_source,
+#'   true_exposure = "X",
+#'   true_outcome = "Y",
+#'   confounders = c("C1", "C2", "C3", "U"),
+#'   misclassified_outcome = "Ystar",
+#'   selection = "S"
+#' )
+#'
+#' adjust_uc_om_sel(
+#'   data_observed = df_observed,
+#'   data_validation = df_validation
+#' )
+#'
 #' # Using u_model_coefs, y_model_coefs, s_model_coefs -------------------------
 #' adjust_uc_om_sel(
-#'   df,
+#'   data = df_observed,
 #'   u_model_coefs = c(-0.32, 0.59, 0.69),
 #'   y_model_coefs = c(-2.85, 0.71, 1.63, 0.40, -0.85, 0.22),
 #'   s_model_coefs = c(0.00, 0.74, 0.19, 0.02, -0.06, 0.02)
@@ -640,7 +666,7 @@ uc_om_sel_multinom <- function(
 #'
 #' # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs, s_model_coefs
 #' adjust_uc_om_sel(
-#'   df,
+#'   data = df_observed,
 #'   u1y0_model_coefs = c(-0.20, 0.62, 0.01, -0.08, 0.10, -0.15),
 #'   u0y1_model_coefs = c(-3.28, 0.63, 1.65, 0.42, -0.85, 0.26),
 #'   u1y1_model_coefs = c(-2.70, 1.22, 1.64, 0.32, -0.77, 0.09),
@@ -660,6 +686,7 @@ uc_om_sel_multinom <- function(
 
 adjust_uc_om_sel <- function(
     data_observed,
+    data_validation = NULL,
     u_model_coefs = NULL,
     y_model_coefs = NULL,
     u0y1_model_coefs = NULL,
@@ -667,41 +694,48 @@ adjust_uc_om_sel <- function(
     u1y1_model_coefs = NULL,
     s_model_coefs,
     level = 0.95) {
-  data <- data_observed$data
-  x <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
-  confounders <- data_observed$confounders
-
-  len_c <- length(confounders)
-  len_s_coefs <- length(s_model_coefs)
-
-  force_binary(ystar, "Outcome must be a binary integer.")
-
-  force_len(
-    len_s_coefs,
-    3 + len_c,
-    paste0(
-      "Incorrect length of S model coefficients. ",
-      "Length should equal 3 + number of confounders."
-    )
-  )
-
-  # check that user correctly specified bias parameters
-  if (
-    !(
-      (is.null(u_model_coefs) && is.null(y_model_coefs)) ||
-        ((is.null(u1y0_model_coefs) && is.null(u0y1_model_coefs) &&
-          is.null(u1y1_model_coefs)))
-    )
-  ) {
+  if (!is.null(data_validation)) {
+    if (!all(is.null(u_model_coefs), is.null(y_model_coefs),
+             is.null(u1y0_model_coefs), is.null(u0y1_model_coefs),
+             is.null(u1y1_model_coefs), is.null(s_model_coefs))) {
+      stop("No bias parameters should be specified when 'data_validation' is used.")
+    }
+  } else if (!is.null(u_model_coefs) && !is.null(y_model_coefs) &&
+               !is.null(s_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(u1y0_model_coefs),
+             is.null(u0y1_model_coefs), is.null(u1y1_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'u_model_coefs', 'y_model_coefs', and 's_model_coefs' are used.")
+    }
+  } else if (!is.null(u1y0_model_coefs) && !is.null(u0y1_model_coefs) &&
+               !is.null(u1y1_model_coefs) && !is.null(s_model_coefs)) {
+    if (!all(is.null(data_validation), is.null(u_model_coefs),
+             is.null(y_model_coefs))) {
+      stop("No other bias-adjusting inputs should be specified when 'u1y0_model_coefs', 'u0y1_model_coefs', 'u1y1_model_coefs', and 's_model_coefs' are used.")
+    }
+  } else {
     stop(
-      "In addition to s_model_coefs, bias parameters must be specified for:\n
-       1) u_model_coefs and y_model_coefs or\n
-       2) u1y0_model_coefs, u0y1_model_coefs, and u1y1_model_coefs."
+      paste(
+        "One of:",
+        "1. data_validation",
+        "2. (u_model_coefs, y_model_coefs, s_model_coefs)",
+        "3. (u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs, s_model_coefs)",
+        "must be non-null.",
+        sep = "\n"
+      )
     )
   }
 
-  if (!is.null(y_model_coefs)) {
+  data <- data_observed$data
+
+  x <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
+
+  if (!is.null(data_validation)) {
+    final <- adjust_uc_om_sel_val(
+      data_observed,
+      data_validation
+    )
+  } else if (!is.null(y_model_coefs)) {
     final <- uc_om_sel_single(
       data_observed = data_observed,
       u_model_coefs = u_model_coefs,
