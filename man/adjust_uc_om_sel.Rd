@@ -7,18 +7,27 @@ bias.}
 \usage{
 adjust_uc_om_sel(
   data_observed,
+  data_validation = NULL,
   u_model_coefs = NULL,
   y_model_coefs = NULL,
   u0y1_model_coefs = NULL,
   u1y0_model_coefs = NULL,
   u1y1_model_coefs = NULL,
-  s_model_coefs,
+  s_model_coefs = NULL,
   level = 0.95
 )
 }
 \arguments{
 \item{data_observed}{Object of class \code{data_observed} corresponding to the
 data to perform bias analysis on.}
+
+\item{data_validation}{Object of class \code{data_validation} corresponding to
+the validation data used to adjust for bias in the observed data. Here, the
+validation data should have data for the same variables as in the observed
+data, plus data for: 1) the true and misclassified outcome corresponding
+to the observed outcome in \code{data_observed}, 2) the confounder missing in
+\code{data_observed}, 3) a selection indicator representing whether the
+observation in \code{data_validation} was selected in \code{data_observed}.}
 
 \item{u_model_coefs}{The regression coefficients corresponding to the model:
 \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
@@ -83,14 +92,17 @@ confidence interval as the vector: (lower bound, upper bound).
 \description{
 \code{adjust_uc_om_sel} returns the exposure-outcome odds ratio and
 confidence interval, adjusted for uncontrolled confounding, outcome
-misclassificaiton, and selection bias. Two different options for the bias
+misclassificaiton, and selection bias.
+}
+\details{
+Bias adjustment can be performed by inputting either a validation dataset or
+the necessary bias parameters. Two different options for the bias
 parameters are availale here: 1) parameters from separate models
 of \emph{U} and \emph{Y} (\code{u_model_coefs} and \code{y_model_coefs})
 or 2) parameters from a joint model of \emph{U} and \emph{Y}
 (\code{u1y0_model_coefs}, \code{u0y1_model_coefs}, and
 \code{u1y1_model_coefs}). Both approaches require \code{s_model_coefs}.
-}
-\details{
+
 Values for the regression coefficients can be applied as
 fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
@@ -102,15 +114,31 @@ confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
 \examples{
-df <- data_observed(
+df_observed <- data_observed(
   data = df_uc_om_sel,
   exposure = "X",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3")
 )
+
+# Using validation data -----------------------------------------------------
+df_validation <- data_validation(
+  data = df_uc_om_sel_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = c("C1", "C2", "C3", "U"),
+  misclassified_outcome = "Ystar",
+  selection = "S"
+)
+
+adjust_uc_om_sel(
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+
 # Using u_model_coefs, y_model_coefs, s_model_coefs -------------------------
 adjust_uc_om_sel(
-  df,
+  data_observed = df_observed,
   u_model_coefs = c(-0.32, 0.59, 0.69),
   y_model_coefs = c(-2.85, 0.71, 1.63, 0.40, -0.85, 0.22),
   s_model_coefs = c(0.00, 0.74, 0.19, 0.02, -0.06, 0.02)
@@ -118,7 +146,7 @@ adjust_uc_om_sel(
 
 # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs, s_model_coefs
 adjust_uc_om_sel(
-  df,
+  data_observed = df_observed,
   u1y0_model_coefs = c(-0.20, 0.62, 0.01, -0.08, 0.10, -0.15),
   u0y1_model_coefs = c(-3.28, 0.63, 1.65, 0.42, -0.85, 0.26),
   u1y1_model_coefs = c(-2.70, 1.22, 1.64, 0.32, -0.77, 0.09),
