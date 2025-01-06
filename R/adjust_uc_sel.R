@@ -426,28 +426,12 @@ adjust_uc_sel <- function(
     u_model_coefs = NULL,
     s_model_coefs = NULL,
     level = 0.95) {
-  if (!is.null(data_validation)) {
-    if (!all(is.null(u_model_coefs), is.null(s_model_coefs))) {
-      stop("No bias parameters should be specified when 'data_validation' is used.")
-    }
-  } else if (!is.null(u_model_coefs) && !is.null(s_model_coefs)) {
-    if (!is.null(data_validation)) {
-      stop("No other bias-adjusting inputs should be specified when 'u_model_coefs' and 's_model_coefs' are used.")
-    }
-  } else {
-    stop(
-      paste(
-        "One of:",
-        "1. data_validation",
-        "2. (u_model_coefs & s_model_coefs)",
-        "must be non-null.",
-        sep = "\n"
-      )
-    )
-  }
+  check_inputs2(
+    data_validation,
+    list(u_model_coefs, s_model_coefs)
+  )
 
   data <- data_observed$data
-
   x <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
 

@@ -416,30 +416,10 @@ adjust_om_sel <- function(
     y_model_coefs = NULL,
     s_model_coefs = NULL,
     level = 0.95) {
-  if (!is.null(data_validation)) {
-    if (!all(is.null(y_model_coefs), is.null(s_model_coefs))) {
-      stop("No bias parameters should be specified when 'data_validation' is used.")
-    }
-  } else if (!is.null(y_model_coefs) && !is.null(s_model_coefs)) {
-    if (!is.null(data_validation)) {
-      stop("No other bias-adjusting inputs should be specified when 'y_model_coefs' and 's_model_coefs' are used.")
-    }
-  } else {
-    stop(
-      paste(
-        "One of:",
-        "1. data_validation",
-        "2. (y_model_coefs & s_model_coefs)",
-        "must be non-null.",
-        sep = "\n"
-      )
-    )
-  }
-
-  data <- data_observed$data
-
-  x <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
+  check_inputs2(
+    data_validation,
+    list(y_model_coefs, s_model_coefs)
+  )
 
   if (!is.null(data_validation)) {
     final <- adjust_om_sel_val(

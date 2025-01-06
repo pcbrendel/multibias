@@ -793,33 +793,13 @@ adjust_uc_em <- function(
     x0u1_model_coefs = NULL,
     x1u1_model_coefs = NULL,
     level = 0.95) {
-  if (!is.null(data_validation)) {
-    if (!all(is.null(u_model_coefs), is.null(x_model_coefs), is.null(x1u0_model_coefs), is.null(x0u1_model_coefs), is.null(x1u1_model_coefs))) {
-      stop("No bias parameters should be specified when 'data_validation' is used.")
-    }
-  } else if (!is.null(u_model_coefs) && !is.null(x_model_coefs)) {
-    if (!all(is.null(data_validation), is.null(x1u0_model_coefs), is.null(x0u1_model_coefs), is.null(x1u1_model_coefs))) {
-      stop("No other bias-adjusting inputs should be specified when 'u_model_coefs' and 'x_model_coefs' are used.")
-    }
-  } else if (!is.null(x1u0_model_coefs) && !is.null(x0u1_model_coefs) && !is.null(x1u1_model_coefs)) {
-    if (!all(is.null(data_validation), is.null(u_model_coefs), is.null(x_model_coefs))) {
-      stop("No other bias-adjusting inputs should be specified when 'x1u0_model_coefs', 'x0u1_model_coefs', and 'x1u1_model_coefs' are used.")
-    }
-  } else {
-    stop(
-      paste(
-        "One of:",
-        "1. data_validation",
-        "2. (u_model_coefs & x_model_coefs)",
-        "3. (x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs)",
-        "must be non-null.",
-        sep = "\n"
-      )
-    )
-  }
+  check_inputs3(
+    data_validation,
+    list(u_model_coefs, x_model_coefs),
+    list(x1u0_model_coefs, x0u1_model_coefs, x1u1_model_coefs)
+  )
 
   data <- data_observed$data
-
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
 
