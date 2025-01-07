@@ -35,6 +35,26 @@ data_observed <- function(
     is.character(confounders) | is.null(confounders)
   )
 
+  # if (!all(exposure %in% names(data), outcome %in% names(data))) {
+  #   stop("Exposure and outcome variables must be present in the data")
+  # }
+  # if (!is.null(confounders) && !all(confounders %in% names(data))) {
+  #   stop("Confounders must be present in the data if provided")
+  # }
+
+  required_vars <- c(exposure, outcome, confounders)
+  required_vars <- required_vars[!is.null(required_vars)]
+
+  if (!all(required_vars %in% names(data))) {
+    missing_vars <- required_vars[!required_vars %in% names(data)]
+    stop(
+      paste0(
+        "Input variable(s) missing in data: ",
+        paste(missing_vars, collapse = ", ")
+      )
+    )
+  }
+
   df <- data %>%
     select(all_of(c(exposure, outcome, confounders)))
 
@@ -123,6 +143,23 @@ data_validation <- function(
       is.null(misclassified_outcome),
     (is.character(selection) & length(selection) == 1) | is.null(selection)
   )
+
+  required_vars <- c(
+    true_exposure, true_outcome,
+    confounders, misclassified_exposure,
+    misclassified_outcome, selection
+  )
+  required_vars <- required_vars[!is.null(required_vars)]
+
+  if (!all(required_vars %in% names(data))) {
+    missing_vars <- required_vars[!required_vars %in% names(data)]
+    stop(
+      paste0(
+        "Input variable(s) missing in data: ",
+        paste(missing_vars, collapse = ", ")
+      )
+    )
+  }
 
   cols <- c(
     true_exposure,
