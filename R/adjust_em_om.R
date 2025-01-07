@@ -2,7 +2,7 @@ adjust_em_om_val <- function(
     data_observed,
     data_validation) {
   if (!all(data_observed$confounders %in% data_validation$confounders)) {
-    stop("All confounders in observed data must be present in validation data.")
+    stop("All confounders in observed data must be present in validation data.", call. = FALSE)
   }
 
   if (is.null(data_validation$misclassified_exposure) && is.null(data_validation$misclassified_outcome)) {
@@ -11,7 +11,8 @@ adjust_em_om_val <- function(
         "This function is adjusting for a misclassified exposure and misclassified outcome.",
         "\n",
         "Validation data must include a true exposure, misclassified exposure, true outcome, and misclassified outcome."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -253,7 +254,10 @@ adjust_em_om_coef_single <- function(
       data = df
     )
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)
@@ -547,7 +551,10 @@ adjust_em_om_coef_multinom <- function(
       )
     })
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)

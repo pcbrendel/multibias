@@ -2,7 +2,10 @@ adjust_om_sel_val <- function(
     data_observed,
     data_validation) {
   if (!all(data_observed$confounders %in% data_validation$confounders)) {
-    stop("All confounders in observed data must be present in validation data.")
+    stop(
+      "All confounders in observed data must be present in validation data.",
+      call. = FALSE
+    )
   }
 
   if (is.null(data_validation$misclassified_outcome)) {
@@ -11,7 +14,8 @@ adjust_om_sel_val <- function(
         "This function is adjusting for a misclassified outcome.",
         "\n",
         "Validation data must have a true and misclassified outcome specified."
-      )
+      ),
+      call. = FALSE
     )
   }
   if (is.null(data_validation$selection)) {
@@ -20,7 +24,8 @@ adjust_om_sel_val <- function(
         "This function is adjusting for selection bias.",
         "\n",
         "Validation data must have a selection indicator column specified."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -290,7 +295,10 @@ adjust_om_sel_coef <- function(
       )
     })
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)

@@ -2,7 +2,10 @@ adjust_uc_em_val <- function(
     data_observed,
     data_validation) {
   if (!all(data_observed$confounders %in% data_validation$confounders)) {
-    stop("All confounders in observed data must be present in validation data.")
+    stop(
+      "All confounders in observed data must be present in validation data.",
+      call. = FALSE
+    )
   }
 
   if (
@@ -13,7 +16,8 @@ adjust_uc_em_val <- function(
         "This function adjusts for unobserved confounding from one confounder.",
         "\n",
         "Validation data must have one more confounder than the observed data."
-      )
+      ),
+      call. = FALSE
     )
   }
   if (is.null(data_validation$misclassified_exposure)) {
@@ -22,7 +26,8 @@ adjust_uc_em_val <- function(
         "This function is adjusting for a misclassified exposure.",
         "\n",
         "Validation data must have a true and misclassified exposure specified."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -285,7 +290,10 @@ adjust_uc_em_coef_single <- function(
       )
     }
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)
@@ -626,7 +634,10 @@ adjust_uc_em_coef_multinom <- function(
       })
     }
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)
