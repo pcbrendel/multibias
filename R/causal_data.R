@@ -35,13 +35,6 @@ data_observed <- function(
     is.character(confounders) | is.null(confounders)
   )
 
-  # if (!all(exposure %in% names(data), outcome %in% names(data))) {
-  #   stop("Exposure and outcome variables must be present in the data")
-  # }
-  # if (!is.null(confounders) && !all(confounders %in% names(data))) {
-  #   stop("Confounders must be present in the data if provided")
-  # }
-
   required_vars <- c(exposure, outcome, confounders)
   required_vars <- required_vars[!is.null(required_vars)]
 

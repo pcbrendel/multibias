@@ -1,4 +1,5 @@
 # multibias 1.6.2
+
 * The following functions now accept `data_validation` as an input for bias
   adjustment:
   * `adjust_om_sel.R`
