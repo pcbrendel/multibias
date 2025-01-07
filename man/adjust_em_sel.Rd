@@ -89,7 +89,7 @@ adjust_em_sel(
 
 # Using x_model_coefs and s_model_coefs -------------------------------------
 adjust_em_sel(
-  df_observed,
+  data_observed = df_observed,
   x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
   s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
 )

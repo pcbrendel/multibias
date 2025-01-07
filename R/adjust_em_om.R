@@ -2,7 +2,7 @@ adjust_em_om_val <- function(
     data_observed,
     data_validation) {
   if (!all(data_observed$confounders %in% data_validation$confounders)) {
-    stop("All confounders in observed data must be present in validation data.")
+    stop("All confounders in observed data must be present in validation data.", call. = FALSE)
   }
 
   if (is.null(data_validation$misclassified_exposure) && is.null(data_validation$misclassified_outcome)) {
@@ -11,7 +11,8 @@ adjust_em_om_val <- function(
         "This function is adjusting for a misclassified exposure and misclassified outcome.",
         "\n",
         "Validation data must include a true exposure, misclassified exposure, true outcome, and misclassified outcome."
-      )
+      ),
+      call. = FALSE
     )
   }
 
@@ -105,8 +106,6 @@ adjust_em_om_val <- function(
 }
 
 
-# bias adjust with x_model_coefs and y_model_coefs
-
 adjust_em_om_coef_single <- function(
     data_observed,
     x_model_coefs,
@@ -118,6 +117,11 @@ adjust_em_om_coef_single <- function(
   len_x_coefs <- length(x_model_coefs)
   len_y_coefs <- length(y_model_coefs)
 
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
+
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_binary(ystar, "Outcome must be a binary integer.")
   force_len(
     len_x_coefs,
     3 + len_c,
@@ -134,9 +138,6 @@ adjust_em_om_coef_single <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
 
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
@@ -253,13 +254,14 @@ adjust_em_om_coef_single <- function(
       data = df
     )
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)
 }
-
-# bias adjust with multinomial coefs
 
 adjust_em_om_coef_multinom <- function(
     data_observed,
@@ -274,6 +276,11 @@ adjust_em_om_coef_multinom <- function(
   len_x0y1_coefs <- length(x0y1_model_coefs)
   len_x1y1_coefs <- length(x1y1_model_coefs)
 
+  xstar <- data[, data_observed$exposure]
+  ystar <- data[, data_observed$outcome]
+
+  force_binary(xstar, "Exposure must be a binary integer.")
+  force_binary(ystar, "Outcome must be a binary integer.")
   force_len(
     len_x1y0_coefs,
     3 + len_c,
@@ -298,9 +305,6 @@ adjust_em_om_coef_multinom <- function(
       "Length should equal 3 + number of confounders."
     )
   )
-
-  xstar <- data[, data_observed$exposure]
-  ystar <- data[, data_observed$outcome]
 
   x1y0_0 <- x1y0_model_coefs[1]
   x1y0_xstar <- x1y0_model_coefs[2]
@@ -547,7 +551,10 @@ adjust_em_om_coef_multinom <- function(
       )
     })
   } else if (len_c > 3) {
-    stop("This function is currently not compatible with >3 confounders.")
+    stop(
+      "This function is currently not compatible with >3 confounders.",
+      call. = FALSE
+    )
   }
 
   return(final)
@@ -716,22 +723,11 @@ adjust_em_om <- function(
     x0y1_model_coefs = NULL,
     x1y1_model_coefs = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(y_model_coefs) && !is.null(x1y0_model_coefs)) ||
-      (is.null(data_validation) && is.null(y_model_coefs) && is.null(x1y0_model_coefs))
-  ) {
-    stop(
-      paste(
-        "One of:",
-        "1. data_validation",
-        "2. (x_model_coefs & y_model_coefs)",
-        "3. (x1y0_model_coefs, x0y1_model_coefs, x0y1_model_coefs, x1y1_model_coefs)",
-        "must be non-null.",
-        sep = "\n"
-      )
-    )
-  }
-  data <- data_observed$data
+  check_inputs3(
+    data_validation,
+    list(x_model_coefs, y_model_coefs),
+    list(x1y0_model_coefs, x0y1_model_coefs, x1y1_model_coefs)
+  )
 
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(

@@ -35,6 +35,19 @@ data_observed <- function(
     is.character(confounders) | is.null(confounders)
   )
 
+  required_vars <- c(exposure, outcome, confounders)
+  required_vars <- required_vars[!is.null(required_vars)]
+
+  if (!all(required_vars %in% names(data))) {
+    missing_vars <- required_vars[!required_vars %in% names(data)]
+    stop(
+      paste0(
+        "Input variable(s) missing in data: ",
+        paste(missing_vars, collapse = ", ")
+      )
+    )
+  }
+
   df <- data %>%
     select(all_of(c(exposure, outcome, confounders)))
 
@@ -50,6 +63,8 @@ data_observed <- function(
 
   return(obj)
 }
+
+#' @export
 
 print.data_observed <- function(x, ...) {
   cat("Observed Data\n")
@@ -122,6 +137,23 @@ data_validation <- function(
     (is.character(selection) & length(selection) == 1) | is.null(selection)
   )
 
+  required_vars <- c(
+    true_exposure, true_outcome,
+    confounders, misclassified_exposure,
+    misclassified_outcome, selection
+  )
+  required_vars <- required_vars[!is.null(required_vars)]
+
+  if (!all(required_vars %in% names(data))) {
+    missing_vars <- required_vars[!required_vars %in% names(data)]
+    stop(
+      paste0(
+        "Input variable(s) missing in data: ",
+        paste(missing_vars, collapse = ", ")
+      )
+    )
+  }
+
   cols <- c(
     true_exposure,
     true_outcome,
@@ -147,6 +179,8 @@ data_validation <- function(
   class(obj) <- "data_validation"
   return(obj)
 }
+
+#' @export
 
 print.data_validation <- function(x, ...) {
   cat("Validation Data\n")

@@ -575,3 +575,26 @@ test_that("odds ratio and confidence interval output", {
     size = 2
   )
 })
+
+# adjust with validation data
+
+or_val <- adjust_uc_em(
+  data_observed = data_observed(
+    df_uc_em,
+    exposure = "Xstar",
+    outcome = "Y",
+    confounders = c("C1", "C2", "C3")
+  ),
+  data_validation = data_validation(
+    df_uc_em_source,
+    true_exposure = "X",
+    true_outcome = "Y",
+    confounders = c("C1", "C2", "C3", "U"),
+    misclassified_exposure = "Xstar"
+  )
+)
+
+test_that("adjust_uc_em, validation data", {
+  expect_gt(or_val$estimate, or_true - 0.1)
+  expect_lt(or_val$estimate, or_true + 0.1)
+})
