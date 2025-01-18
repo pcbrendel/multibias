@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   multibias: multibias.html
-last_built: 2025-01-18T03:32Z
+last_built: 2025-01-18T21:17Z
 urls:
   reference: http://www.paulbrendel.com/multibias/reference
   article: http://www.paulbrendel.com/multibias/articles
