@@ -1,0 +1,144 @@
+---
+title: "Multibias Validation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multi-Bias Validation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(multibias)
+```
+
+We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
+
+```{r out.width = '70%', echo = FALSE}
+knitr::include_graphics("img/uc_emc_sel_DAG.png")
+```
+
+The variables are defined:
+
+* X: true, unmeasured exposure
+* Y: outcome
+* C: measured confounder(s)
+* U: unmeasured confounder
+* X*: misclassified, measured exposure
+* S: study selection
+
+It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only assesses those who were selected into the study (i.e. those with S=1),
+which represents a fraction of all people in the source population from which we are trying to draw inference.
+
+A simulated dataframe corresponding to this DAG, `df_uc_emc_sel` can be loaded from the `multibias` package.
+
+```{r, eval = TRUE}
+head(df_uc_em_sel)
+```
+
+In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources.
+
+```{r, eval = TRUE}
+biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, ,
+                    family = binomial(link = "logit"),
+                    data = df_uc_em_sel)
+biased_or <- round(exp(coef(biased_model)[2]), 2)
+print(paste0("Biased Odds Ratio: ", biased_or))
+```
+
+The function `adjust_uc_emc_sel()` can be used here to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
+
+Models for the missing variables (*U*, *X*, *S*) are used to facilitate this data reconstruction. For the above DAG, the corresponding bias models are:
+
+* logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y
+* logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>
+* logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>
+
+where j indicates the number of measured confounders.
+
+To perform the bias adjustment, it is necessary to obtain values of these bias parameters. Potential sources of these bias parameters include internal validation data, estimates in the literature, and expert opinion. For purposes of demonstrating the methodology, we will obtain the exact values of these bias parameters. This is possible because for purposes of validation we have access to the data of missing values that would otherwise be absent in real-world practice. This source data is available in `multibias` as `df_uc_emc_sel_source`.
+
+```{r, eval = TRUE}
+u_model <- glm(U ~ X + Y,
+               family = binomial(link = "logit"),
+               data = df_uc_em_sel_source)
+x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
+               family = binomial(link = "logit"),
+               data = df_uc_em_sel_source)
+s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
+               family = binomial(link = "logit"),
+               data = df_uc_em_sel_source)
+```
+
+In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. Below we create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
+
+```{r, eval = FALSE}
+library(doParallel)
+
+no_cores <- detectCores() - 1
+registerDoParallel(cores = no_cores)
+cl <- makeCluster(no_cores)
+
+set.seed(1234)
+nreps <- 1000
+est <- vector(length = nreps)
+```
+
+Next we run the parallel for loop in which we apply the `adjust_uc_em_sel()` function to bootstrap samples of the `df_uc_em_sel` data. We specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the *U* model coefficients, the *X* model coefficients, and the *S* model coefficients. Since knowledge of the source data was known, the correct bias parameters can be applied.  Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will now have slightly different values for the bias parameters, corresponding to our uncertainty in their estimates.
+
+```{r, eval = FALSE}
+or <- foreach(i = 1:nreps, .combine = c,
+              .packages = c("dplyr", "multibias")) %dopar% {
+
+  df_sample <- df_uc_em_sel[sample(seq_len(nrow(df_uc_em_sel)),
+                                   nrow(df_uc_em_sel),
+                                   replace = TRUE), ]
+
+  est[i] <- adjust_uc_em_sel(
+    data_observed = data_observed(
+      data = df_sample,
+      exposure = "Xstar",
+      outcome = "Y",
+      confounders = c("C1", "C2", "C3")
+    ),
+    u_model_coefs = c(
+      rnorm(1, mean = u_model$coef[1], sd = summary(u_model)$coef[1, 2]),
+      rnorm(1, mean = u_model$coef[2], sd = summary(u_model)$coef[2, 2]),
+      rnorm(1, mean = u_model$coef[3], sd = summary(u_model)$coef[3, 2])
+    ),
+    x_model_coefs = c(
+      rnorm(1, mean = x_model$coef[1], sd = summary(x_model)$coef[1, 2]),
+      rnorm(1, mean = x_model$coef[2], sd = summary(x_model)$coef[2, 2]),
+      rnorm(1, mean = x_model$coef[3], sd = summary(x_model)$coef[3, 2]),
+      rnorm(1, mean = x_model$coef[4], sd = summary(x_model)$coef[4, 2]),
+      rnorm(1, mean = x_model$coef[5], sd = summary(x_model)$coef[5, 2]),
+      rnorm(1, mean = x_model$coef[6], sd = summary(x_model)$coef[6, 2])
+    ),
+    s_model_coefs = c(
+      rnorm(1, mean = s_model$coef[1], sd = summary(s_model)$coef[1, 2]),
+      rnorm(1, mean = s_model$coef[2], sd = summary(s_model)$coef[2, 2]),
+      rnorm(1, mean = s_model$coef[3], sd = summary(s_model)$coef[3, 2]),
+      rnorm(1, mean = s_model$coef[4], sd = summary(s_model)$coef[4, 2]),
+      rnorm(1, mean = s_model$coef[5], sd = summary(s_model)$coef[5, 2]),
+      rnorm(1, mean = s_model$coef[6], sd = summary(s_model)$coef[6, 2])
+    )
+  )$estimate
+}
+```
+Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
+
+```{r, eval = FALSE}
+# odds ratio estimate
+round(median(or), 2)
+#> 2.02
+
+# confidence interval
+round(quantile(or, c(.025, .975)), 2)
+#> 1.93 2.11
+```
