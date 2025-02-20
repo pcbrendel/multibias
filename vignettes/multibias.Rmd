@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 library(multibias)
 ```
 
-Intro
+Multibias makes it easy to simultaneously adjust for multiple biases in causal inference research. This document walks you through the key steps to performing the analysis.
 
 ## 1. Identify the biases in your data
 
@@ -25,13 +25,18 @@ All epidemiological biases can be generalized into four main groups:
 * Outcome misclassificaiton (**om**)
 * Selection bias (**sel**)
 
-Multibias is capable of handling bias adjustment for most of the combinations of the above four biases. Choose the `adjust()` function corresponding to the biases of interest. For example, `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
+Multibias is capable of handling bias adjustment for most of the combinations of the above four biases. Choose the `adjust()` function corresponding to the biases of interest using the appropriate prefix. For example, `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
 
 For purposes of demonstration, multibias includes datasets with different bias combinations. For a given bias or biases, it includes the biased data (e.g., `df_uc_sel`: missing a confounder and not including the un-selected subjects) and the source used to derive the biased data (e.g., `df_uc_sel_source`: including data on the missing confounder and subjects who were not selected).
 
-Identify variables
+Each dataset has variables defined similarly:
+* `X` = binary exposure
+* `Y` = binary outcome
+* `C1-C3` = binary confounders
 
 ## 2. Create data_observed
+
+Each `adjust()` function in multibias requires inputting your observed, biased data as a `data_observed` object. Here you specify the dataframe and identify the key variables in the data.
 
 ```{r}
 df_observed <- data_observed(
@@ -44,15 +49,23 @@ df_observed <- data_observed(
 
 ## 3. Obtain source for bias adjustment
 
+Next, you need to have some information that can be used to quantify the assumed bias or biases. There are two options here.
+
 ### Option 1: Bias parameters
 
+One option is to list the assumed parameters for the corresponding bias equations. The necessary bias equations are provided in the documentation of each `adjust()` function. These equations can be derived using the methods outlined in the article [here](https://doi.org/10.1093/ije/dyad001). In our example, we have bias parameters to predict the missing binary confounder `U` (as the vector `u_coefs`) and study selection indicator `S` (as the vector `s_coefs`).
+
 ```{r}
+u_coefs <- c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15)
+s_coefs <- c(-0.01, 0.92, 0.94)
 ```
+
+A second option is to specify a validation data source as a `data_validation` object. In order to adjust for a given bias, the validation data must have the corresonding missing data. In the example here, the validation data has additional columns for the missing binary confounder `U` and indicator `S` for whether a given individual was selected into the study.
 
 ### Option 2: Validation data
 
 ```{r}
-data_validation = data_validation(
+df_validation <- data_validation(
   df_uc_sel_source,
   true_exposure = "X",
   true_outcome = "Y",
@@ -63,15 +76,58 @@ data_validation = data_validation(
 
 # 4. Run the bias adjustment
 
+Finally, we can run the multi-bias adjustment!
+
 ### Single run
 
 ```{r}
+adjust_uc_sel(
+  data_observed = df_observed,
+  u_model_coefs = u_coefs,
+  s_model_coefs = s_coefs
+)
 ```
 
+or
+
+```{r}
+adjust_uc_sel(
+  data_observed = df_observed,
+  data_validation = df_validation
+)
+```
+
+We observe that the bias-adjusted odds ratio of the effect of X on Y is approximately 2. This effect can be compared to the effect observed in the biased data to understand whether systematic error is bringing the observed effect closer to the null or further from the null.
 
 ### Bootstrapping
 
+Multibias performs bias adjustment via a combination of imputation and/or regression weighting. When imputation is involved, there will be some inherent randomness in the sampling. A single run, therefore, will not produce an exactly consistent result unless a seed is specified. Bootstrapping is thus recommended to quantify the random error. Computational performance can be improved via parallelization.
+
 ```{r}
+n <- nrow(df_uc_sel)
+est <- vector()
+nreps <- 100
+
+for (i in 1:nreps) {
+  df_bootstrap <- df_uc_sel[sample(seq_len(n), n, replace = TRUE), ]
+  df_observed <- data_observed(
+    df_bootstrap,
+    exposure = "X",
+    outcome = "Y",
+    confounders = NULL
+  )
+  results <- adjust_uc_sel(
+    df_observed,
+    df_validation
+  )
+  est[i] <- results$estimate
+}
+
+# odds ratio estimate
+round(median(est), 2)
+
+# confidence interval
+round(quantile(est, c(.025, .975)), 2)
 ```
 
-Interpretation
+When adjusting via bias parameters, the user can alternatively provide each bias parameter value as a probability distribution. The resulting confidence interval from bootstrapping can then quantify uncertainty in both the random error and the systematic error. Check out the vignette article "Multibias Validation" for a demonstration of this approach.
