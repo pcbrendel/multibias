@@ -35,16 +35,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/multibias.html">Get started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/multibias.html">Get Started</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/evans_example.html">Multibias example: Evans</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="../articles/nhanes_example.html">NHANES Example</a></li>
+    <li><a class="dropdown-item" href="../articles/evans_example.html">Evans Example</a></li>
     <li><a class="dropdown-item" href="../articles/multibias_validation.html">Multibias Validation</a></li>
-    <li><a class="dropdown-item" href="../articles/nhanes_example.html">Multibias example: NHANES</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -131,16 +131,16 @@ indicator <code>S</code> (as the vector <code>s_coefs</code>).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">u_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.19</span>, <span class="fl">0.61</span>, <span class="fl">0.72</span>, <span class="op">-</span><span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="op">-</span><span class="fl">0.15</span><span class="op">)</span></span>
 <span><span class="va">s_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.92</span>, <span class="fl">0.94</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="option-2-validation-data">Option 2: Validation data<a class="anchor" aria-label="anchor" href="#option-2-validation-data"></a>
+</h4>
 <p>A second option is to specify a validation data source as a
 <code>data_validation</code> object. In order to adjust for a given
 bias, the validation data must have the corresonding missing data. In
 the example here, the validation data has additional columns for the
 missing binary confounder <code>U</code> and indicator <code>S</code>
 for whether a given individual was selected into the study.</p>
-</div>
-<div class="section level4">
-<h4 id="option-2-validation-data">Option 2: Validation data<a class="anchor" aria-label="anchor" href="#option-2-validation-data"></a>
-</h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_validation.html">data_validation</a></span><span class="op">(</span></span>
 <span>  <span class="va">df_uc_sel_source</span>,</span>
