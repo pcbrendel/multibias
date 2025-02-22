@@ -2,7 +2,7 @@
 title: "Multibias example: Evans"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Multi-Bias Examples}
+  %\VignetteIndexEntry{Multibias example: Evans}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,41 +18,50 @@ knitr::opts_chunk$set(
 library(multibias)
 ```
 
-## Single Bias Example
-
 We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD) using data from the [Evans County Heart Study](https://en.wikipedia.org/wiki/Evans_County_Heart_Study). Let's inspect the dataframe we have for 609 participants aged 40 and older.
 
 ```{r, eval = TRUE}
 head(evans)
 ```
 
-This is clearly not the most robust data, but, for purposes of demonstration, let's proceed by pretending that our data was missing information on age. Let's see what the resulting odds ratio estimate looks like without adjustment for age and with adding hypertension (HPT) as a known confounder.
+This is clearly not the most robust data, but, for purposes of demonstrating `multibias`, let's proceed by pretending that our data was missing information on AGE. Let's inspect the resulting effect estimate, adjusted for hypertension (HPT).
 
 ```{r, eval = TRUE}
 biased_model <- glm(CHD ~ SMK + HPT,
-                    family = binomial(link = "logit"),
-                    data = evans)
+  family = binomial(link = "logit"),
+  data = evans
+)
 or <- round(exp(coef(biased_model)[2]), 2)
-or_ci_low <- round(exp(coef(biased_model)[2] -
-                         1.96 * summary(biased_model)$coef[2, 2]), 2)
-or_ci_high <- round(exp(coef(biased_model)[2] +
-                          1.96 * summary(biased_model)$coef[2, 2]), 2)
+or_ci_low <- round(
+  exp(coef(biased_model)[2] - 1.96 * summary(biased_model)$coef[2, 2]), 2
+)
+or_ci_high <- round(
+  exp(coef(biased_model)[2] + 1.96 * summary(biased_model)$coef[2, 2]), 2
+)
 
 print(paste0("Biased Odds Ratio: ", or))
 print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
 ```
 
-This estimate, despite not adjusting for age, appears around what we would expect. In the IJE article [The association between tobacco smoking and coronary heart disease](https://doi.org/10.1093/ije/dyv124) the author notes: "Cigarette smokers have about twice as much coronary heart disease as non-smokers, whether measured by deaths, prevalence, or the incidence of new events." However, we also know from studies like [this BMJ meta-analysis](https://doi.org/10.1136/bmj.j5855) that the effect estimate can vary greatly depending on the degree of cigarette consumption. We also observe a wide confidence interval due to the small sample size of the data. In real-world practice we would want to obtain better data that includes more observations, participant estimates of cigarettes smoked/day, and other important confounders including sex and race/ethnicity. In Epidemiology it is very rarely the case that we have the "perfect" data with everything we would like! We'll proceed with the analysis knowing the limitations of the data.
+This estimate is around what we'd expect. In the IJE article [The association between tobacco smoking and coronary heart disease](https://doi.org/10.1093/ije/dyv124) the author notes: "Cigarette smokers have about twice as much coronary heart disease as non-smokers, whether measured by deaths, prevalence, or the incidence of new events." However, we also know from studies like [this BMJ meta-analysis](https://doi.org/10.1136/bmj.j5855) that the effect estimate can vary greatly depending on the degree of cigarette consumption.
 
-Can we anticipate whether this biased odds ratio (without age-adjustment) is biased toward or away from the null? Let's consider the association of the uncontrolled confounder with the exposure and outcome. In our data, age has a negative association with smoking (older people are **less** likely to be smokers) and a positive association with heart disease (older people are **more** likely to have CHD). These opposite associations are biasing the odds ratio towards the null, creating a distortion where those who are less likely to smoke are more likely to experience the outcome.
+Can we anticipate whether this odds ratio without age-adjustment is biased towards or away from the null? Let's consider the association of the uncontrolled confounder with the exposure and outcome.
 
-To adjust for AGE, where we're assuming it's missing in the data, let's refer to the appropriate bias model for a binary uncontrolled confounder (we're going to treat age as a binary indicator of over (1) or under (0) age 60):
+```{r}
+cor(evans$SMK, evans$AGE)
+cor(evans$CHD, evans$AGE)
+```
 
-* logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>
+In our data, AGE has a negative association with SMK (older people are **less** likely to be smokers) and a positive association with CHD (older people are **more** likely to have CHD). These opposite associations must be biasing the odds ratio towards the null, creating a distortion where those who are less likely to smoke are more likely to experience the outcome.
 
-It's now time for the most difficult part of quantitative bias analysis - deriving bias parameters. Using all the information at our disposal, this is where we provide assumptions for how the relevant variables in our data are related to the uncontrolled confounder. This experience is comparable to that of providing priors in a Bayesian statistical analysis.
+We'll treat AGE as a binary indicator of over (1) or under (0) age 60. To adjust for the uncontrolled confounding from AGE, let's refer to the appropriate bias model for a binary uncontrolled confounder: logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>.
 
-Starting with exposure, we'll assume that smokers are half as likely to have an age >60 than non-smokers, those with CHD are 2.5x as likely to have an age>60 than those without CHD, and those with hypertension are 2x as likely to have an age>60 than those without HPT. To convert these relationships as parameters in the model, we'll log-transform them from odds ratios (see below). Lastly, for the model intercept, we can use the following reasoning: what is the probability that a non-smoker (X=0) without CHD (Y=0) and HPT (C=0) is over age 60 in this population? We'll say this is a 25% probability. We'll use the 'inverse logit' function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.
+To derive the necessary bias parameters, let's make the following assumption:
+* the odds of an age>60 is half as likely in smokers than non-smokers
+* the odds of an age>60 is 2.5x in those with CHD than those without CHD
+* the odds of an age>60 is 2x in those with HPT than those without HPT
+
+To convert these relationships as parameters in the model, we'll log-transform them from odds ratios. For the model intercept, we can use the following reasoning: what is the probability that a non-smoker (X=0) without CHD (Y=0) and HPT (C=0) is over age 60 in this population? We'll assume this is a 25% probability. We'll use the inverse logit function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.
 
 ```{r, eval = TRUE}
 u_0 <- qlogis(0.25)
@@ -64,7 +73,7 @@ u_c <- log(2)
 Now let's plug these bias parameters into `adjust_uc()` along with our `data_observed` object to obtain our bias-adjusted odds ratio.
 
 ```{r, eval = TRUE}
-df <- data_observed(
+df_obs <- data_observed(
   data = evans,
   exposure = "SMK",
   outcome = "CHD",
@@ -73,23 +82,28 @@ df <- data_observed(
 
 set.seed(1234)
 adjust_uc(
-  df,
+  df_obs,
   u_model_coefs = c(u_0, u_x, u_y, u_c)
 )
 ```
 
-We get an odds ratio of 2.16 (95% CI: 1.20, 3.91). This matches our expectation that the bias adjustment would pull the odds ratio away from the null. How does this result compare to the result we would get if age *wasn't* missing in the data and was incorporated in the outcome regression? The results are below. It turns out that our bias-adjusted odds ratio using `multibias` is close to this complete-data odds ratio of 2.31.
+We get an odds ratio of 2.3 (95% CI: 1.3, 4.1). This matches our expectation that the bias adjustment would pull the odds ratio away from the null. How does this result compare to the result we would get if age **wasn't** missing in the data and was incorporated in the outcome regression?
 
 ```{r, eval = TRUE}
 full_model <- glm(CHD ~ SMK + HPT + AGE,
-                  family = binomial(link = "logit"),
-                  data = evans)
+  family = binomial(link = "logit"),
+  data = evans
+)
 or <- round(exp(coef(full_model)[2]), 2)
-or_ci_low <- round(exp(coef(biased_model)[2] -
-                         1.96 * summary(full_model)$coef[2, 2]), 2)
-or_ci_high <- round(exp(coef(biased_model)[2] +
-                          1.96 * summary(full_model)$coef[2, 2]), 2)
+or_ci_low <- round(
+  exp(coef(biased_model)[2] - 1.96 * summary(full_model)$coef[2, 2]), 2
+)
+or_ci_high <- round(
+  exp(coef(biased_model)[2] + 1.96 * summary(full_model)$coef[2, 2]), 2
+)
 
 print(paste0("Odds Ratio: ", or))
 print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
 ```
+
+It turns out that our bias-adjusted odds ratio using `multibias` is close to this complete-data odds ratio of 2.3.

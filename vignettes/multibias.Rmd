@@ -2,7 +2,7 @@
 title: "Introduction to multibias"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Multi-Bias Examples}
+  %\VignetteIndexEntry{Introduction to multibias}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

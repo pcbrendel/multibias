@@ -2,7 +2,7 @@
 title: "Multibias example: NHANES"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Alcohol Risk}
+  %\VignetteIndexEntry{Multibias example: NHANES}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Setup
+## Setup
 
 ```{r setup}
 library(multibias)
@@ -24,24 +24,16 @@ For this demonstration in multi-bias analysis, we'll be using the 2013-2018 Nati
 
 ```{r}
 nhanes <- read.csv("nhanes.csv")
-head(nhanes)
 ```
 
 We'll be assessing the risk of alcohol intake on all-cause mortality. We're specifically going to zoom in on the comparison of "extreme" drinkers to "non-extreme" drinkers. We filter out participants who reported having no alcohol over the past twelve months and create a sex-specific `alcohol_extreme` feature based off of USDGA guidelines of 14 g/day for women and 28 g/day for men. Participants are "extreme drinkers" if they reported drinking more than 1.5x these guidelines.
 
 ```{r}
 nhanes_filtered <- nhanes |>
-  mutate(gender_female = if_else(gender == "Female", 1, 0)) |>
-  mutate(no_alcohol_12mo = if_else(alcohol_12mo == 0, 1, 0)) |>
   mutate(alcohol_extreme = case_when(
-    alcohol > 14 * 1.5 & gender_female == 1 ~ 1,
-    alcohol > 28 * 1.5 & gender_female == 0 ~ 1,
+    alcohol_day_total > 14 * 1.5 & gender_female == 1 ~ 1,
+    alcohol_day_total > 28 * 1.5 & gender_female == 0 ~ 1,
     TRUE ~ 0
-  )) |>
-  mutate(smoked_100_cigs = case_when(
-    smoked_100_cigs == "Yes" ~ 1,
-    smoked_100_cigs == "No" ~ 0,
-    TRUE ~ NA
   )) |>
   filter(age >= 18) |>
   filter(eligstat == 1) |>
@@ -65,7 +57,8 @@ ggplot(
   nhanes_filtered,
   aes(x = as.factor(alcohol_extreme), y = age, color = as.factor(gender_female))
 ) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "alcohol_extreme", color = "gender_female")
 ```
 
 To no surprise, age is higher in those who die.
@@ -75,7 +68,8 @@ ggplot(
   nhanes_filtered,
   aes(x = as.factor(mortstat), y = age, color = as.factor(gender_female))
 ) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "mortstat", color = "gender_female")
 ```
 
 Now tht we've loaded and inspected the data, let's fit our base model for reference: a logistic regression of mortality on alcohol, gender, and age. For our exposure of interest, we observe an odds ratio of 1.6 (95% CI: 1.1, 2.2) indicating increased mortality risk among the extreme drinkers, adjusted for age and gender. Note that many important covariates and considerations are not considered here.
@@ -83,7 +77,7 @@ Now tht we've loaded and inspected the data, let's fit our base model for refere
 ```{r}
 base_mod <- glm(
   mortstat ~ alcohol_extreme + gender_female + age,
-  data = df_filtered,
+  data = nhanes_filtered,
   family = binomial(link = "logit")
 )
 
@@ -95,7 +89,7 @@ The family of functions in `multibias` requires inputting the observed data as a
 
 ```{r}
 df_obs <- data_observed(
-  data = df_filtered,
+  data = nhanes_filtered,
   exposure = "alcohol_extreme",
   outcome = "mortstat",
   confounders = c("age", "gender_female")
@@ -104,40 +98,40 @@ df_obs <- data_observed(
 print(df_obs)
 ```
 
-# 1. Adjust for uncontrolled confounding
+## 1. Adjust for uncontrolled confounding
 
-An important confounder was not included in our analysis, smoking! Let's demonstrate how we could use validation data with smoking information to adjust for the uncontrolled confounding. Feature `smoked_100_cigs` corresponds to whether a participant reported to having smoked 100 cigarettes throughout their life.
+An important confounder, smoking, was not included in our analysis! Let's demonstrate how we could use validation data with smoking information to adjust for the uncontrolled confounding. Feature `smoked_100cigs` corresponds to whether a participant reported having smoked 100 cigarettes throughout their life.
 
 ```{r}
-df_temp1 <- df_filtered |>
-  filter(!is.na(smoked_100_cigs))
+df_temp1 <- nhanes_filtered |>
+  filter(!is.na(smoked_100cigs))
 
 df_val1 <- data_validation(
   data = df_temp1,
   true_exposure = "alcohol_extreme",
   true_outcome = "mortstat",
-  confounders = c("age", "gender_female", "smoked_100_cigs")
+  confounders = c("age", "gender_female", "smoked_100cigs")
 )
 ```
 
-We now put these two objects into the `multibias` function named `adjust_uc()` to adjust for uncontrolled confounding. This new bias-adjusted odds ratio () is closer to the null than that of our base model. This is not a surprise considering that extreme drinkers are more likely to be smokers, and smoking increases the risk of death. Part of the alcohol effect in our base model was really just the effect of smoking.
+We now put these two objects into the `multibias` function named `adjust_uc()` to adjust for uncontrolled confounding. This new bias-adjusted odds ratio (1.4) is closer to the null than that of our base model. This is not a surprise considering that extreme drinkers are more likely to be smokers, and smoking increases the risk of death. Due to these strong correlations, part of the alcohol effect in our base model included the effect from smoking.
 
 ```{r}
 set.seed(1234)
 adjust_uc(df_obs, df_val1)
 ```
 
-# 2. Adjust for uncontrolled confounding and exposure misclassification
+## 2. Adjust for uncontrolled confounding and exposure misclassification
 
 What if we also wanted to account for the fact that people commonly under-report their alcohol use due to social stigma? Let's bring in the assumption that wealthy, college-educated individuals are most susceptible to this stigma. We'll say that the actual alcohol intake for this group, which we'll name `alcohol_adj`, should be 1.5 times what they reported. Then based on this feature, we'll re-calculate the exteme drinking indicator: `alcohol_extreme_adj`.
 
 ```{r}
-df_temp2 <- df_filtered |>
-  filter(!is.na(smoked_100_cigs)) |>
+df_temp2 <- nhanes_filtered |>
+  filter(!is.na(smoked_100cigs)) |>
   mutate(alcohol_adj = if_else(
     income == "$100,000 and Over" | education == "College graduate or above",
-    alcohol * 1.5,
-    alcohol
+    alcohol_day_total * 1.5,
+    alcohol_day_total
   )) |>
   mutate(alcohol_extreme_adj = case_when(
     alcohol_adj > 14 * 2 & gender_female == 1 ~ 1,
@@ -149,29 +143,31 @@ df_val2 <- data_validation(
   data = df_temp2,
   true_exposure = "alcohol_extreme_adj",
   true_outcome = "mortstat",
-  confounders = c("age", "gender_female", "smoked_100_cigs"),
+  confounders = c("age", "gender_female", "smoked_100cigs"),
   misclassified_exposure = "alcohol_extreme"
 )
 ```
 
-We now put these two objects into the `multibias` function named `adjust_uc_em()` to adjust for uncontrolled confounding and exposure misclassification. Observations
+We now put these two objects into the `multibias` function named `adjust_uc_em()` to adjust for uncontrolled confounding and exposure misclassification. The new bias-adjsted odds ratio is even closer to the null.
 
 ```{r}
 set.seed(1234)
 adjust_uc_em(df_obs, df_val2)
 ```
 
-# 3. Adjust for uncontrolled confounding, exposure misclassification, and selection bias
+## 3. Adjust for uncontrolled confounding, exposure misclassification, and selection bias
 
 An astute Epidemiologist reading along here may have noticed that we have not taken into account the NHANES sampling weights! NHANES does not select participants in order to have a group representative of the U.S. population, they instead over-sample from under-represented groups to ensure there is representation across all demographic categories. This could create a selection bias if both the exposure and outcome are related to the selection probability.
 
+There are two weights included from the two-day total nutrition survey; we'll combine them into a single feature.
+
 ```{r}
-df_temp3a <- df_filtered |>
-  filter(!is.na(smoked_100_cigs)) |>
+df_temp3a <- nhanes_filtered |>
+  filter(!is.na(smoked_100cigs)) |>
   mutate(alcohol_adj = if_else(
     income == "$100,000 and Over" | education == "College graduate or above",
-    alcohol * 1.5,
-    alcohol
+    alcohol_day_total * 1.5,
+    alcohol_day_total
   )) |>
   mutate(alcohol_extreme_adj = case_when(
     alcohol_adj > 14 * 2 & gender_female == 1 ~ 1,
@@ -183,11 +179,11 @@ df_temp3a <- df_filtered |>
   )
 ```
 
-First, we sample with replacement based on each participant's survey weight to get a dataframe of selected participants. Then we'll make a dataframe of the participants who are not selected here.
+ First, we sample with replacement based on each participant's survey weight to get a dataframe representing selected participants. Then we'll make a dataframe of the participants who are not selected here.
 
 ```{r}
 selected_sample <- sample(
-  x = df_temp3a$SEQN,
+  x = df_temp3a$seqn,
   size = nrow(df_temp3a),
   replace = TRUE,
   prob = df_temp3a$weight
@@ -197,12 +193,12 @@ df_selected_sample <- data.frame()
 for (id in selected_sample) {
   df_selected_sample <- rbind(
     df_selected_sample,
-    df_temp3a[df_temp3a$SEQN == id, ]
+    df_temp3a[df_temp3a$seqn == id, ]
   )
 }
 
-not_selected_sample <- df_temp3a$SEQN[!(df_temp3a$SEQN %in% selected_sample)]
-df_not_selected_sample <- df_temp3a[df_temp3a$SEQN %in% not_selected_sample, ]
+not_selected_sample <- df_temp3a$seqn[!(df_temp3a$seqn %in% selected_sample)]
+df_not_selected_sample <- df_temp3a[df_temp3a$seqn %in% not_selected_sample, ]
 ```
 
 Let's confirm that the sum of these two groups equals the row count of the original dataframe.
@@ -211,7 +207,7 @@ Let's confirm that the sum of these two groups equals the row count of the origi
 length(not_selected_sample) + length(unique(selected_sample)) == nrow(df_temp3a)
 ```
 
-Then make our ultimate dataframe here with an indicator for whether a given subject was or was not selected based on our sampling procedure.
+Then we'll make our ultimate dataframe here with an indicator for whether a given subject was or was not selected based on our sampling procedure.
 
 ```{r}
 df_selected_sample$selection <- 1
@@ -226,15 +222,17 @@ df_val3 <- data_validation(
   data = df_temp3b,
   true_exposure = "alcohol_extreme_adj",
   true_outcome = "mortstat",
-  confounders = c("age", "gender_female", "smoked_100_cigs"),
+  confounders = c("age", "gender_female", "smoked_100cigs"),
   misclassified_exposure = "alcohol_extreme",
   selection = "selection"
 )
 ```
 
-Now let's see if this differential study selection led to a bias of our alcohol risk effect. We now put these two objects into the `multibias` function named `adjust_uc_em_sel()` to adjust for uncontrolled confounding, exposure misclassification, and selection bias. We observe an exposure odds ratio of _.
+Now let's see if this differential study selection led to a bias of our alcohol risk effect. We now put these two objects into the `adjust_uc_em_sel()` function to adjust for uncontrolled confounding, exposure misclassification, and selection bias.
 
 ```{r}
 set.seed(1234)
 adjust_uc_em_sel(df_obs, df_val3)
 ```
+
+Any selection bias based on the sampling weights seems to be pretty minor; the bias-adjusted odds ratio of the effect of alcohol on mortality does not change much relative to the prior adjustment we made.

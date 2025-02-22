@@ -2,7 +2,7 @@
 title: "Multibias Validation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Multi-Bias Validation}
+  %\VignetteIndexEntry{Multibias Validation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 library(multibias)
 ```
 
-We are interested in quantifying the effect of exposure X on outcome Y. The causal system can be represented in the following directed acyclic graph (DAG):
+This example demonstrates how `multibias` is validated using simulation data. Here we are interested in quantifying the effect of exposure *X* on outcome *Y*. The causal system can be represented in the following directed acyclic graph (DAG):
 
 ```{r out.width = '70%', echo = FALSE}
 knitr::include_graphics("img/uc_emc_sel_DAG.png")
@@ -33,8 +33,10 @@ The variables are defined:
 * X*: misclassified, measured exposure
 * S: study selection
 
-It can be seen from this DAG that the data suffers from three sources of bias. There is uncontrolled confounding from (unobserved) variable U. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only assesses those who were selected into the study (i.e. those with S=1),
-which represents a fraction of all people in the source population from which we are trying to draw inference.
+The DAG indicates that there are three sources of bias:
+1. There is uncontrolled confounding from (unobserved) variable U.
+2. The true exposure, X, is unobserved, and the misclassified exposure X* is dependent on both the exposure and outcome.
+3. Lastly, there is collider stratification at variable S since exposure and outcome both affect selection. The study naturally only assesses those who were selected into the study (i.e. those with S=1), which represents a fraction of all people in the source population from which we are trying to draw inference.
 
 A simulated dataframe corresponding to this DAG, `df_uc_emc_sel` can be loaded from the `multibias` package.
 
@@ -76,7 +78,8 @@ s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
                data = df_uc_em_sel_source)
 ```
 
-In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To improve performance we will run the for loop in parallel using the `foreach()` function in the `doParallel` package. Below we create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
+In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To speed up the computation we will run the for loop in parallel using the `foreach()` function in the `doParallel` package.
+We create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
 
 ```{r, eval = FALSE}
 library(doParallel)
@@ -90,7 +93,11 @@ nreps <- 1000
 est <- vector(length = nreps)
 ```
 
-Next we run the parallel for loop in which we apply the `adjust_uc_em_sel()` function to bootstrap samples of the `df_uc_em_sel` data. We specify the following arguments: the data, the exposure variable, the outcome variable, the confounder(s), the *U* model coefficients, the *X* model coefficients, and the *S* model coefficients. Since knowledge of the source data was known, the correct bias parameters can be applied.  Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will now have slightly different values for the bias parameters, corresponding to our uncertainty in their estimates.
+Next we run the parallel for loop in which we apply the `adjust_uc_em_sel()` function to bootstrap samples of the `df_uc_em_sel` data. Within the function, we include the following arguments:
+1. The `data_observed` object, which includes the dataframe and key column names.
+2. The bias parameters: *U* model coefficients, *X* model coefficients, and *S* model coefficients.
+
+Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will thus have slightly different values for the bias parameters.
 
 ```{r, eval = FALSE}
 or <- foreach(i = 1:nreps, .combine = c,
@@ -131,7 +138,7 @@ or <- foreach(i = 1:nreps, .combine = c,
   )$estimate
 }
 ```
-Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were able to obtain an unbiased odds ratio from the biased data.
+Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were successfully able to obtain a bias-adjusted estimate in our biased data that approximates the known, unbiased estimate.
 
 ```{r, eval = FALSE}
 # odds ratio estimate
