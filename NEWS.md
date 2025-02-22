@@ -1,3 +1,7 @@
+# multibias 1.6.3
+* Created a `pkgdown` web page: www.paulbrendel.com/multibias
+* Refined the vignette, including a new NHANES analysis
+
 # multibias 1.6.2
 
 * The following functions now accept `data_validation` as an input for bias
