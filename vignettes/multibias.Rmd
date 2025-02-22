@@ -114,7 +114,7 @@ for (i in 1:nreps) {
     df_bootstrap,
     exposure = "X",
     outcome = "Y",
-    confounders = NULL
+    confounders = c("C1", "C2", "C3")
   )
   results <- adjust_uc_sel(
     df_observed,

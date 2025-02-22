@@ -14,6 +14,7 @@ Quantify the causal effect of a binary exposure on a binary outcome with adjustm
 Useful links:
 \itemize{
   \item \url{https://github.com/pcbrendel/multibias}
+  \item \url{http://www.paulbrendel.com/multibias/}
   \item Report bugs at \url{https://github.com/pcbrendel/multibias/issues}
 }
 

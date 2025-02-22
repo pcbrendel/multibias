@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(multibias)
+library(dplyr)
 ```
 
 For this demonstration in multi-bias analysis, we'll be using the 2013-2018 National Health and Nutrition Examination Survey (NHANES) data linked to the CDC's 2019 public-use mortality data. Within NHANES, we have data linked across demographics, 24-hour dietary recall, alcohol use, and smoking use.
@@ -53,23 +54,23 @@ nhanes_filtered |>
 There are no major age/gender differences among the exposures.
 
 ```{r}
-ggplot(
-  nhanes_filtered,
-  aes(x = as.factor(alcohol_extreme), y = age, color = as.factor(gender_female))
-) +
-  geom_boxplot() +
-  labs(x = "alcohol_extreme", color = "gender_female")
+nhanes_filtered |>
+  group_by(alcohol_extreme) |>
+  summarize(
+    age_mean = mean(age),
+    gender_prop = mean(gender_female)
+  )
 ```
 
 To no surprise, age is higher in those who die.
 
 ```{r}
-ggplot(
-  nhanes_filtered,
-  aes(x = as.factor(mortstat), y = age, color = as.factor(gender_female))
-) +
-  geom_boxplot() +
-  labs(x = "mortstat", color = "gender_female")
+nhanes_filtered |>
+  group_by(mortstat) |>
+  summarize(
+    age_mean = mean(age),
+    gender_prop = mean(gender_female)
+  )
 ```
 
 Now tht we've loaded and inspected the data, let's fit our base model for reference: a logistic regression of mortality on alcohol, gender, and age. For our exposure of interest, we observe an odds ratio of 1.6 (95% CI: 1.1, 2.2) indicating increased mortality risk among the extreme drinkers, adjusted for age and gender. Note that many important covariates and considerations are not considered here.
