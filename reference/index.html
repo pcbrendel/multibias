@@ -17,6 +17,12 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/multibias.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/evans_example.html">Multibias example: Evans</a></li>
+    <li><a class="dropdown-item" href="../articles/multibias_validation.html">Multibias Validation</a></li>
+    <li><a class="dropdown-item" href="../articles/nhanes_example.html">Multibias example: NHANES</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -32,9 +38,38 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
 
 
+
+
+    </div><div class="section level2">
+
+      <h3 id="causal-data">Causal data<a class="anchor" aria-label="anchor" href="#causal-data"></a></h3>
+      <div class="section-desc"><p>Combine a dataframe with specification of key variables to create a causal data object. These objects are then used in bias-adjusting functions.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="data_observed.html">data_observed()</a></code>
+
+        </dt>
+        <dd>Represent observed causal data</dd>
+      </dl><dl><dt>
+
+          <code><a href="data_validation.html">data_validation()</a></code>
+
+        </dt>
+        <dd>Represent validation causal data</dd>
+      </dl></div><div class="section level2">
+
+      <h3 id="single-bias-adjustment">Single bias adjustment<a class="anchor" aria-label="anchor" href="#single-bias-adjustment"></a></h3>
+      <div class="section-desc"><p>For a given exposure and outcome within <code>data_observed</code>, obtain an exposure-outcome effect estimate adjusted for a single source of bias.</p></div>
 
 
     </div><div class="section level2">
@@ -50,28 +85,10 @@
         <dd>Adust for exposure misclassification.</dd>
       </dl><dl><dt>
 
-          <code><a href="adjust_em_om.html">adjust_em_om()</a></code>
-
-        </dt>
-        <dd>Adust for exposure misclassification and outcome misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_em_sel.html">adjust_em_sel()</a></code>
-
-        </dt>
-        <dd>Adust for exposure misclassification and selection bias.</dd>
-      </dl><dl><dt>
-
           <code><a href="adjust_om.html">adjust_om()</a></code>
 
         </dt>
         <dd>Adust for outcome misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_om_sel.html">adjust_om_sel()</a></code>
-
-        </dt>
-        <dd>Adust for outcome misclassification and selection bias.</dd>
       </dl><dl><dt>
 
           <code><a href="adjust_sel.html">adjust_sel()</a></code>
@@ -84,12 +101,29 @@
 
         </dt>
         <dd>Adust for uncontrolled confounding.</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
 
-          <code><a href="adjust_uc_em.html">adjust_uc_em()</a></code>
+      <h3 id="multiple-bias-adjustment">Multiple bias adjustment<a class="anchor" aria-label="anchor" href="#multiple-bias-adjustment"></a></h3>
+      <div class="section-desc"><p>For a given exposure and outcome within <code>data_observed</code>, obtain an exposure-outcome effect estimate adjusted for multiple sources of bias.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="adjust_em_om.html">adjust_em_om()</a></code>
 
         </dt>
-        <dd>Adust for uncontrolled confounding and exposure misclassification.</dd>
+        <dd>Adust for exposure misclassification and outcome misclassification.</dd>
+      </dl><dl><dt>
+
+          <code><a href="adjust_em_sel.html">adjust_em_sel()</a></code>
+
+        </dt>
+        <dd>Adust for exposure misclassification and selection bias.</dd>
       </dl><dl><dt>
 
           <code><a href="adjust_uc_em_sel.html">adjust_uc_em_sel()</a></code>
@@ -98,10 +132,10 @@
         <dd>Adust for uncontrolled confounding, exposure misclassification, and selection bias.</dd>
       </dl><dl><dt>
 
-          <code><a href="adjust_uc_om.html">adjust_uc_om()</a></code>
+          <code><a href="adjust_uc_em.html">adjust_uc_em()</a></code>
 
         </dt>
-        <dd>Adust for uncontrolled confounding and outcome misclassification.</dd>
+        <dd>Adust for uncontrolled confounding and exposure misclassification.</dd>
       </dl><dl><dt>
 
           <code><a href="adjust_uc_om_sel.html">adjust_uc_om_sel()</a></code>
@@ -110,22 +144,51 @@
         <dd>Adust for uncontrolled confounding, outcome misclassification, and selection bias.</dd>
       </dl><dl><dt>
 
+          <code><a href="adjust_uc_om.html">adjust_uc_om()</a></code>
+
+        </dt>
+        <dd>Adust for uncontrolled confounding and outcome misclassification.</dd>
+      </dl><dl><dt>
+
           <code><a href="adjust_uc_sel.html">adjust_uc_sel()</a></code>
 
         </dt>
         <dd>Adust for uncontrolled confounding and selection bias.</dd>
       </dl><dl><dt>
 
-          <code><a href="data_observed.html">data_observed()</a></code>
+          <code><a href="adjust_om_sel.html">adjust_om_sel()</a></code>
 
         </dt>
-        <dd>Represent observed causal data</dd>
+        <dd>Adust for outcome misclassification and selection bias.</dd>
+      </dl></div><div class="section level2">
+      <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a></h2>
+
+
+
+
+    </div><div class="section level2">
+
+      <h3 id="biased-data">Biased data<a class="anchor" aria-label="anchor" href="#biased-data"></a></h3>
+      <div class="section-desc"><p>Simulated dataframes with known bias of the exposure-outcome effect.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="df_em_om.html">df_em_om</a></code>
+
+        </dt>
+        <dd>Simulated data with exposure misclassification and outcome misclassification</dd>
       </dl><dl><dt>
 
-          <code><a href="data_validation.html">data_validation()</a></code>
+          <code><a href="df_em_sel.html">df_em_sel</a></code>
 
         </dt>
-        <dd>Represent validation causal data</dd>
+        <dd>Simulated data with exposure misclassification and selection bias</dd>
       </dl><dl><dt>
 
           <code><a href="df_em.html">df_em</a></code>
@@ -134,22 +197,75 @@
         <dd>Simulated data with exposure misclassification</dd>
       </dl><dl><dt>
 
-          <code><a href="df_em_om.html">df_em_om</a></code>
+          <code><a href="df_om_sel.html">df_om_sel</a></code>
 
         </dt>
-        <dd>Simulated data with exposure misclassification and outcome misclassification</dd>
+        <dd>Simulated data with outcome misclassification and selection bias</dd>
       </dl><dl><dt>
+
+          <code><a href="df_om.html">df_om</a></code>
+
+        </dt>
+        <dd>Simulated data with outcome misclassification</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_sel.html">df_sel</a></code>
+
+        </dt>
+        <dd>Simulated data with selection bias</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc_em_sel.html">df_uc_em_sel</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding, exposure misclassification, and selection bias</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc_em.html">df_uc_em</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding and exposure misclassification</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc_om_sel.html">df_uc_om_sel</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding, outcome misclassification, and selection bias</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc_om.html">df_uc_om</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding and outcome misclassification</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc_sel.html">df_uc_sel</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding and selection bias</dd>
+      </dl><dl><dt>
+
+          <code><a href="df_uc.html">df_uc</a></code>
+
+        </dt>
+        <dd>Simulated data with uncontrolled confounding</dd>
+      </dl></div><div class="section level2">
+
+      <h3 id="source-for-biased-data">Source for biased data<a class="anchor" aria-label="anchor" href="#source-for-biased-data"></a></h3>
+      <div class="section-desc"><p>Simulated dataframes used to derive the respective biased dataframe, with complete information on the source(s) of bias (i.e., the missing data).</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="df_em_om_source.html">df_em_om_source</a></code>
 
         </dt>
         <dd>Data source for <code>df_em_om</code></dd>
-      </dl><dl><dt>
-
-          <code><a href="df_em_sel.html">df_em_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with exposure misclassification and selection bias</dd>
       </dl><dl><dt>
 
           <code><a href="df_em_sel_source.html">df_em_sel_source</a></code>
@@ -164,18 +280,6 @@
         <dd>Data source for <code>df_em</code></dd>
       </dl><dl><dt>
 
-          <code><a href="df_om.html">df_om</a></code>
-
-        </dt>
-        <dd>Simulated data with outcome misclassification</dd>
-      </dl><dl><dt>
-
-          <code><a href="df_om_sel.html">df_om_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with outcome misclassification and selection bias</dd>
-      </dl><dl><dt>
-
           <code><a href="df_om_sel_source.html">df_om_sel_source</a></code>
 
         </dt>
@@ -188,34 +292,10 @@
         <dd>Data source for <code>df_om</code></dd>
       </dl><dl><dt>
 
-          <code><a href="df_sel.html">df_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with selection bias</dd>
-      </dl><dl><dt>
-
           <code><a href="df_sel_source.html">df_sel_source</a></code>
 
         </dt>
         <dd>Data source for <code>df_sel</code></dd>
-      </dl><dl><dt>
-
-          <code><a href="df_uc.html">df_uc</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding</dd>
-      </dl><dl><dt>
-
-          <code><a href="df_uc_em.html">df_uc_em</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding and exposure misclassification</dd>
-      </dl><dl><dt>
-
-          <code><a href="df_uc_em_sel.html">df_uc_em_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding, exposure misclassification, and selection bias</dd>
       </dl><dl><dt>
 
           <code><a href="df_uc_em_sel_source.html">df_uc_em_sel_source</a></code>
@@ -230,18 +310,6 @@
         <dd>Data source for <code>df_uc_em</code></dd>
       </dl><dl><dt>
 
-          <code><a href="df_uc_om.html">df_uc_om</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding and outcome misclassification</dd>
-      </dl><dl><dt>
-
-          <code><a href="df_uc_om_sel.html">df_uc_om_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding, outcome misclassification, and selection bias</dd>
-      </dl><dl><dt>
-
           <code><a href="df_uc_om_sel_source.html">df_uc_om_sel_source</a></code>
 
         </dt>
@@ -254,12 +322,6 @@
         <dd>Data source for <code>df_uc_om</code></dd>
       </dl><dl><dt>
 
-          <code><a href="df_uc_sel.html">df_uc_sel</a></code>
-
-        </dt>
-        <dd>Simulated data with uncontrolled confounding and selection bias</dd>
-      </dl><dl><dt>
-
           <code><a href="df_uc_sel_source.html">df_uc_sel_source</a></code>
 
         </dt>
@@ -270,14 +332,26 @@
 
         </dt>
         <dd>Data source for <code>df_uc</code></dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+
+      <h3 id="other">Other<a class="anchor" aria-label="anchor" href="#other"></a></h3>
+      <div class="section-desc"><p>Other miscellaneous dataframes for analysis.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="evans.html">evans</a></code>
 
         </dt>
         <dd>Evans County dataset</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
