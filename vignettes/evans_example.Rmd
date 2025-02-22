@@ -59,7 +59,7 @@ We'll treat AGE as a binary indicator of over (1) or under (0) age 60. To adjust
 To derive the necessary bias parameters, let's make the following assumption:
 * the odds of an age>60 is half as likely in smokers than non-smokers
 * the odds of an age>60 is 2.5x in those with CHD than those without CHD
-* the odds of an age>60 is 2x in those with HPT than those without HPT
+* the odds of an age>60 is 2x in those with HPT than those without HPT  
 
 To convert these relationships as parameters in the model, we'll log-transform them from odds ratios. For the model intercept, we can use the following reasoning: what is the probability that a non-smoker (X=0) without CHD (Y=0) and HPT (C=0) is over age 60 in this population? We'll assume this is a 25% probability. We'll use the inverse logit function `qlogis()` from the `stats` package to convert this from a probability to the intercept coefficient of the logistic regression model.
 

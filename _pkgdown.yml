@@ -2,6 +2,24 @@ url: http://www.paulbrendel.com/multibias/
 template:
   bootstrap: 5
 
+navbar:
+  left:
+    - text: "Get Started"
+      href: articles/multibias.html
+    - text: "Vignettes"
+      menu:
+        - text: NHANES Example
+          href: articles/nhanes_example.html
+        - text: Evans Example
+          href: articles/evans_example.html
+        - text: Multibias Validation
+          href: articles/multibias_validation.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Changelog"
+      href: news/index.html
+
+
 reference:
 - title: Functions
 - subtitle: Causal data

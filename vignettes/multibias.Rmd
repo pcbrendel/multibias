@@ -60,9 +60,9 @@ u_coefs <- c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15)
 s_coefs <- c(-0.01, 0.92, 0.94)
 ```
 
-A second option is to specify a validation data source as a `data_validation` object. In order to adjust for a given bias, the validation data must have the corresonding missing data. In the example here, the validation data has additional columns for the missing binary confounder `U` and indicator `S` for whether a given individual was selected into the study.
-
 ### Option 2: Validation data
+
+A second option is to specify a validation data source as a `data_validation` object. In order to adjust for a given bias, the validation data must have the corresonding missing data. In the example here, the validation data has additional columns for the missing binary confounder `U` and indicator `S` for whether a given individual was selected into the study.
 
 ```{r}
 df_validation <- data_validation(
