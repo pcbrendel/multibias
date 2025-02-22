@@ -2,12 +2,19 @@ library(devtools)
 library(tidyverse)
 library(roxygen2)
 
+library(usethis)
+library(pkgdown)
 # library(urlchecker)
 # library(gitcreds)
 # library(available)
 
 # # registerS3method("print", "data_observed", print.data_observed)
 # # registerS3method("print", "data_validation", print.data_validation)
+
+# pkgdown
+# usethis::use_pkgdown_github_pages()
+build_readme() # sync the .md with the .Rmd
+build_site() # local version
 
 # pandoc
 rmarkdown::pandoc_version()

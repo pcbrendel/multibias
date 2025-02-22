@@ -2,3 +2,76 @@ url: http://www.paulbrendel.com/multibias/
 template:
   bootstrap: 5
 
+reference:
+- title: Functions
+- subtitle: Causal data
+  desc: >
+    Combine a dataframe with specification of key variables to create a
+    causal data object. These objects are then used in bias-adjusting functions.
+  contents:
+  - data_observed
+  - data_validation
+- subtitle: Single bias adjustment
+  desc: >
+    For a given exposure and outcome within `data_observed`,
+    obtain an exposure-outcome effect estimate adjusted for a
+    single source of bias.
+  contents:
+  - adjust_em
+  - adjust_om
+  - adjust_sel
+  - adjust_uc
+- subtitle: Multiple bias adjustment
+  desc: >
+    For a given exposure and outcome within `data_observed`,
+    obtain an exposure-outcome effect estimate adjusted for
+    multiple sources of bias.
+  contents:
+  - adjust_em_om
+  - adjust_em_sel
+  - adjust_uc_em_sel
+  - adjust_uc_em
+  - adjust_uc_om_sel
+  - adjust_uc_om
+  - adjust_uc_sel
+  - adjust_om_sel
+
+- title: Data
+- subtitle: Biased data
+  desc: >
+    Simulated dataframes with known bias of the exposure-outcome effect.
+  contents:
+  - df_em_om
+  - df_em_sel
+  - df_em
+  - df_om_sel
+  - df_om
+  - df_sel
+  - df_uc_em_sel
+  - df_uc_em
+  - df_uc_om_sel
+  - df_uc_om
+  - df_uc_sel
+  - df_uc
+- subtitle: Source for biased data
+  desc: >
+    Simulated dataframes used to derive the respective biased dataframe, with
+    complete information on the source(s) of bias (i.e., the missing data).
+  contents:
+  - df_em_om_source
+  - df_em_sel_source
+  - df_em_source
+  - df_om_sel_source
+  - df_om_source
+  - df_sel_source
+  - df_uc_em_sel_source
+  - df_uc_em_source
+  - df_uc_om_sel_source
+  - df_uc_om_source
+  - df_uc_sel_source
+  - df_uc_source
+- subtitle: Other
+  desc: >
+    Other miscellaneous dataframes for analysis.
+  contents:
+  - evans
