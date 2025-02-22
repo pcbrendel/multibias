@@ -20,6 +20,7 @@ Multibias makes it easy to simultaneously adjust for multiple biases in causal i
 ## 1. Identify the biases in your data
 
 All epidemiological biases can be generalized into four main groups:
+
 * Uncontrolled confounding (**uc**)
 * Exposure misclassificaiton (**em**)
 * Outcome misclassificaiton (**om**)
@@ -30,6 +31,7 @@ Multibias is capable of handling bias adjustment for most of the combinations of
 For purposes of demonstration, multibias includes datasets with different bias combinations. For a given bias or biases, it includes the biased data (e.g., `df_uc_sel`: missing a confounder and not including the un-selected subjects) and the source used to derive the biased data (e.g., `df_uc_sel_source`: including data on the missing confounder and subjects who were not selected).
 
 Each dataset has variables defined similarly:
+
 * `X` = binary exposure
 * `Y` = binary outcome
 * `C1-C3` = binary confounders

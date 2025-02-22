@@ -28,6 +28,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
+    MASS,
     testthat (>= 3.0.0)
 URL: https://github.com/pcbrendel/multibias, http://www.paulbrendel.com/multibias/
 BugReports: https://github.com/pcbrendel/multibias/issues
