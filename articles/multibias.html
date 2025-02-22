@@ -79,10 +79,14 @@ steps to performing the analysis.</p>
 <div class="section level3">
 <h3 id="identify-the-biases-in-your-data">1. Identify the biases in your data<a class="anchor" aria-label="anchor" href="#identify-the-biases-in-your-data"></a>
 </h3>
-<p>All epidemiological biases can be generalized into four main groups:
-* Uncontrolled confounding (<strong>uc</strong>) * Exposure
-misclassificaiton (<strong>em</strong>) * Outcome misclassificaiton
-(<strong>om</strong>) * Selection bias (<strong>sel</strong>)</p>
+<p>All epidemiological biases can be generalized into four main
+groups:</p>
+<ul>
+<li>Uncontrolled confounding (<strong>uc</strong>)</li>
+<li>Exposure misclassificaiton (<strong>em</strong>)</li>
+<li>Outcome misclassificaiton (<strong>om</strong>)</li>
+<li>Selection bias (<strong>sel</strong>)</li>
+</ul>
 <p>Multibias is capable of handling bias adjustment for most of the
 combinations of the above four biases. Choose the <code>adjust()</code>
 function corresponding to the biases of interest using the appropriate
@@ -94,9 +98,15 @@ biased data (e.g., <code>df_uc_sel</code>: missing a confounder and not
 including the un-selected subjects) and the source used to derive the
 biased data (e.g., <code>df_uc_sel_source</code>: including data on the
 missing confounder and subjects who were not selected).</p>
-<p>Each dataset has variables defined similarly: * <code>X</code> =
-binary exposure * <code>Y</code> = binary outcome * <code>C1-C3</code> =
-binary confounders</p>
+<p>Each dataset has variables defined similarly:</p>
+<ul>
+<li>
+<code>X</code> = binary exposure</li>
+<li>
+<code>Y</code> = binary outcome</li>
+<li>
+<code>C1-C3</code> = binary confounders</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="create-data_observed">2. Create data_observed<a class="anchor" aria-label="anchor" href="#create-data_observed"></a>

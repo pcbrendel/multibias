@@ -136,10 +136,15 @@ the appropriate bias model for a binary uncontrolled confounder:
 logit(P(U=1)) = α<sub>0</sub> + α<sub>1</sub>X + α<sub>2</sub>Y +
 α<sub>2+j</sub>C<sub>j</sub>.</p>
 <p>To derive the necessary bias parameters, let’s make the following
-assumption: * the odds of an age&gt;60 is half as likely in smokers than
-non-smokers * the odds of an age&gt;60 is 2.5x in those with CHD than
-those without CHD * the odds of an age&gt;60 is 2x in those with HPT
-than those without HPT</p>
+assumption:</p>
+<ul>
+<li>the odds of an age&gt;60 is half as likely in smokers than
+non-smokers</li>
+<li>the odds of an age&gt;60 is 2.5x in those with CHD than those
+without CHD</li>
+<li>the odds of an age&gt;60 is 2x in those with HPT than those without
+HPT</li>
+</ul>
 <p>To convert these relationships as parameters in the model, we’ll
 log-transform them from odds ratios. For the model intercept, we can use
 the following reasoning: what is the probability that a non-smoker (X=0)
