@@ -76,7 +76,7 @@ df_validation <- data_validation(
 )
 ```
 
-# 4. Run the bias adjustment
+## 4. Run the bias adjustment
 
 Finally, we can run the multi-bias adjustment!
 

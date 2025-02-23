@@ -21,13 +21,13 @@ library(multibias)
 library(dplyr)
 ```
 
-For this demonstration in multi-bias analysis, we'll be using the 2013-2018 National Health and Nutrition Examination Survey (NHANES) data linked to the CDC's 2019 public-use mortality data. Within NHANES, we have data linked across demographics, 24-hour dietary recall, alcohol use, and smoking use.
+For this demonstration in multi-bias analysis, we'll be using the 2013-2018 [National Health and Nutrition Examination Survey](https://www.cdc.gov/nchs/nhanes/about/index.html) (NHANES) data linked to the [CDC's 2019 public-use mortality data](https://www.cdc.gov/nchs/data-linkage/mortality-public.htm). Within NHANES, we have data linked across demographics, 24-hour dietary recall, alcohol use, and smoking use.
 
 ```{r}
 nhanes <- read.csv("nhanes.csv")
 ```
 
-We'll be assessing the risk of alcohol intake on all-cause mortality. We're specifically going to zoom in on the comparison of "extreme" drinkers to "non-extreme" drinkers. We filter out participants who reported having no alcohol over the past twelve months and create a sex-specific `alcohol_extreme` feature based off of USDGA guidelines of 14 g/day for women and 28 g/day for men. Participants are "extreme drinkers" if they reported drinking more than 1.5x these guidelines.
+We'll be assessing the risk of alcohol intake on all-cause mortality. We're specifically going to zoom in on the comparison of "extreme" drinkers to "non-extreme" drinkers. We filter out participants who reported having no alcohol over the past twelve months and create a sex-specific `alcohol_extreme` feature based off of [USDGA guidelines](https://www.dietaryguidelines.gov/alcohol/info) of 14 g/day for women and 28 g/day for men. Participants are "extreme drinkers" if they reported drinking more than 1.5x these guidelines.
 
 ```{r}
 nhanes_filtered <- nhanes |>
@@ -43,7 +43,7 @@ nhanes_filtered <- nhanes |>
 
 Inspecting the exposure-outcome counts, we are dealing with a rare exposure and rare outcome.
 
-```{r}
+```{r, message = FALSE}
 nhanes_filtered |>
   group_by(alcohol_extreme, mortstat) |>
   summarize(count = n()) |>
@@ -53,7 +53,7 @@ nhanes_filtered |>
 
 There are no major age/gender differences among the exposures.
 
-```{r}
+```{r, message = FALSE}
 nhanes_filtered |>
   group_by(alcohol_extreme) |>
   summarize(
@@ -64,7 +64,7 @@ nhanes_filtered |>
 
 To no surprise, age is higher in those who die.
 
-```{r}
+```{r, message = FALSE}
 nhanes_filtered |>
   group_by(mortstat) |>
   summarize(
