@@ -76,9 +76,9 @@
 <p>Multibias makes it easy to simultaneously adjust for multiple biases
 in causal inference research. This document walks you through the key
 steps to performing the analysis.</p>
-<div class="section level3">
-<h3 id="identify-the-biases-in-your-data">1. Identify the biases in your data<a class="anchor" aria-label="anchor" href="#identify-the-biases-in-your-data"></a>
-</h3>
+<div class="section level2">
+<h2 id="identify-the-biases-in-your-data">1. Identify the biases in your data<a class="anchor" aria-label="anchor" href="#identify-the-biases-in-your-data"></a>
+</h2>
 <p>All epidemiological biases can be generalized into four main
 groups:</p>
 <ul>
@@ -108,9 +108,9 @@ missing confounder and subjects who were not selected).</p>
 <code>C1-C3</code> = binary confounders</li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="create-data_observed">2. Create data_observed<a class="anchor" aria-label="anchor" href="#create-data_observed"></a>
-</h3>
+<div class="section level2">
+<h2 id="create-data_observed">2. Create data_observed<a class="anchor" aria-label="anchor" href="#create-data_observed"></a>
+</h2>
 <p>Each <code>adjust()</code> function in multibias requires inputting
 your observed, biased data as a <code>data_observed</code> object. Here
 you specify the dataframe and identify the key variables in the
@@ -123,14 +123,14 @@ data.</p>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="obtain-source-for-bias-adjustment">3. Obtain source for bias adjustment<a class="anchor" aria-label="anchor" href="#obtain-source-for-bias-adjustment"></a>
-</h3>
+<div class="section level2">
+<h2 id="obtain-source-for-bias-adjustment">3. Obtain source for bias adjustment<a class="anchor" aria-label="anchor" href="#obtain-source-for-bias-adjustment"></a>
+</h2>
 <p>Next, you need to have some information that can be used to quantify
 the assumed bias or biases. There are two options here.</p>
-<div class="section level4">
-<h4 id="option-1-bias-parameters">Option 1: Bias parameters<a class="anchor" aria-label="anchor" href="#option-1-bias-parameters"></a>
-</h4>
+<div class="section level3">
+<h3 id="option-1-bias-parameters">Option 1: Bias parameters<a class="anchor" aria-label="anchor" href="#option-1-bias-parameters"></a>
+</h3>
 <p>One option is to list the assumed parameters for the corresponding
 bias equations. The necessary bias equations are provided in the
 documentation of each <code>adjust()</code> function. These equations
@@ -142,9 +142,9 @@ indicator <code>S</code> (as the vector <code>s_coefs</code>).</p>
 <code class="sourceCode R"><span><span class="va">u_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.19</span>, <span class="fl">0.61</span>, <span class="fl">0.72</span>, <span class="op">-</span><span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="op">-</span><span class="fl">0.15</span><span class="op">)</span></span>
 <span><span class="va">s_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.92</span>, <span class="fl">0.94</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="option-2-validation-data">Option 2: Validation data<a class="anchor" aria-label="anchor" href="#option-2-validation-data"></a>
-</h4>
+<div class="section level3">
+<h3 id="option-2-validation-data">Option 2: Validation data<a class="anchor" aria-label="anchor" href="#option-2-validation-data"></a>
+</h3>
 <p>A second option is to specify a validation data source as a
 <code>data_validation</code> object. In order to adjust for a given
 bias, the validation data must have the corresonding missing data. In
@@ -165,9 +165,9 @@ for whether a given individual was selected into the study.</p>
 <h2 id="run-the-bias-adjustment">4. Run the bias adjustment<a class="anchor" aria-label="anchor" href="#run-the-bias-adjustment"></a>
 </h2>
 <p>Finally, we can run the multi-bias adjustment!</p>
-<div class="section level4">
-<h4 id="single-run">Single run<a class="anchor" aria-label="anchor" href="#single-run"></a>
-</h4>
+<div class="section level3">
+<h3 id="single-run">Single run<a class="anchor" aria-label="anchor" href="#single-run"></a>
+</h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/adjust_uc_sel.html">adjust_uc_sel</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
@@ -195,9 +195,9 @@ is approximately 2. This effect can be compared to the effect observed
 in the biased data to understand whether systematic error is bringing
 the observed effect closer to the null or further from the null.</p>
 </div>
-<div class="section level4">
-<h4 id="bootstrapping">Bootstrapping<a class="anchor" aria-label="anchor" href="#bootstrapping"></a>
-</h4>
+<div class="section level3">
+<h3 id="bootstrapping">Bootstrapping<a class="anchor" aria-label="anchor" href="#bootstrapping"></a>
+</h3>
 <p>Multibias performs bias adjustment via a combination of imputation
 and/or regression weighting. When imputation is involved, there will be
 some inherent randomness in the sampling. A single run, therefore, will

@@ -80,19 +80,20 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pcbrendel/multibias" class="external-link">multibias</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 <p>For this demonstration in multi-bias analysis, we’ll be using the
-2013-2018 National Health and Nutrition Examination Survey (NHANES) data
-linked to the CDC’s 2019 public-use mortality data. Within NHANES, we
-have data linked across demographics, 24-hour dietary recall, alcohol
-use, and smoking use.</p>
+2013-2018 <a href="https://www.cdc.gov/nchs/nhanes/about/index.html" class="external-link">National Health
+and Nutrition Examination Survey</a> (NHANES) data linked to the <a href="https://www.cdc.gov/nchs/data-linkage/mortality-public.htm" class="external-link">CDC’s
+2019 public-use mortality data</a>. Within NHANES, we have data linked
+across demographics, 24-hour dietary recall, alcohol use, and smoking
+use.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nhanes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"nhanes.csv"</span><span class="op">)</span></span></code></pre></div>
 <p>We’ll be assessing the risk of alcohol intake on all-cause mortality.
 We’re specifically going to zoom in on the comparison of “extreme”
 drinkers to “non-extreme” drinkers. We filter out participants who
 reported having no alcohol over the past twelve months and create a
-sex-specific <code>alcohol_extreme</code> feature based off of USDGA
-guidelines of 14 g/day for women and 28 g/day for men. Participants are
-“extreme drinkers” if they reported drinking more than 1.5x these
+sex-specific <code>alcohol_extreme</code> feature based off of <a href="https://www.dietaryguidelines.gov/alcohol/info" class="external-link">USDGA
+guidelines</a> of 14 g/day for women and 28 g/day for men. Participants
+are “extreme drinkers” if they reported drinking more than 1.5x these
 guidelines.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">&lt;-</span> <span class="va">nhanes</span> <span class="op">|&gt;</span></span>
@@ -112,8 +113,6 @@ exposure and rare outcome.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>proportion <span class="op">=</span> <span class="va">count</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'alcohol_extreme'. You can override using</span></span>
-<span><span class="co">#&gt; the `.groups` argument.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
 <span><span class="co">#&gt;   alcohol_extreme mortstat count proportion</span></span>
 <span><span class="co">#&gt;             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
