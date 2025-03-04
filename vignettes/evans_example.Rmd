@@ -21,6 +21,7 @@ library(multibias)
 We are interested in quantifying the effect of smoking (SMK) on coronary heart disease (CHD) using data from the [Evans County Heart Study](https://en.wikipedia.org/wiki/Evans_County_Heart_Study). Let's inspect the dataframe we have for 609 participants aged 40 and older.
 
 ```{r, eval = TRUE}
+evans <- read.csv("evans.csv")
 head(evans)
 ```
 
