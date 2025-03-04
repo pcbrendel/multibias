@@ -243,24 +243,6 @@ adjust_em_coef <- function(
 
 #' Adust for exposure misclassification.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc()` was renamed to `adjust_em()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc <- function(
-    data_observed,
-    x_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc()", "adjust_em()")
-  adjust_em(data_observed, x_model_coefs, level)
-}
-
-
-#' Adust for exposure misclassification.
-#'
 #' `adjust_em` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassificaiton.
 #'

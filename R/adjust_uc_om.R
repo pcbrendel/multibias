@@ -545,38 +545,6 @@ adjust_uc_om_coef_multinom <- function(
 
 #' Adust for uncontrolled confounding and outcome misclassification.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_uc_omc_sel()` was renamed to `adjust_uc_om_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_uc_omc <- function(
-    data_observed,
-    u_model_coefs = NULL,
-    y_model_coefs = NULL,
-    u0y1_model_coefs = NULL,
-    u1y0_model_coefs = NULL,
-    u1y1_model_coefs = NULL,
-    level = 0.95) {
-  lifecycle::deprecate_warn(
-    "1.5.3", "adjust_uc_omc()", "adjust_uc_om()"
-  )
-  adjust_uc_om(
-    data_observed,
-    u_model_coefs,
-    y_model_coefs,
-    u0y1_model_coefs,
-    u1y0_model_coefs,
-    u1y1_model_coefs,
-    level
-  )
-}
-
-
-#' Adust for uncontrolled confounding and outcome misclassification.
-#'
 #' `adjust_uc_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for uncontrolled confounding and outcome
 #' misclassificaiton.

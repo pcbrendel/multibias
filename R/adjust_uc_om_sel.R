@@ -682,41 +682,6 @@ adjust_uc_om_sel_coef_multinom <- function(
 #' Adust for uncontrolled confounding, outcome misclassification, and selection
 #' bias.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_uc_omc_sel()` was renamed to `adjust_uc_om_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_uc_omc_sel <- function(
-    data_observed,
-    u_model_coefs = NULL,
-    y_model_coefs = NULL,
-    u0y1_model_coefs = NULL,
-    u1y0_model_coefs = NULL,
-    u1y1_model_coefs = NULL,
-    s_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn(
-    "1.5.3", "adjust_uc_omc_sel()", "adjust_uc_om_sel()"
-  )
-  adjust_uc_om_sel(
-    data_observed,
-    u_model_coefs,
-    y_model_coefs,
-    u0y1_model_coefs,
-    u1y0_model_coefs,
-    u1y1_model_coefs,
-    s_model_coefs,
-    level
-  )
-}
-
-
-#' Adust for uncontrolled confounding, outcome misclassification, and selection
-#' bias.
-#'
 #' `adjust_uc_om_sel` returns the exposure-outcome odds ratio and
 #' confidence interval, adjusted for uncontrolled confounding, outcome
 #' misclassificaiton, and selection bias.

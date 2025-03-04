@@ -195,24 +195,6 @@ adjust_om_coef <- function(
 
 #' Adust for outcome misclassification.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_omc()` was renamed to `adjust_om()`
-#' @keywords internal
-#'
-#' @export
-adjust_omc <- function(
-    data_observed,
-    y_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_omc()", "adjust_om()")
-  adjust_om(data_observed, y_model_coefs, level)
-}
-
-
-#' Adust for outcome misclassification.
-#'
 #' `adjust_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for outcome misclassificaiton.
 #'

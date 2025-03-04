@@ -563,36 +563,6 @@ adjust_em_om_coef_multinom <- function(
 
 #' Adust for exposure misclassification and outcome misclassification.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc_omc()` was renamed to `adjust_em_om()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc_omc <- function(
-    data_observed,
-    x_model_coefs = NULL,
-    y_model_coefs = NULL,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
-  adjust_em_om(
-    data_observed,
-    x_model_coefs,
-    y_model_coefs,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level
-  )
-}
-
-
-#' Adust for exposure misclassification and outcome misclassification.
-#'
 #' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and outcome
 #' misclassification.

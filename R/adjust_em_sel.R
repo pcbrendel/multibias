@@ -365,30 +365,6 @@ adjust_em_sel_coef <- function(
 
 #' Adust for exposure misclassification and selection bias.
 #'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc_sel()` was renamed to `adjust_em_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc_sel <- function(
-    data_observed,
-    x_model_coefs,
-    s_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc_sel()", "adjust_em_sel()")
-  adjust_em_sel(
-    data_observed,
-    x_model_coefs,
-    s_model_coefs,
-    level
-  )
-}
-
-
-#' Adust for exposure misclassification and selection bias.
-#'
 #' `adjust_em_sel` returns the exposure-outcome odds ratio and confidence
 #' interval, adjusted for exposure misclassification and selection bias.
 #'
