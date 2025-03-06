@@ -4,10 +4,16 @@
 \alias{data_observed}
 \title{Represent observed causal data}
 \usage{
-data_observed(data, exposure, outcome, confounders = NULL)
+data_observed(data, bias, exposure, outcome, confounders = NULL)
 }
 \arguments{
 \item{data}{Dataframe for bias analysis.}
+
+\item{bias}{String type(s) of bias distorting the effect of the exposure
+on the outcome. Can choose from a subset of the following: "uc", "em", "om",
+"sel". These correspond to uncontrolled confounding, exposure
+misclassification, outcome misclassification, and selection bias,
+respectively.}
 
 \item{exposure}{String name of the column in \code{data} corresponding to the
 exposure variable.}
@@ -26,6 +32,7 @@ an essential input of all \code{adjust} functions.
 \examples{
 df <- data_observed(
   data = df_sel,
+  bias = "uc",
   exposure = "X",
   outcome = "Y",
   confounders = c("C1", "C2", "C3")
