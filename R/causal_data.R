@@ -115,9 +115,10 @@ print.data_observed <- function(x, ...) {
 #' Represent validation causal data
 #'
 #' @description
-#' `data_validation` combines the validation dataframe with specific
-#' identification of the appropriate columns for bias adjustment, including:
-#' true exposure, true outcome, confounders, misclassified exposure,
+#' `data_validation` is one of two different options to represent bias
+#' assumptions for bias adjustment. It combines the validation dataframe
+#' with specific identification of the appropriate columns for bias adjustment,
+#' including: true exposure, true outcome, confounders, misclassified exposure,
 #' misclassified outcome, and selection. The purpose of validation data is to
 #' use an external data source to transport the necessary causal relationships
 #' that are missing in the observed data.
