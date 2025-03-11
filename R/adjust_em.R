@@ -264,13 +264,7 @@ adjust_em_coef <- function(
 #' validation data should have data for the same variables as in the observed
 #' data, plus data for the true and misclassified exposure corresponding to the
 #' observed exposure in `data_observed`.
-#' @param x_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta_{2+j} C_j, }}
-#' where *X* represents the binary true exposure, *X** is the binary
-#' misclassified exposure, *Y* is the outcome, *C* represents
-#' the vector of measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders. The number
-#' of parameters is therefore 3 + *j*.
+#' @param bias_params Object of class 'bias_params'
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #'
@@ -301,9 +295,11 @@ adjust_em_coef <- function(
 #' )
 #'
 #' # Using x_model_coefs -------------------------------------------------------
+#' bp <- bias_params(coef_list = list(x = c(-2.10, 1.62, 0.63, 0.35)))
+#'
 #' adjust_em(
 #'   data_observed = df_observed,
-#'   x_model_coefs = c(-2.10, 1.62, 0.63, 0.35)
+#'   bias_params = bp
 #' )
 #'
 #' @import dplyr
@@ -322,14 +318,14 @@ adjust_em_coef <- function(
 adjust_em <- function(
     data_observed,
     data_validation = NULL,
-    x_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
   if (
-    (!is.null(data_validation) && !is.null(x_model_coefs)) ||
-      (is.null(data_validation) && is.null(x_model_coefs))
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
   ) {
     stop(
-      "One of data_validation or x_model_coefs must be non-null.",
+      "One of data_validation or bias_params must be non-null.",
       call. = FALSE
     )
   }
@@ -349,10 +345,16 @@ adjust_em <- function(
       data_observed,
       data_validation
     )
-  } else if (!is.null(x_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$x)) {
+      stop(
+        "bias_params must specify parameters for x to adjust for exposure misclassification",
+        call. = FALSE
+      )
+    }
     final <- adjust_em_coef(
       data_observed,
-      x_model_coefs
+      x_model_coefs = bias_params$coef_list$x
     )
   }
 
