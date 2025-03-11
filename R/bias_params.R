@@ -139,7 +139,7 @@ bias_params <- function(coef_list) {
     }
   }
 
-  obj <- list(data = coef_list)
+  obj <- list(coef_list = coef_list)
   class(obj) <- "bias_params"
 
   return(obj)
@@ -150,9 +150,9 @@ bias_params <- function(coef_list) {
 print.bias_params <- function(x, ...) {
   cat("Bias Parameters\n")
   cat("---------------------------------\n")
-  for (key in names(x$data)) {
+  for (key in names(x$coef_list)) {
     cat("Model", key, "\n")
-    cat("  Coefs: ", paste(x$data[[key]], collapse = ", "), "\n")
+    cat("  Coefs: ", paste(x$coef_list[[key]], collapse = ", "), "\n")
   }
   invisible(x)
 }

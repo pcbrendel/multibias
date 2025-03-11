@@ -65,7 +65,7 @@ data_observed <- function(
       paste0(
         "Unacceptable bias input. ",
         "Biases must include a subset of the following: ",
-        acceptable_biases
+        "uc, em, om, sel"
       )
     )
   }
