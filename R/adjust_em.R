@@ -294,7 +294,7 @@ adjust_em_coef <- function(
 #'   data_validation = df_validation
 #' )
 #'
-#' # Using x_model_coefs -------------------------------------------------------
+#' # Using bias_params ---------------------------------------------------------
 #' bp <- bias_params(coef_list = list(x = c(-2.10, 1.62, 0.63, 0.35)))
 #'
 #' adjust_em(

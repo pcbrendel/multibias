@@ -216,13 +216,7 @@ adjust_om_coef <- function(
 #' validation data should have data for the same variables as in the observed
 #' data, plus data for the true and misclassified outcome corresponding to the
 #' observed outcome in `data_observed`.
-#' @param y_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \_delta_0 + \_delta_1 X + \_delta_2 Y^* + \_delta_{2+j} C_j, }}
-#' where *Y* represents the binary true outcome, *X* is the exposure,
-#' *Y** is the binary misclassified outcome,
-#' *C* represents the vector of measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders. The number
-#' of parameters is therefore 3 + *j*.
+#' @param bias_params Object of class 'bias_params'
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #'
@@ -233,6 +227,7 @@ adjust_om_coef <- function(
 #' @examples
 #' df_observed <- data_observed(
 #'   data = df_om,
+#'   bias = "om",
 #'   exposure = "X",
 #'   outcome = "Ystar",
 #'   confounders = "C1"
@@ -251,10 +246,12 @@ adjust_om_coef <- function(
 #'   data_validation = df_validation
 #' )
 #'
-#' # Using y_model_coefs -------------------------------------------------------
+#' # Using bias_params __-------------------------------------------------------
+#' bp <- bias_params(coef_list = list(y = c(-3.1, 0.6, 1.6, 0.4)))
+#'
 #' adjust_om(
 #'   data_observed = df_observed,
-#'   y_model_coefs = c(-3.1, 0.6, 1.6, 0.4)
+#'   bias_params = bp
 #' )
 #'
 #' @import dplyr
@@ -272,14 +269,14 @@ adjust_om_coef <- function(
 adjust_om <- function(
     data_observed,
     data_validation = NULL,
-    y_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
   if (
-    (!is.null(data_validation) && !is.null(y_model_coefs)) ||
-      (is.null(data_validation) && is.null(y_model_coefs))
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
   ) {
     stop(
-      "One of data_validation or y_model_coefs must be non-null.",
+      "One of data_validation or bias_params must be non-null.",
       call. = FALSE
     )
   }
@@ -290,10 +287,16 @@ adjust_om <- function(
       data_observed,
       data_validation
     )
-  } else if (!is.null(y_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$y)) {
+      stop(
+        "bias_params must specify parameters for y to adjust for outcome misclassification",
+        call. = FALSE
+      )
+    }
     final <- adjust_om_coef(
       data_observed,
-      y_model_coefs
+      y_model_coefs = bias_params$coef_list$y
     )
   }
 

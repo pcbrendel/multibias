@@ -257,10 +257,7 @@ adjust_sel_coef <- function(
 #' validation data should have data for the same variables as in the observed
 #' data, plus data for the selection indicator representing whether the
 #' observation was selected in `data_observed`.
-#' @param s_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#' where *S* represents binary selection, *X* is the exposure,
-#' and *Y* is the outcome. The number of parameters is therefore 3.
+#' @param bias_params Object of class 'bias_params'
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #'
@@ -271,6 +268,7 @@ adjust_sel_coef <- function(
 #' @examples
 #' df_observed <- data_observed(
 #'   data = df_sel,
+#'   bias = "sel",
 #'   exposure = "X",
 #'   outcome = "Y",
 #'   confounders = "C1"
@@ -290,7 +288,9 @@ adjust_sel_coef <- function(
 #'   data_validation = df_validation
 #' )
 #'
-#' # Using s_model_coefs -------------------------------------------------------
+#' # Using bias_params ---------------------------------------------------------
+#' bp <- bias_params(coef_list = list(s = c(0, 0.9, 0.9)))
+#'
 #' adjust_sel(
 #'   data_observed = df_observed,
 #'   s_model_coefs = c(0, 0.9, 0.9)
@@ -311,14 +311,14 @@ adjust_sel_coef <- function(
 adjust_sel <- function(
     data_observed,
     data_validation = NULL,
-    s_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
   if (
-    (!is.null(data_validation) && !is.null(s_model_coefs)) ||
-      (is.null(data_validation) && is.null(s_model_coefs))
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
   ) {
     stop(
-      "One of data_validation or s_model_coefs must be non-null.",
+      "One of data_validation or bias_params must be non-null.",
       call. = FALSE
     )
   }
@@ -338,10 +338,16 @@ adjust_sel <- function(
       data_observed,
       data_validation
     )
-  } else if (!is.null(s_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$s)) {
+      stop(
+        "bias_params must specify parameters for s to adjust for selection bias",
+        call. = FALSE
+      )
+    }
     final <- adjust_sel_coef(
       data_observed,
-      s_model_coefs
+      s_model_coefs = bias_params$coef_list$s
     )
   }
 
