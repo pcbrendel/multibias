@@ -7,11 +7,7 @@
 adjust_em_om(
   data_observed,
   data_validation = NULL,
-  x_model_coefs = NULL,
-  y_model_coefs = NULL,
-  x1y0_model_coefs = NULL,
-  x0y1_model_coefs = NULL,
-  x1y1_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -25,48 +21,7 @@ validation data should have data for the same variables as in the observed
 data, plus data for the true and misclassified exposure and outcome
 corresponding to the observed exposure and outcome in \code{data_observed}.}
 
-\item{x_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
-where \emph{X} represents the binary true exposure, \emph{X}* is the
-binary misclassified exposure, \emph{Y}* is the binary misclassified
-outcome, \emph{C} represents the vector of
-measured confounders (if any), and \emph{j} corresponds to the number
-of measured confounders. The number of parameters is therefore 3 + \emph{j}.}
-
-\item{y_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(Y=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta{{2+j}} C_j, }}
-where \emph{Y} represents the binary true outcome,
-\emph{X} is the binary exposure, \emph{Y}* is the binary
-misclassified outcome, \emph{C} represents the vector of measured
-confounders (if any), and \emph{j} corresponds to the number of measured
-confounders. The number of parameters is therefore 3 + \emph{j}.}
-
-\item{x1y0_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
-is the binary misclassified outcome, \emph{C} represents the vector of
-measured confounders (if any), and \emph{j} corresponds to the
-number of measured confounders.}
-
-\item{x0y1_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j, }}
-where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
-is the binary misclassified outcome, \emph{C} represents the vector of
-measured confounders (if any),
-and \emph{j} corresponds to the number of measured confounders.}
-
-\item{x1y1_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
-where \emph{X} is the binary true exposure, \emph{Y} is the binary
-true outcome, \emph{X}* is the binary misclassified exposure, \emph{Y}*
-is the binary misclassified outcome, \emph{C} represents the vector of
-measured confounders (if any),
-and \emph{j} corresponds to the number of measured confounders.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -102,6 +57,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_em_om,
+  bias = c("em", "om"),
   exposure = "Xstar",
   outcome = "Ystar",
   confounders = "C1"
@@ -122,19 +78,30 @@ adjust_em_om(
   data_validation = df_validation
 )
 
-# Using x_model_coefs and y_model_coefs -------------------------------------
-adjust_em_om(
-  data_observed = df_observed,
-  x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
-  y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
+# Using bias_params ---------------------------------------------------------
+bp1 <- bias_params(
+  coef_list = list(
+    x = c(-2.15, 1.64, 0.35, 0.38),
+    y = c(-3.10, 0.63, 1.60, 0.39)
+  )
 )
 
-# Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
 adjust_em_om(
   data_observed = df_observed,
-  x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
-  x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
-  x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
+  bias_params = bp1
+)
+
+bp2 <- bias_params(
+  coef_list = list(
+    x1y0 = c(-2.18, 1.63, 0.23, 0.36),
+    x0y1 = c(-3.17, 0.22, 1.60, 0.40),
+    x1y1 = c(-4.76, 1.82, 1.83, 0.72)
+  )
+)
+
+adjust_em_om(
+  data_observed = df_observed,
+  bias_params = bp2
 )
 
 }

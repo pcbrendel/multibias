@@ -7,7 +7,7 @@
 adjust_uc(
   data_observed,
   data_validation = NULL,
-  u_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -20,13 +20,7 @@ the validation data used to adjust for bias in the observed data. Here, the
 validation data should have data for the same variables as in the observed
 data, plus data for the confounder missing in \code{data_observed}.}
 
-\item{u_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-exposure, \emph{Y} is the outcome, \emph{C} represents the vector of
-measured confounders (if any),
-and \emph{j} corresponds to the number of measured confounders.
-The number of parameters therefore equals 3 + \emph{j}.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -55,6 +49,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_uc,
+  bias = "uc",
   exposure = "X_bi",
   outcome = "Y_bi",
   confounders = c("C1", "C2", "C3")
@@ -73,10 +68,12 @@ adjust_uc(
   data_validation = df_validation
 )
 
-# Using u_model_coefs -------------------------------------------------------
+# Using bias_params ---------------------------------------------------------
+bp <- bias_params(coef_list = list(u = c(-0.19, 0.61, 0.70, -0.09, 0.10, -0.15)))
+
 adjust_uc(
   data_observed = df_observed,
-  u_model_coefs = c(-0.19, 0.61, 0.70, -0.09, 0.10, -0.15)
+  bias_params = bp
 )
 
 }

@@ -7,7 +7,7 @@
 adjust_om(
   data_observed,
   data_validation = NULL,
-  y_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -21,13 +21,7 @@ validation data should have data for the same variables as in the observed
 data, plus data for the true and misclassified outcome corresponding to the
 observed outcome in \code{data_observed}.}
 
-\item{y_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \_delta_0 + \_delta_1 X + \_delta_2 Y^* + \_delta_{2+j} C_j, }}
-where \emph{Y} represents the binary true outcome, \emph{X} is the exposure,
-\emph{Y}* is the binary misclassified outcome,
-\emph{C} represents the vector of measured confounders (if any),
-and \emph{j} corresponds to the number of measured confounders. The number
-of parameters is therefore 3 + \emph{j}.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -56,6 +50,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_om,
+  bias = "om",
   exposure = "X",
   outcome = "Ystar",
   confounders = "C1"
@@ -74,10 +69,12 @@ adjust_om(
   data_validation = df_validation
 )
 
-# Using y_model_coefs -------------------------------------------------------
+# Using bias_params __-------------------------------------------------------
+bp <- bias_params(coef_list = list(y = c(-3.1, 0.6, 1.6, 0.4)))
+
 adjust_om(
   data_observed = df_observed,
-  y_model_coefs = c(-3.1, 0.6, 1.6, 0.4)
+  bias_params = bp
 )
 
 }

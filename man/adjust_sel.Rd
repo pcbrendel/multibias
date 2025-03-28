@@ -7,7 +7,7 @@
 adjust_sel(
   data_observed,
   data_validation = NULL,
-  s_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -21,10 +21,7 @@ validation data should have data for the same variables as in the observed
 data, plus data for the selection indicator representing whether the
 observation was selected in \code{data_observed}.}
 
-\item{s_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-where \emph{S} represents binary selection, \emph{X} is the exposure,
-and \emph{Y} is the outcome. The number of parameters is therefore 3.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -53,6 +50,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_sel,
+  bias = "sel",
   exposure = "X",
   outcome = "Y",
   confounders = "C1"
@@ -72,7 +70,9 @@ adjust_sel(
   data_validation = df_validation
 )
 
-# Using s_model_coefs -------------------------------------------------------
+# Using bias_params ---------------------------------------------------------
+bp <- bias_params(coef_list = list(s = c(0, 0.9, 0.9)))
+
 adjust_sel(
   data_observed = df_observed,
   s_model_coefs = c(0, 0.9, 0.9)
