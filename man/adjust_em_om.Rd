@@ -38,14 +38,8 @@ misclassification.
 }
 \details{
 Bias adjustment can be performed by inputting either a validation dataset or
-the necessary bias parameters. Two different options for the bias parameters
-are available here: 1) parameters from separate models of \emph{X} and \emph{Y}
-(\code{x_model_coefs} and \code{y_model_coefs}) or 2) parameters from
-a joint model of \emph{X} and \emph{Y} (\code{x1y0_model_coefs},
-\code{x0y1_model_coefs}, and \code{x1y1_model_coefs}).
-
-Values for the regression coefficients can be applied as
-fixed values or as single draws from a probability
+the necessary bias parameters. Values for the bias parameters
+can be applied as fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
 the advantage of allowing the researcher to capture the uncertainty
 in the bias parameter estimates. To incorporate this uncertainty in the

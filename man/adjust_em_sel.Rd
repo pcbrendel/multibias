@@ -7,8 +7,7 @@
 adjust_em_sel(
   data_observed,
   data_validation = NULL,
-  x_model_coefs = NULL,
-  s_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -24,21 +23,7 @@ corresponding to the observed exposure in \code{data_observed}. There should als
 be a selection indicator representing whether the observation in
 \code{data_validation} was selected in \code{data_observed}.}
 
-\item{x_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y + \delta{2+j} C_j, }}
-where \emph{X} represents the binary true exposure, \emph{X}* is the
-binary misclassified exposure, \emph{Y} is the outcome,
-\emph{C} represents the vector of
-measured confounders (if any), and \emph{j} corresponds to the number of
-measured confounders. The number of parameters is therefore 3 + \emph{j}.}
-
-\item{s_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X* + &beta;<sub>2</sub>Y + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X^* + \beta_2 Y + \beta{{2+j}} C_j, }}
-where \emph{S} represents binary selection, \emph{X}* is the
-binary misclassified exposure,
-\emph{Y} is the outcome, \emph{C} represents the vector of
-measured confounders (if any), and \emph{j} corresponds to the number of
-measured confounders. The number of parameters is therefore 3 + \emph{j}.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -67,6 +52,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_em_sel,
+  bias = c("em", "sel"),
   exposure = "Xstar",
   outcome = "Y",
   confounders = "C1"
@@ -87,11 +73,17 @@ adjust_em_sel(
   data_validation = df_validation
 )
 
-# Using x_model_coefs and s_model_coefs -------------------------------------
+# Using bias_params ---------------------------------------------------------
+bp <- bias_params(
+  coef_list = c(
+    x = c(-2.78, 1.62, 0.58, 0.34),
+    s = c(0.04, 0.18, 0.92, 0.05)
+  )
+)
+
 adjust_em_sel(
   data_observed = df_observed,
-  x_model_coefs = c(-2.78, 1.62, 0.58, 0.34),
-  s_model_coefs = c(0.04, 0.18, 0.92, 0.05)
+  bias_params = bp
 )
 
 }
