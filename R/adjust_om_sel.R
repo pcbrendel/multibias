@@ -305,33 +305,6 @@ adjust_om_sel_coef <- function(
 }
 
 
-
-#' Adust for outcome misclassification and selection bias.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_omc_sel()` was renamed to `adjust_om_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_omc_sel <- function(
-    data_observed,
-    y_model_coefs,
-    s_model_coefs,
-    level = 0.95) {
-  lifecycle::deprecate_warn(
-    "1.5.3", "adjust_omc_sel()", "adjust_om_sel()"
-  )
-  adjust_om_sel(
-    data_observed,
-    y_model_coefs,
-    s_model_coefs,
-    level
-  )
-}
-
-
 #' Adust for outcome misclassification and selection bias.
 #'
 #' `adjust_om_sel` returns the exposure-outcome odds ratio and confidence
@@ -357,20 +330,7 @@ adjust_omc_sel <- function(
 #' corresponding to the observed outcome in `data_observed`. There should also
 #' be a selection indicator representing whether the observation in
 #' `data_validation` was selected in `data_observed`.
-#' @param y_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-#' where *Y* represents the binary true outcome, *X* is the exposure,
-#' *Y** is the binary misclassified outcome, *C* represents
-#' the vector of measured confounders (if any), and *j* corresponds
-#' to the number of measured confounders. The number of parameters is
-#' therefore 3 + *j*.
-#' @param s_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta_{2+j} C_j, }}
-#' where *S* represents binary selection,
-#' *X* is the exposure, *Y** is the binary misclassified outcome,
-#' *C* represents the vector of measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders.
-#' The number of parameters is therefore 3 + *j*.
+#' @param bias_params Object of class 'bias_params'
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #'
@@ -381,6 +341,7 @@ adjust_omc_sel <- function(
 #' @examples
 #' df_observed <- data_observed(
 #'   data = df_om_sel,
+#'   bias = c("om", "sel"),
 #'   exposure = "X",
 #'   outcome = "Ystar",
 #'   confounders = "C1"
@@ -401,11 +362,17 @@ adjust_omc_sel <- function(
 #'   data_validation = df_validation
 #' )
 #'
-#' # Using y_model_coefs and s_model_coefs -------------------------------------
+#' # Using bias_params ---------------------------------------------------------
+#' bp <- bias_params(
+#'   coef_list = list(
+#'     y = c(-3.24, 0.58, 1.59, 0.45),
+#'     s = c(0.03, 0.92, 0.12, 0.05)
+#'   )
+#' )
+#'
 #' adjust_om_sel(
 #'   data_observed = df_observed,
-#'   y_model_coefs = c(-3.24, 0.58, 1.59, 0.45),
-#'   s_model_coefs = c(0.03, 0.92, 0.12, 0.05)
+#'   bias_params = bp
 #' )
 #'
 #' @import dplyr
@@ -421,24 +388,37 @@ adjust_omc_sel <- function(
 adjust_om_sel <- function(
     data_observed,
     data_validation = NULL,
-    y_model_coefs = NULL,
-    s_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
-  check_inputs2(
-    data_validation,
-    list(y_model_coefs, s_model_coefs)
-  )
+  if (
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
+  ) {
+    stop(
+      "One of data_validation or bias_params must be non-null.",
+      call. = FALSE
+    )
+  }
 
   if (!is.null(data_validation)) {
     final <- adjust_om_sel_val(
       data_observed,
       data_validation
     )
-  } else if (!is.null(y_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$y) && is.null(bias_params$coef_list$s)) {
+      stop(
+        paste0(
+          "bias_params must specify parameters for outcome ",
+          "misclassification and selection bias"
+        ),
+        call. = FALSE
+      )
+    }
     final <- adjust_om_sel_coef(
       data_observed,
-      y_model_coefs,
-      s_model_coefs
+      bias_params$coef_list$y,
+      bias_params$coef_list$s
     )
   }
 
