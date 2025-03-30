@@ -7,11 +7,7 @@
 adjust_uc_om(
   data_observed,
   data_validation = NULL,
-  u_model_coefs = NULL,
-  y_model_coefs = NULL,
-  u1y0_model_coefs = NULL,
-  u0y1_model_coefs = NULL,
-  u1y1_model_coefs = NULL,
+  bias_params = NULL,
   level = 0.95
 )
 }
@@ -26,46 +22,7 @@ data, plus data for the true and misclassified outcome corresponding to the
 observed exposure in \code{data_observed}.
 There should also be data for the confounder missing in \code{data_observed}.}
 
-\item{u_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-where \emph{U} is the binary unmeasured confounder, \emph{X} is the
-exposure, \emph{Y} is the binary true outcome. The number of parameters
-therefore equals 3.}
-
-\item{y_model_coefs}{The regression coefficients corresponding to the model:
-\ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-where \emph{Y} represents binary true outcome, \emph{X} is the exposure,
-\emph{Y}* is the binary misclassified outcome,
-\emph{C} represents the vector of measured confounders (if any),
-and \emph{j} corresponds to the number of measured confounders.
-The number of parameters therefore equals 3 + \emph{j}.}
-
-\item{u1y0_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
-binary true outcome, \emph{X} is the exposure, \emph{Y}* is the binary
-misclassified outcome, \emph{C} represents the vector of measured
-confounders (if any), and \emph{j} corresponds to the number of
-measured confounders.}
-
-\item{u0y1_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(U=0,Y=1)/P(U=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=0,Y=1)/P(U=0,Y=0)) = \gamma_{2,0} + \gamma_{2,1} X + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j,}}
-where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
-binary true outcome, \emph{X} is the exposure, \emph{Y}* is the binary
-misclassified outcome, \emph{C} represents the vector of measured
-confounders (if any), and \emph{j} corresponds to the number of
-measured confounders.}
-
-\item{u1y1_model_coefs}{The regression coefficients corresponding to the
-model:
-\ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j,}}
-where \emph{U} is the binary unmeasured confounder, \emph{Y} is the
-binary true outcome, \emph{X} is the exposure, \emph{Y}* is the binary
-misclassified outcome, \emph{C} represents the vector of measured
-confounders (if any), and \emph{j} corresponds to the number of
-measured confounders.}
+\item{bias_params}{Object of class 'bias_params'}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -82,14 +39,8 @@ misclassificaiton.
 }
 \details{
 Bias adjustment can be performed by inputting either a validation dataset or
-the necessary bias parameters. Two different options for the bias parameters
-are available here: 1) parameters from separate models of \emph{U} and \emph{Y}
-(\code{u_model_coefs} and \code{y_model_coefs}) or 2) parameters from
-a joint model of \emph{U} and \emph{Y} (\code{u1y0_model_coefs},
-\code{u0y1_model_coefs}, and \code{u1y1_model_coefs}).
-
-Values for the bias parameters can be applied as
-fixed values or as single draws from a probability
+the necessary bias parameters. Values for the bias parameters
+can be applied as fixed values or as single draws from a probability
 distribution (ex: \code{rnorm(1, mean = 2, sd = 1)}). The latter has
 the advantage of allowing the researcher to capture the uncertainty
 in the bias parameter estimates. To incorporate this uncertainty in the
@@ -101,6 +52,7 @@ of the distribution of odds ratio estimates.
 \examples{
 df_observed <- data_observed(
   data = df_uc_om,
+  bias = c("uc", "om"),
   exposure = "X",
   outcome = "Ystar",
   confounders = "C1"
@@ -120,19 +72,30 @@ adjust_uc_om(
   data_validation = df_validation
 )
 
-# Using u_model_coefs and y_model_coefs -------------------------------------
-adjust_uc_om(
-  data_observed = df_observed,
-  u_model_coefs = c(-0.22, 0.61, 0.70),
-  y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
+# Using bias_params ---------------------------------------------------------
+bp1 <- bias_params(
+  coef_list = list(
+    u = c(-0.22, 0.61, 0.70),
+    y = c(-2.85, 0.73, 1.60, 0.38)
+  )
 )
 
-# Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
 adjust_uc_om(
   data_observed = df_observed,
-  u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
-  u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
-  u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
+  bias_params = bp1,
+)
+
+bp2 <- bias_params(
+  coef_list = list(
+    u1y0 = c(-0.19, 0.61, 0.00, -0.07),
+    u0y1 = c(-3.21, 0.60, 1.60, 0.36),
+    u1y1 = c(-2.72, 1.24, 1.59, 0.34)
+  )
+)
+
+adjust_uc_om(
+  data_observed = df_observed,
+  bias_params = bp2
 )
 
 }
