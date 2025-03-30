@@ -371,17 +371,7 @@ adjust_uc_sel_coef <- function(
 #' data, plus data for the confounder missing in `data_observed`. There
 #' should also be a selection indicator representing whether the observation in
 #' `data_validation` was selected in `data_observed`.
-#' @param u_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#' where *U* is the binary unmeasured
-#' confounder, *X* is the exposure, *Y* is the outcome, *C*
-#' represents the vector of measured confounders (if any), and *j*
-#' corresponds to the number of measured confounders. The number of parameters
-#' therefore equals 3 + *j*.
-#' @param s_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(S=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y, }}{\eqn{logit(P(S=1)) = \beta_0 + \beta_1 X + \beta_2 Y, }}
-#' where *S* represents binary selection, *X* is the exposure,
-#' and *Y* is the outcome. The number of parameters therefore equals 3.
+#' @param bias_params Object of class 'bias_params'
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #
@@ -410,11 +400,16 @@ adjust_uc_sel_coef <- function(
 #'   data_validation = df_validation
 #' )
 #'
-#' # Using u_model_coefs and s_model_coefs -------------------------------------
+#' # Using bias_params ---------------------------------------------------------
+#'  bp <- bias_params(
+#'    coef_list = list(
+#'      u = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
+#'      s = c(-0.01, 0.92, 0.94)
+#'    )
+#'  )
 #' adjust_uc_sel(
 #'   data_observed = df_observed,
-#'   u_model_coefs = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
-#'   s_model_coefs = c(-0.01, 0.92, 0.94)
+#'   bias_params = bp
 #' )
 #'
 #' @import dplyr
@@ -431,13 +426,17 @@ adjust_uc_sel_coef <- function(
 adjust_uc_sel <- function(
     data_observed,
     data_validation = NULL,
-    u_model_coefs = NULL,
-    s_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
-  check_inputs2(
-    data_validation,
-    list(u_model_coefs, s_model_coefs)
-  )
+  if (
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
+  ) {
+    stop(
+      "One of data_validation or bias_params must be non-null.",
+      call. = FALSE
+    )
+  }
 
   data <- data_observed$data
   x <- data[, data_observed$exposure]
@@ -454,11 +453,20 @@ adjust_uc_sel <- function(
       data_observed,
       data_validation
     )
-  } else if (!is.null(u_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$u) && is.null(bias_params$coef_list$s)) {
+      stop(
+        paste0(
+          "bias_params must specify parameters for uncontrolled ",
+          "confounding and selection bias"
+        ),
+        call. = FALSE
+      )
+    }
     final <- adjust_uc_sel_coef(
       data_observed,
-      u_model_coefs,
-      s_model_coefs
+      u_model_coefs = bias_params$coef_list$u,
+      s_model_coefs = bias_params$coef_list$s
     )
   }
 
