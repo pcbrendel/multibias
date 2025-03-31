@@ -568,14 +568,8 @@ adjust_em_om_coef_multinom <- function(
 #' misclassification.
 #'
 #' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters. Two different options for the bias parameters
-#' are available here: 1) parameters from separate models of *X* and *Y*
-#' (`x_model_coefs` and `y_model_coefs`) or 2) parameters from
-#' a joint model of *X* and *Y* (`x1y0_model_coefs`,
-#' `x0y1_model_coefs`, and `x1y1_model_coefs`).
-#'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
+#' the necessary bias parameters. Values for the bias parameters
+#' can be applied as fixed values or as single draws from a probability
 #' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
 #' the advantage of allowing the researcher to capture the uncertainty
 #' in the bias parameter estimates. To incorporate this uncertainty in the
@@ -683,8 +677,8 @@ adjust_em_om <- function(
     if (all(c("x", "y") %in% names(bias_params$coef_list))) {
       final <- adjust_em_om_coef_single(
         data_observed,
-        bias_params$coef_list$x,
-        bias_params$coef_list$y
+        x_model_coefs = bias_params$coef_list$x,
+        y_model_coefs = bias_params$coef_list$y
       )
     } else if (
       all(
@@ -694,9 +688,9 @@ adjust_em_om <- function(
     ) {
       final <- adjust_em_om_coef_multinom(
         data_observed,
-        bias_params$coef_list$x1y0,
-        bias_params$coef_list$x0y1,
-        bias_params$coef_list$x1y1
+        x1y0_model_coefs = bias_params$coef_list$x1y0,
+        x0y1_model_coefs = bias_params$coef_list$x0y1,
+        x1y1_model_coefs = bias_params$coef_list$x1y1
       )
     } else {
       (
