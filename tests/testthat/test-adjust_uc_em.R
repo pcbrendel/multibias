@@ -175,7 +175,6 @@ list_for_uc_em <- list(
   x1u0 = c(-1.91, 1.63, 0.71),
   x0u1 = c(-0.23, 0.02, 0.01),
   x1u1 = c(-1.47, 1.63, 0.71)
-
 )
 bp_uc_em <- bias_params(coef_list = list_for_uc_em)
 
