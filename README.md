@@ -18,12 +18,10 @@ estimate of effect:
 
 $$(P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)) \neq (P(Y^{X=1}=1) / P(Y^{X=0}=1))$$
 
-The `adjust()` family of functions output odds ratio estimates adjusted
+The `multibias_adjust()` function outputs odds ratio estimates adjusted
 for any combination of: uncontrolled confounding (**uc**), exposure
 misclassification (**em**), outcome misclassification (**om**), and
-selection bias (**sel**). For example, `adjust_uc_om_sel()`
-simultaneously adjusts for uncontrolled confounding, outcome
-misclassificaiton, and selection bias.
+selection bias (**sel**).
 
 The package also includes several dataframes that are useful for
 validating the bias adjustment methods. Each dataframe contains
@@ -46,47 +44,35 @@ devtools::install_github("pcbrendel/multibias")
 
 ## Getting started
 
-1.  Determine the desired biases to adjust for in your observational
-    data for a given exposure-outcome effect and identify the
-    corresponding `adjust()` function (see tables below).
+1.  Represent the observed causal data as a `data_observed` object. Here
+    you provide the data, specify the key variables, and list the biases
+    present in the data. See list below for the different bias
+    combinations that multibias can handle.
 2.  Obtain one of the two sources for bias adjustment:
-    1.  Bias parameters. These values could come from the literature,
-        validation data, or expert opinion. Each parameter can be
-        represented as a single value or as a probability distribution.
-        See `adjust()` function documentation.
-    2.  Validation dataframe. The purpose of validation data is to use
-        an external data source to transport the necessary causal
-        relationships that are missing in the observed data.
-3.  Run the `adjust()` function after inputting:
-    1.  The observed data as a `data_observed` object
-    2.  The bias parameters or validation data as `data_validation`
-        object
-    3.  The level of the bias-adjusted effect estimate confidence
-        interval
-4.  The `adjust()` function will output the bias-adjusted
-    exposure-outcome odds ratio and confidence interval.
+    1.  Bias parameters - via the `bias_params` object. Values for these
+        parameters could come from the literature, validation data, or
+        expert opinion. Each parameter can be represented as a single
+        value or as a probability distribution. See the `bias_params`
+        documentation for the full bias models.
+    2.  Validation dataframe - via the `data_validation` object. The
+        purpose of validation data is to use an external data source to
+        transport the necessary causal relationships that are missing in
+        the observed data.
+3.  Run `multibias_adjust()` using the above inputs to obtain the
+    bias-adjusted exposure-outcome odds ratio and confidence interval.
 
-### Single bias adjustments
+### Possible bias adjustments
 
-| Function       | Adjusts for                |
-|----------------|----------------------------|
-| `adjust_em()`  | exposure misclassification |
-| `adjust_om()`  | outcome misclassification  |
-| `adjust_sel()` | selection bias             |
-| `adjust_uc()`  | uncontrolled confounding   |
+**Single Bias** \* exposure misclassification \* outcome
+misclassification \* selection bias \* uncontrolled confounding
 
-### Multiple bias adjustments
-
-| Function | Adjusts for |
-|----|----|
-| `adjust_em_sel()` | exposure misclassification & selection bias |
-| `adjust_em_om` | exposure misclassification & outcome misclassification |
-| `adjust_om_sel()` | outcome misclassification & selection bias |
-| `adjust_uc_em()` | uncontrolled confounding & exposure misclassificaiton |
-| `adjust_uc_om()` | uncontrolled confounding & outcome misclassification |
-| `adjust_uc_sel()` | uncontrolled confounding & selection bias |
-| `adjust_uc_em_sel()` | uncontrolled confounding, exposure misclassification, & selection bias |
-| `adjust_uc_om_sel()` | uncontrolled confounding, outcome misclassification, & selection bias |
+**Multiple Biases** \* exposure misclassification & selection bias \*
+exposure misclassification & outcome misclassification \* outcome
+misclassification & selection bias \* uncontrolled confounding &
+exposure misclassificaiton \* uncontrolled confounding & outcome
+misclassification \* uncontrolled confounding & selection bias \*
+uncontrolled confounding, exposure misclassification, & selection bias
+\* uncontrolled confounding, outcome misclassification, & selection bias
 
 ## Resources
 
@@ -97,4 +83,3 @@ devtools::install_github("pcbrendel/multibias")
   <https://doi.org/10.1093/ije/dyad001>
 - [Applying Quantitative Bias Analysis to Epidemiologic
   Data](https://link.springer.com/book/10.1007/978-0-387-87959-8)
-- [www.paulbrendel.com](https://www.paulbrendel.com).
