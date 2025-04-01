@@ -312,8 +312,6 @@ adjust_em_coef <- function(
 #' @importFrom stats plogis
 #' @importFrom stats coef
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_em <- function(
     data_observed,

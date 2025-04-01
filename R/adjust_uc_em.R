@@ -734,8 +734,6 @@ adjust_uc_em_coef_multinom <- function(
 #' @importFrom stats rbinom
 #' @importFrom stats plogis
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_uc_em <- function(
     data_observed,

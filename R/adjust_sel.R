@@ -305,8 +305,6 @@ adjust_sel_coef <- function(
 #' @importFrom stats plogis
 #' @importFrom stats coef
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_sel <- function(
     data_observed,

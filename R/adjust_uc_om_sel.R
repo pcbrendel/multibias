@@ -773,8 +773,6 @@ adjust_uc_om_sel_coef_multinom <- function(
 #' @importFrom stats rbinom
 #' @importFrom stats plogis
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_uc_om_sel <- function(
     data_observed,

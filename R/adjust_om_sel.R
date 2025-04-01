@@ -382,8 +382,6 @@ adjust_om_sel_coef <- function(
 #' @importFrom stats qnorm
 #' @importFrom stats plogis
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_om_sel <- function(
     data_observed,

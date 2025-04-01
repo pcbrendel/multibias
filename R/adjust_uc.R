@@ -307,8 +307,6 @@ adjust_uc_coef <- function(
 #' @importFrom stats plogis
 #' @importFrom stats coef
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_uc <- function(
     data_observed,

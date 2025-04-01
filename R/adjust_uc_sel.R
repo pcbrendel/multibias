@@ -420,8 +420,6 @@ adjust_uc_sel_coef <- function(
 #' @importFrom stats qnorm
 #' @importFrom stats plogis
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_uc_sel <- function(
     data_observed,

@@ -650,8 +650,6 @@ adjust_em_om_coef_multinom <- function(
 #' @importFrom stats qnorm
 #' @importFrom stats plogis
 #' @importFrom rlang .data
-#'
-#' @export
 
 adjust_em_om <- function(
     data_observed,
