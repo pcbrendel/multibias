@@ -63,16 +63,23 @@ devtools::install_github("pcbrendel/multibias")
 
 ### Possible bias adjustments
 
-**Single Bias** \* exposure misclassification \* outcome
-misclassification \* selection bias \* uncontrolled confounding
+**Single Bias**
 
-**Multiple Biases** \* exposure misclassification & selection bias \*
-exposure misclassification & outcome misclassification \* outcome
-misclassification & selection bias \* uncontrolled confounding &
-exposure misclassificaiton \* uncontrolled confounding & outcome
-misclassification \* uncontrolled confounding & selection bias \*
-uncontrolled confounding, exposure misclassification, & selection bias
-\* uncontrolled confounding, outcome misclassification, & selection bias
+- exposure misclassification
+- outcome misclassification
+- selection bias
+- uncontrolled confounding
+
+**Multiple Biases**
+
+- exposure misclassification & selection bias
+- exposure misclassification & outcome misclassification
+- outcome misclassification & selection bias
+- uncontrolled confounding & exposure misclassificaiton
+- uncontrolled confounding & outcome misclassification
+- uncontrolled confounding & selection bias
+- uncontrolled confounding, exposure misclassification, & selection bias
+- uncontrolled confounding, outcome misclassification, & selection bias
 
 ## Resources
 

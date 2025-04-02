@@ -105,8 +105,8 @@ list_for_uc <- list(
 bp_uc <- bias_params(coef_list = list_for_uc)
 
 list_for_em_om <- list(
-  x1y0 = c(-2.18, 1.63, 0.23, 0.36)
-  x0y1 = c(-3.17, 0.22, 1.60, 0.40)
+  x1y0 = c(-2.18, 1.63, 0.23, 0.36),
+  x0y1 = c(-3.17, 0.22, 1.60, 0.40),
   x1y1 = c(-4.76, 1.82, 1.83, 0.72)
 )
 

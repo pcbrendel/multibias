@@ -62,12 +62,14 @@ exposure-outcome odds ratio and confidence interval.
 ### Possible bias adjustments
 
 **Single Bias**
+
 * exposure misclassification
 * outcome misclassification
 * selection bias
 * uncontrolled confounding
 
 **Multiple Biases**
+
 * exposure misclassification & selection bias
 * exposure misclassification & outcome misclassification
 * outcome misclassification & selection bias
