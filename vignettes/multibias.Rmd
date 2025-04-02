@@ -17,16 +17,16 @@ library(multibias)
 
 Multibias makes it easy to simultaneously adjust for multiple biases in causal inference research. This document walks you through the key steps to performing the analysis.
 
-## 1. Identify the biases in your data
+## 1. Create data_observed
 
-All epidemiological biases can be generalized into four main groups:
+Represent your observed data as a `data_observed` object. Here you include the dataframe, specify the key variables in the data, and identify the bias impacting the data. All epidemiological biases can be generalized into four main groups:
 
 * Uncontrolled confounding (**uc**)
 * Exposure misclassificaiton (**em**)
 * Outcome misclassificaiton (**om**)
 * Selection bias (**sel**)
 
-Multibias is capable of handling bias adjustment for most of the combinations of the above four biases. Choose the `adjust()` function corresponding to the biases of interest using the appropriate prefix. For example, `adjust_uc_sel()` adjusts for uncontrolled confounding and selection bias.
+Multibias is capable of handling bias adjustment for most of the combinations of the above four biases.
 
 For purposes of demonstration, multibias includes datasets with different bias combinations. For a given bias or biases, it includes the biased data (e.g., `df_uc_sel`: missing a confounder and not including the un-selected subjects) and the source used to derive the biased data (e.g., `df_uc_sel_source`: including data on the missing confounder and subjects who were not selected).
 
@@ -36,20 +36,17 @@ Each dataset has variables defined similarly:
 * `Y` = binary outcome
 * `C1-C3` = binary confounders
 
-## 2. Create data_observed
-
-Each `adjust()` function in multibias requires inputting your observed, biased data as a `data_observed` object. Here you specify the dataframe and identify the key variables in the data.
-
 ```{r}
 df_observed <- data_observed(
   df_uc_sel,
+  bias = c("uc", "sel"),
   exposure = "X",
   outcome = "Y",
   confounders = c("C1", "C2", "C3")
 )
 ```
 
-## 3. Obtain source for bias adjustment
+## 2. Create source for bias adjustment
 
 Next, you need to have some information that can be used to quantify the assumed bias or biases. There are two options here.
 
@@ -58,8 +55,12 @@ Next, you need to have some information that can be used to quantify the assumed
 One option is to list the assumed parameters for the corresponding bias equations. The necessary bias equations are provided in the documentation of each `adjust()` function. These equations can be derived using the methods outlined in the article [here](https://doi.org/10.1093/ije/dyad001). In our example, we have bias parameters to predict the missing binary confounder `U` (as the vector `u_coefs`) and study selection indicator `S` (as the vector `s_coefs`).
 
 ```{r}
-u_coefs <- c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15)
-s_coefs <- c(-0.01, 0.92, 0.94)
+bp <- bias_params(
+  coef_list = list(
+    u = c(-0.19, 0.61, 0.72, -0.09, 0.10, -0.15),
+    s = c(-0.01, 0.92, 0.94)
+  )
+)
 ```
 
 ### Option 2: Validation data
@@ -76,24 +77,23 @@ df_validation <- data_validation(
 )
 ```
 
-## 4. Run the bias adjustment
+## 3. Run the bias adjustment
 
 Finally, we can run the multi-bias adjustment!
 
 ### Single run
 
 ```{r}
-adjust_uc_sel(
+multibias_adjust(
   data_observed = df_observed,
-  u_model_coefs = u_coefs,
-  s_model_coefs = s_coefs
+  bias_params = bp
 )
 ```
 
 or
 
 ```{r}
-adjust_uc_sel(
+multibias_adjust(
   data_observed = df_observed,
   data_validation = df_validation
 )
@@ -114,11 +114,12 @@ for (i in 1:nreps) {
   df_bootstrap <- df_uc_sel[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     df_bootstrap,
+    bias = c("uc", "sel"),
     exposure = "X",
     outcome = "Y",
     confounders = c("C1", "C2", "C3")
   )
-  results <- adjust_uc_sel(
+  results <- multibias_adjust(
     df_observed,
     df_validation
   )
