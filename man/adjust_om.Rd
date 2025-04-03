@@ -47,34 +47,3 @@ bootstrap samples of the dataframe for analysis. The estimate and
 confidence interval would then be obtained from the median and quantiles
 of the distribution of odds ratio estimates.
 }
-\examples{
-df_observed <- data_observed(
-  data = df_om,
-  bias = "om",
-  exposure = "X",
-  outcome = "Ystar",
-  confounders = "C1"
-)
-# Using validation data -----------------------------------------------------
-df_validation <- data_validation(
-  data = df_om_source,
-  true_exposure = "X",
-  true_outcome = "Y",
-  confounders = "C1",
-  misclassified_outcome = "Ystar"
-)
-
-adjust_om(
-  data_observed = df_observed,
-  data_validation = df_validation
-)
-
-# Using bias_params __-------------------------------------------------------
-bp <- bias_params(coef_list = list(y = c(-3.1, 0.6, 1.6, 0.4)))
-
-adjust_om(
-  data_observed = df_observed,
-  bias_params = bp
-)
-
-}

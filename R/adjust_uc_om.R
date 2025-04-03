@@ -576,55 +576,6 @@ adjust_uc_om_coef_multinom <- function(
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_uc_om,
-#'   bias = c("uc", "om"),
-#'   exposure = "X",
-#'   outcome = "Ystar",
-#'   confounders = "C1"
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_uc_om_source,
-#'   true_exposure = "X",
-#'   true_outcome = "Y",
-#'   confounders = c("C1", "U"),
-#'   misclassified_outcome = "Ystar"
-#' )
-#'
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using bias_params ---------------------------------------------------------
-#' bp1 <- bias_params(
-#'   coef_list = list(
-#'     u = c(-0.22, 0.61, 0.70),
-#'     y = c(-2.85, 0.73, 1.60, 0.38)
-#'   )
-#' )
-#'
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   bias_params = bp1,
-#' )
-#'
-#' bp2 <- bias_params(
-#'   coef_list = list(
-#'     u1y0 = c(-0.19, 0.61, 0.00, -0.07),
-#'     u0y1 = c(-3.21, 0.60, 1.60, 0.36),
-#'     u1y1 = c(-2.72, 1.24, 1.59, 0.34)
-#'   )
-#' )
-#'
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   bias_params = bp2
-#' )
-#'
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats binomial

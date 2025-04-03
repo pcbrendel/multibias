@@ -267,36 +267,6 @@ adjust_uc_coef <- function(
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_uc,
-#'   bias = "uc",
-#'   exposure = "X_bi",
-#'   outcome = "Y_bi",
-#'   confounders = c("C1", "C2", "C3")
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_uc_source,
-#'   true_exposure = "X_bi",
-#'   true_outcome = "Y_bi",
-#'   confounders = c("C1", "C2", "C3", "U")
-#' )
-#'
-#' adjust_uc(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using bias_params ---------------------------------------------------------
-#' bp <- bias_params(coef_list = list(u = c(-0.19, 0.61, 0.70, -0.09, 0.10, -0.15)))
-#'
-#' adjust_uc(
-#'   data_observed = df_observed,
-#'   bias_params = bp
-#' )
-#'
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats binomial

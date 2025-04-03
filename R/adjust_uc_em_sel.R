@@ -822,58 +822,6 @@ adjust_uc_em_sel_coef_multinom <- function(
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_uc_em_sel,
-#'   bias = c("uc", "em", "sel"),
-#'   exposure = "Xstar",
-#'   outcome = "Y",
-#'   confounders = c("C1", "C2", "C3")
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_uc_em_sel_source,
-#'   true_exposure = "X",
-#'   true_outcome = "Y",
-#'   confounders = c("C1", "C2", "C3", "U"),
-#'   misclassified_exposure = "Xstar",
-#'   selection = "S"
-#' )
-#'
-#' adjust_uc_em_sel(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # bias_params ---------------------------------------------------------------
-#' bp1 <- bias_params(
-#'   coef_list = list(
-#'     u = c(-0.32, 0.59, 0.69),
-#'     x = c(-2.44, 1.62, 0.72, 0.32, -0.15, 0.85),
-#'     s = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
-#'   )
-#' )
-#'
-#' adjust_uc_em_sel(
-#'   data_observed = df_observed,
-#'   bias_params = bp1
-#' )
-#'
-#' bp2 <- bias_params(
-#'   coef_list = list(
-#'     x1u0 = c(-2.78, 1.62, 0.61, 0.36, -0.27, 0.88),
-#'     x0u1 = c(-0.17, -0.01, 0.71, -0.08, 0.07, -0.15),
-#'     x1u1 = c(-2.36, 1.62, 1.29, 0.25, -0.06, 0.74),
-#'     s = c(0.00, 0.26, 0.78, 0.03, -0.02, 0.10)
-#'   )
-#' )
-#'
-#' adjust_uc_em_sel(
-#'   data_observed = df_observed,
-#'   bias_params = bp2
-#' )
-#'
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats binomial

@@ -338,43 +338,6 @@ adjust_om_sel_coef <- function(
 #' effect of the exposure on the outcome and the second item is the
 #' confidence interval as the vector: (lower bound, upper bound).
 #'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_om_sel,
-#'   bias = c("om", "sel"),
-#'   exposure = "X",
-#'   outcome = "Ystar",
-#'   confounders = "C1"
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_om_sel_source,
-#'   true_exposure = "X",
-#'   true_outcome = "Y",
-#'   confounders = "C1",
-#'   misclassified_outcome = "Ystar",
-#'   selection = "S"
-#' )
-#'
-#' adjust_om_sel(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using bias_params ---------------------------------------------------------
-#' bp <- bias_params(
-#'   coef_list = list(
-#'     y = c(-3.24, 0.58, 1.59, 0.45),
-#'     s = c(0.03, 0.92, 0.12, 0.05)
-#'   )
-#' )
-#'
-#' adjust_om_sel(
-#'   data_observed = df_observed,
-#'   bias_params = bp
-#' )
-#'
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats binomial
