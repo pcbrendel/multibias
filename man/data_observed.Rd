@@ -27,7 +27,7 @@ to the confounding variable(s).}
 \description{
 \code{data_observed} combines the observed dataframe with specific identification
 of the columns corresponding to the exposure, outcome, and confounders. It is
-an essential input of all \code{adjust} functions.
+an essential input of the \code{\link[=multibias_adjust]{multibias_adjust()}} function.
 }
 \examples{
 df <- data_observed(

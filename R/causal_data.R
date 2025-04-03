@@ -3,7 +3,7 @@
 #' @description
 #' `data_observed` combines the observed dataframe with specific identification
 #' of the columns corresponding to the exposure, outcome, and confounders. It is
-#' an essential input of all `adjust` functions.
+#' an essential input of the [multibias_adjust()] function.
 #'
 #' @param data Dataframe for bias analysis.
 #' @param bias String type(s) of bias distorting the effect of the exposure

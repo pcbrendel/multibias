@@ -1,7 +1,7 @@
 #' Represent bias parameters
 #'
 #' @description
-#' `bias_params` is one of two different options to represent bias assumptions for bias adjustment. The `multibias_adjust()` function will apply the assumptions from these models and use them to adjust for biases in the observed data. It takes one input, a list, where each item in the list corresponds to the necessary models for bias adjustment. See below for bias models.
+#' `bias_params` is one of two different options to represent bias assumptions for bias adjustment. The [multibias_adjust()] function will apply the assumptions from these models and use them to adjust for biases in the observed data. It takes one input, a list, where each item in the list corresponds to the necessary models for bias adjustment. See below for bias models.
 #'
 #' For each of the following bias models, the variables are defined:
 #' \itemize{
