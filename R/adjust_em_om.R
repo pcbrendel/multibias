@@ -1,3 +1,11 @@
+# Adjust for exposure misclassification and outcome misclassification
+
+# the following functions feed into adjust_em_om():
+# adjust_em_om_val() (data_validation input),
+# adjust_em_om_coef_single() (bias_params input),
+# adjust_em_om_coef_multinom() (bias_params input)
+
+
 adjust_em_om_val <- function(
     data_observed,
     data_validation) {
@@ -5,10 +13,13 @@ adjust_em_om_val <- function(
     stop("All confounders in observed data must be present in validation data.", call. = FALSE)
   }
 
-  if (is.null(data_validation$misclassified_exposure) && is.null(data_validation$misclassified_outcome)) {
+  if (
+    is.null(data_validation$misclassified_exposure) ||
+      is.null(data_validation$misclassified_outcome)
+  ) {
     stop(
       paste0(
-        "This function is adjusting for a misclassified exposure and misclassified outcome.",
+        "Attempting to adjust for a misclassified exposure and misclassified outcome.",
         "\n",
         "Validation data must include a true exposure, misclassified exposure, true outcome, and misclassified outcome."
       ),
@@ -262,6 +273,7 @@ adjust_em_om_coef_single <- function(
 
   return(final)
 }
+
 
 adjust_em_om_coef_multinom <- function(
     data_observed,
@@ -560,46 +572,6 @@ adjust_em_om_coef_multinom <- function(
   return(final)
 }
 
-
-#' Adust for exposure misclassification and outcome misclassification.
-#'
-#' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for exposure misclassification and outcome
-#' misclassification.
-#'
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters. Values for the bias parameters
-#' can be applied as fixed values or as single draws from a probability
-#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
-#' the advantage of allowing the researcher to capture the uncertainty
-#' in the bias parameter estimates. To incorporate this uncertainty in the
-#' estimate and confidence interval, this function should be run in loop across
-#' bootstrap samples of the dataframe for analysis. The estimate and
-#' confidence interval would then be obtained from the median and quantiles
-#' of the distribution of odds ratio estimates.
-#'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
-#' @param data_validation Object of class `data_validation` corresponding to
-#' the validation data used to adjust for bias in the observed data. Here, the
-#' validation data should have data for the same variables as in the observed
-#' data, plus data for the true and misclassified exposure and outcome
-#' corresponding to the observed exposure and outcome in `data_observed`.
-#' @param bias_params Object of class 'bias_params'
-#' @param level Value from 0-1 representing the full range of the confidence
-#' interval. Default is 0.95.
-#'
-#' @return A list where the first item is the odds ratio estimate of the
-#' effect of the exposure on the outcome and the second item is the
-#' confidence interval as the vector: (lower bound, upper bound).
-#'
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom stats binomial
-#' @importFrom stats glm
-#' @importFrom stats qnorm
-#' @importFrom stats plogis
-#' @importFrom rlang .data
 
 adjust_em_om <- function(
     data_observed,
