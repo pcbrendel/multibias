@@ -72,8 +72,3 @@ reference:
   - df_uc_om_source
   - df_uc_sel_source
   - df_uc_source
-- subtitle: Other
-  desc: >
-    Other miscellaneous dataframes for analysis.
-  contents:
-  - evans
