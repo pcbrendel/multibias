@@ -1,3 +1,10 @@
+# Adjust for uncontrolled confounding and outcome misclassification
+
+# the following functions feed into adjust_uc_om():
+# adjust_uc_om_val() (data_validation input),
+# adjust_uc_om_coef_single() (bias_params input),
+# adjust_uc_om_coef_multinom() (bias_params input)
+
 adjust_uc_om_val <- function(
     data_observed,
     data_validation) {
@@ -9,23 +16,14 @@ adjust_uc_om_val <- function(
   }
 
   if (
-    length(data_validation$confounders) - length(data_observed$confounders) != 1
+    (length(data_validation$confounders) - length(data_observed$confounders) != 1) ||
+      (is.null(data_validation$misclassified_outcome))
   ) {
     stop(
       paste0(
-        "This function adjusts for unobserved confounding from one confounder.",
+        "Attempting to adjust for unobserved confounding from one confounder and outcome misclassification.",
         "\n",
-        "Validation data must have one more confounder than the observed data."
-      ),
-      call. = FALSE
-    )
-  }
-  if (is.null(data_validation$misclassified_outcome)) {
-    stop(
-      paste0(
-        "This function is adjusting for a misclassified outcome.",
-        "\n",
-        "Validation data must have a true and misclassified outcome specified."
+        "Validation data must have: 1) one more confounder than the observed data, 2) a true and misclassified outcome specified."
       ),
       call. = FALSE
     )
@@ -543,193 +541,56 @@ adjust_uc_om_coef_multinom <- function(
 }
 
 
-#' Adust for uncontrolled confounding and outcome misclassification.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_uc_omc_sel()` was renamed to `adjust_uc_om_sel()`
-#' @keywords internal
-#'
-#' @export
-adjust_uc_omc <- function(
-    data_observed,
-    u_model_coefs = NULL,
-    y_model_coefs = NULL,
-    u0y1_model_coefs = NULL,
-    u1y0_model_coefs = NULL,
-    u1y1_model_coefs = NULL,
-    level = 0.95) {
-  lifecycle::deprecate_warn(
-    "1.5.3", "adjust_uc_omc()", "adjust_uc_om()"
-  )
-  adjust_uc_om(
-    data_observed,
-    u_model_coefs,
-    y_model_coefs,
-    u0y1_model_coefs,
-    u1y0_model_coefs,
-    u1y1_model_coefs,
-    level
-  )
-}
-
-
-#' Adust for uncontrolled confounding and outcome misclassification.
-#'
-#' `adjust_uc_om` returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for uncontrolled confounding and outcome
-#' misclassificaiton.
-#'
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters. Two different options for the bias parameters
-#' are available here: 1) parameters from separate models of *U* and *Y*
-#' (`u_model_coefs` and `y_model_coefs`) or 2) parameters from
-#' a joint model of *U* and *Y* (`u1y0_model_coefs`,
-#' `u0y1_model_coefs`, and `u1y1_model_coefs`).
-#'
-#' Values for the bias parameters can be applied as
-#' fixed values or as single draws from a probability
-#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
-#' the advantage of allowing the researcher to capture the uncertainty
-#' in the bias parameter estimates. To incorporate this uncertainty in the
-#' estimate and confidence interval, this function should be run in loop across
-#' bootstrap samples of the dataframe for analysis. The estimate and
-#' confidence interval would then be obtained from the median and quantiles
-#' of the distribution of odds ratio estimates.
-#'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
-#' @param data_validation Object of class `data_validation` corresponding to
-#' the validation data used to adjust for bias in the observed data. Here, the
-#' validation data should have data for the same variables as in the observed
-#' data, plus data for the true and misclassified outcome corresponding to the
-#' observed exposure in `data_observed`.
-#' There should also be data for the confounder missing in `data_observed`.
-#' @param u_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y, }}
-#' where *U* is the binary unmeasured confounder, *X* is the
-#' exposure, *Y* is the binary true outcome. The number of parameters
-#' therefore equals 3.
-#' @param y_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(Y=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \delta_0 + \delta_1 X + \delta_2 Y^* + \delta_{2+j} C_j, }}
-#' where *Y* represents binary true outcome, *X* is the exposure,
-#' *Y** is the binary misclassified outcome,
-#' *C* represents the vector of measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders.
-#' The number of parameters therefore equals 3 + *j*.
-#' @param u1y0_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(U=1,Y=0)/P(U=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=0)/P(U=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-#' where *U* is the binary unmeasured confounder, *Y* is the
-#' binary true outcome, *X* is the exposure, *Y** is the binary
-#' misclassified outcome, *C* represents the vector of measured
-#' confounders (if any), and *j* corresponds to the number of
-#' measured confounders.
-#' @param u0y1_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(U=0,Y=1)/P(U=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=0,Y=1)/P(U=0,Y=0)) = \gamma_{2,0} + \gamma_{2,1} X + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j,}}
-#' where *U* is the binary unmeasured confounder, *Y* is the
-#' binary true outcome, *X* is the exposure, *Y** is the binary
-#' misclassified outcome, *C* represents the vector of measured
-#' confounders (if any), and *j* corresponds to the number of
-#' measured confounders.
-#' @param u1y1_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(U=1,Y=1)/P(U=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(U=1,Y=1)/P(U=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j,}}
-#' where *U* is the binary unmeasured confounder, *Y* is the
-#' binary true outcome, *X* is the exposure, *Y** is the binary
-#' misclassified outcome, *C* represents the vector of measured
-#' confounders (if any), and *j* corresponds to the number of
-#' measured confounders.
-#' @param level Value from 0-1 representing the full range of the confidence
-#' interval. Default is 0.95.
-#'
-#' @return A list where the first item is the odds ratio estimate of the
-#' effect of the exposure on the outcome and the second item is the
-#' confidence interval as the vector: (lower bound, upper bound).
-#'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_uc_om,
-#'   exposure = "X",
-#'   outcome = "Ystar",
-#'   confounders = "C1"
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_uc_om_source,
-#'   true_exposure = "X",
-#'   true_outcome = "Y",
-#'   confounders = c("C1", "U"),
-#'   misclassified_outcome = "Ystar"
-#' )
-#'
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using u_model_coefs and y_model_coefs -------------------------------------
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   u_model_coefs = c(-0.22, 0.61, 0.70),
-#'   y_model_coefs = c(-2.85, 0.73, 1.60, 0.38)
-#' )
-#'
-#' # Using u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs ----------------
-#' adjust_uc_om(
-#'   data_observed = df_observed,
-#'   u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
-#'   u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
-#'   u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
-#' )
-#'
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom stats binomial
-#' @importFrom stats glm
-#' @importFrom stats qnorm
-#' @importFrom stats rbinom
-#' @importFrom stats plogis
-#' @importFrom rlang .data
-#'
-#' @export
-
 adjust_uc_om <- function(
     data_observed,
     data_validation = NULL,
-    u_model_coefs = NULL,
-    y_model_coefs = NULL,
-    u1y0_model_coefs = NULL,
-    u0y1_model_coefs = NULL,
-    u1y1_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
-  check_inputs3(
-    data_validation,
-    list(u_model_coefs, y_model_coefs),
-    list(u1y0_model_coefs, u0y1_model_coefs, u1y1_model_coefs)
-  )
+  if (
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
+  ) {
+    stop(
+      "One of data_validation or bias_params must be non-null.",
+      call. = FALSE
+    )
+  }
 
   if (!is.null(data_validation)) {
     final <- adjust_uc_om_val(
       data_observed,
       data_validation
     )
-  } else if (!is.null(u_model_coefs)) {
-    final <- adjust_uc_om_coef_single(
-      data_observed = data_observed,
-      u_model_coefs = u_model_coefs,
-      y_model_coefs = y_model_coefs
-    )
-  } else if (!is.null(u1y0_model_coefs)) {
-    final <- adjust_uc_om_coef_multinom(
-      data_observed = data_observed,
-      u1y0_model_coefs = u1y0_model_coefs,
-      u0y1_model_coefs = u0y1_model_coefs,
-      u1y1_model_coefs = u1y1_model_coefs
-    )
+  } else if (!is.null(bias_params)) {
+    if (all(c("u", "y") %in% names(bias_params$coef_list))) {
+      final <- adjust_uc_om_coef_single(
+        data_observed,
+        u_model_coefs = bias_params$coef_list$u,
+        y_model_coefs = bias_params$coef_list$y
+      )
+    } else if (
+      all(
+        c("u1y0", "u0y1", "u1y1") %in%
+          names(bias_params$coef_list)
+      )
+    ) {
+      final <- adjust_uc_om_coef_multinom(
+        data_observed,
+        u1y0_model_coefs = bias_params$coef_list$u1y0,
+        u0y1_model_coefs = bias_params$coef_list$u0y1,
+        u1y1_model_coefs = bias_params$coef_list$u1y1
+      )
+    } else {
+      (
+        stop(
+          paste0(
+            "bias_params must specify parameters for ",
+            "uncontrolled confounding and outcome misclassification"
+          ),
+          call. = FALSE
+        )
+      )
+    }
   }
 
   est <- summary(final)$coef[2, 1]

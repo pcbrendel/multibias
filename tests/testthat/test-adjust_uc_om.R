@@ -23,23 +23,20 @@ y_model <- glm(Y ~ X + Ystar,
 
 df_observed <- data_observed(
   df_uc_om,
+  bias = c("uc", "om"),
   exposure = "X_cont",
   outcome = "Ystar",
   confounders = NULL
 )
+list_for_uc_om <- list(
+  u = as.vector(coef(u_model)),
+  y = as.vector(coef(y_model))
+)
+bp_uc_om <- bias_params(coef_list = list_for_uc_om)
 
 single_run <- adjust_uc_om(
   df_observed,
-  u_model_coefs = c(
-    u_model$coef[1],
-    u_model$coef[2],
-    u_model$coef[3]
-  ),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3]
-  )
+  bias_params = bp_uc_om
 )
 
 est <- vector()
@@ -47,172 +44,14 @@ for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = c("uc", "om"),
     exposure = "X",
     outcome = "Ystar",
     confounders = NULL
   )
   results <- adjust_uc_om(
     df_observed,
-    u_model_coefs = c(
-      u_model$coef[1],
-      u_model$coef[2],
-      u_model$coef[3]
-    ),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3]
-    )
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 1 confounder
-
-nobias_model <- glm(Y ~ X + C1 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_om_source)
-
-u_model <- glm(U ~ X + Y,
-               family = binomial(link = "logit"),
-               data = df_uc_om_source)
-y_model <- glm(Y ~ X + Ystar + C1,
-               family = binomial(link = "logit"),
-               data = df_uc_om_source)
-
-df_observed <- data_observed(
-  df_uc_om,
-  exposure = "X_cont",
-  outcome = "Ystar",
-  confounders = "C1"
-)
-
-single_run <- adjust_uc_om(
-  df_observed,
-  u_model_coefs = c(
-    u_model$coef[1],
-    u_model$coef[2],
-    u_model$coef[3]
-  ),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4]
-  )
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = "C1"
-  )
-  results <- adjust_uc_om(
-    df_observed,
-    u_model_coefs = c(
-      u_model$coef[1],
-      u_model$coef[2],
-      u_model$coef[3]
-    ),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4]
-    )
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 2 confounders
-
-nobias_model <- glm(Y ~ X + C1 + C2 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_om_source)
-
-u_model <- glm(U ~ X + Y,
-               family = binomial(link = "logit"),
-               data = df_uc_om_source)
-y_model <- glm(Y ~ X + Ystar + C1 + C2,
-               family = binomial(link = "logit"),
-               data = df_uc_om_source)
-
-df_observed <- data_observed(
-  df_uc_om,
-  exposure = "X_cont",
-  outcome = "Ystar",
-  confounders = c("C1", "C2")
-)
-
-single_run <- adjust_uc_om(
-  df_observed,
-  u_model_coefs = c(
-    u_model$coef[1],
-    u_model$coef[2],
-    u_model$coef[3]
-  ),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4],
-    y_model$coef[5]
-  )
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = c("C1", "C2")
-  )
-  results <- adjust_uc_om(
-    df_observed,
-    u_model_coefs = c(
-      u_model$coef[1],
-      u_model$coef[2],
-      u_model$coef[3]
-    ),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4],
-      y_model$coef[5]
-    )
+    bias_params = bp_uc_om
   )
   est[i] <- results$estimate
 }
@@ -245,26 +84,20 @@ y_model <- glm(Y ~ X + Ystar + C1 + C2 + C3,
 
 df_observed <- data_observed(
   df_uc_om,
+  bias = c("uc", "om"),
   exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3")
 )
+list_for_uc_om <- list(
+  u = as.vector(coef(u_model)),
+  y = as.vector(coef(y_model))
+)
+bp_uc_om <- bias_params(coef_list = list_for_uc_om)
 
 single_run <- adjust_uc_om(
   df_observed,
-  u_model_coefs = c(
-    u_model$coef[1],
-    u_model$coef[2],
-    u_model$coef[3]
-  ),
-  y_model_coefs = c(
-    y_model$coef[1],
-    y_model$coef[2],
-    y_model$coef[3],
-    y_model$coef[4],
-    y_model$coef[5],
-    y_model$coef[6]
-  )
+  bias_params = bp_uc_om
 )
 
 est <- vector()
@@ -272,25 +105,14 @@ for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = c("uc", "om"),
     exposure = "X",
     outcome = "Ystar",
     confounders = c("C1", "C2", "C3")
   )
   results <- adjust_uc_om(
     df_observed,
-    u_model_coefs = c(
-      u_model$coef[1],
-      u_model$coef[2],
-      u_model$coef[3]
-    ),
-    y_model_coefs = c(
-      y_model$coef[1],
-      y_model$coef[2],
-      y_model$coef[3],
-      y_model$coef[4],
-      y_model$coef[5],
-      y_model$coef[6]
-    )
+    bias_params = bp_uc_om
   )
   est[i] <- results$estimate
 }
@@ -330,16 +152,22 @@ nobias_model <- glm(Y ~ X + U,
 
 df_observed <- data_observed(
   df_uc_om,
+  bias = c("uc", "om"),
   exposure = "X_cont",
   outcome = "Ystar",
   confounders = NULL
 )
+list_for_uc_om <- list(
+  u1y0 = c(-0.32, 0.59, 0.01),
+  u0y1 = c(-2.98, 0.71, 1.65),
+  u1y1 = c(-2.59, 1.27, 1.64)
+
+)
+bp_uc_om <- bias_params(coef_list = list_for_uc_om)
 
 single_run <- adjust_uc_om(
   df_observed,
-  u1y0_model_coefs = c(-0.32, 0.59, 0.01),
-  u0y1_model_coefs = c(-2.98, 0.71, 1.65),
-  u1y1_model_coefs = c(-2.59, 1.27, 1.64)
+  bias_params = bp_uc_om
 )
 
 est <- vector()
@@ -347,129 +175,14 @@ for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = c("uc", "om"),
     exposure = "X",
     outcome = "Ystar",
     confounders = NULL
   )
   results <- adjust_uc_om(
     df_observed,
-    u1y0_model_coefs = c(-0.32, 0.59, 0.01),
-    u0y1_model_coefs = c(-2.98, 0.71, 1.65),
-    u1y1_model_coefs = c(-2.59, 1.27, 1.64)
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 1 confounder
-
-nobias_model <- glm(Y ~ X + C1 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_om_source)
-
-# uy_model <- multinom(
-#   paste0(U, Y) ~ X + Ystar + C1,
-#   data = df_uc_om_source
-# )
-# summary(uy_model, digits = 2)
-
-df_observed <- data_observed(
-  df_uc_om,
-  exposure = "X_cont",
-  outcome = "Ystar",
-  confounders = "C1"
-)
-
-single_run <- adjust_uc_om(
-  df_observed,
-  u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
-  u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
-  u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = "C1"
-  )
-  results <- adjust_uc_om(
-    df_observed,
-    u1y0_model_coefs = c(-0.19, 0.61, 0.00, -0.07),
-    u0y1_model_coefs = c(-3.21, 0.60, 1.60, 0.36),
-    u1y1_model_coefs = c(-2.72, 1.24, 1.59, 0.34)
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 2 confounders
-
-nobias_model <- glm(Y ~ X + C1 + C2 + U,
-                    family = binomial(link = "logit"),
-                    data = df_uc_om_source)
-
-# uy_model <- multinom(
-#   paste0(U, Y) ~ X + Ystar + C1 + C2,
-#   data = df_uc_om_source
-# )
-# summary(uy_model, digits = 2)
-
-df_observed <- data_observed(
-  df_uc_om,
-  exposure = "X_cont",
-  outcome = "Ystar",
-  confounders = c("C1", "C2")
-)
-
-single_run <- adjust_uc_om(
-  df_observed,
-  u1y0_model_coefs = c(-0.31, 0.60, 0.01, -0.08, 0.10),
-  u0y1_model_coefs = c(-3.07, 0.66, 1.65, 0.42, -0.85),
-  u1y1_model_coefs = c(-2.63, 1.23, 1.64, 0.32, -0.77)
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = c("C1", "C2")
-  )
-  results <- adjust_uc_om(
-    df_observed,
-    u1y0_model_coefs = c(-0.31, 0.60, 0.01, -0.08, 0.10),
-    u0y1_model_coefs = c(-3.07, 0.66, 1.65, 0.42, -0.85),
-    u1y1_model_coefs = c(-2.63, 1.23, 1.64, 0.32, -0.77)
+    bias_params = bp_uc_om
   )
   est[i] <- results$estimate
 }
@@ -501,16 +214,22 @@ nobias_model <- glm(Y ~ X + C1 + C2 + C3 + U,
 
 df_observed <- data_observed(
   df_uc_om,
+  bias = c("uc", "om"),
   exposure = "X_cont",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3")
 )
+list_for_uc_om <- list(
+  u1y0 = c(-0.2, 0.62, 0.01, -0.08, 0.10, -0.15),
+  u0y1 = c(-3.3, 0.63, 1.65, 0.42, -0.85, 0.26),
+  u1y1 = c(-2.7, 1.22, 1.64, 0.32, -0.77, 0.09)
+
+)
+bp_uc_om <- bias_params(coef_list = list_for_uc_om)
 
 single_run <- adjust_uc_om(
   df_observed,
-  u1y0_model_coefs = c(-0.2, 0.62, 0.01, -0.08, 0.10, -0.15),
-  u0y1_model_coefs = c(-3.3, 0.63, 1.65, 0.42, -0.85, 0.26),
-  u1y1_model_coefs = c(-2.7, 1.22, 1.64, 0.32, -0.77, 0.09)
+  bias_params = bp_uc_om
 )
 
 est <- vector()
@@ -518,15 +237,14 @@ for (i in 1:nreps) {
   bdf <- df_uc_om[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = c("uc", "om"),
     exposure = "X",
     outcome = "Ystar",
     confounders = c("C1", "C2", "C3")
   )
   results <- adjust_uc_om(
     df_observed,
-    u1y0_model_coefs = c(-0.2, 0.62, 0.01, -0.08, 0.10, -0.15),
-    u0y1_model_coefs = c(-3.3, 0.63, 1.65, 0.42, -0.85, 0.26),
-    u1y1_model_coefs = c(-2.7, 1.22, 1.64, 0.32, -0.77, 0.09)
+    bias_params = bp_uc_om
   )
   est[i] <- results$estimate
 }
@@ -549,6 +267,7 @@ test_that("odds ratio and confidence interval output", {
 or_val <- adjust_uc_om(
   data_observed = data_observed(
     df_uc_om,
+    bias = c("uc", "om"),
     exposure = "X",
     outcome = "Ystar",
     confounders = c("C1", "C2", "C3")

@@ -3,9 +3,14 @@
 #' @description
 #' `data_observed` combines the observed dataframe with specific identification
 #' of the columns corresponding to the exposure, outcome, and confounders. It is
-#' an essential input of all `adjust` functions.
+#' an essential input of the [multibias_adjust()] function.
 #'
 #' @param data Dataframe for bias analysis.
+#' @param bias String type(s) of bias distorting the effect of the exposure
+#' on the outcome. Can choose from a subset of the following: "uc", "em", "om",
+#' "sel". These correspond to uncontrolled confounding, exposure
+#' misclassification, outcome misclassification, and selection bias,
+#' respectively.
 #' @param exposure String name of the column in `data` corresponding to the
 #' exposure variable.
 #' @param outcome String name of the column in `data` corresponding to the
@@ -16,6 +21,7 @@
 #' @examples
 #' df <- data_observed(
 #'   data = df_sel,
+#'   bias = "uc",
 #'   exposure = "X",
 #'   outcome = "Y",
 #'   confounders = c("C1", "C2", "C3")
@@ -25,11 +31,13 @@
 
 data_observed <- function(
     data,
+    bias,
     exposure,
     outcome,
     confounders = NULL) {
   stopifnot(
     is.data.frame(data),
+    is.character(bias),
     is.character(exposure) & length(exposure) == 1,
     is.character(outcome) & length(outcome) == 1,
     is.character(confounders) | is.null(confounders)
@@ -51,9 +59,21 @@ data_observed <- function(
   df <- data %>%
     select(all_of(c(exposure, outcome, confounders)))
 
+  acceptable_biases <- c("uc", "em", "om", "sel")
+  if (!all(bias %in% acceptable_biases)) {
+    stop(
+      paste0(
+        "Unacceptable bias input. ",
+        "Biases must include a subset of the following: ",
+        "uc, em, om, sel"
+      )
+    )
+  }
+
   obj <- structure(
     list(
       data = df,
+      bias = bias,
       exposure = exposure,
       outcome = outcome,
       confounders = confounders
@@ -67,13 +87,25 @@ data_observed <- function(
 #' @export
 
 print.data_observed <- function(x, ...) {
+  bias_map <- c(
+    "uc" = "Uncontrolled Confounding",
+    "em" = "Exposure Misclassification",
+    "om" = "Outcome Misclassification",
+    "sel" = "Selection Bias"
+  )
+  bias_description <- bias_map[x$bias]
+
   cat("Observed Data\n")
-  cat("------------------\n")
+  cat("---------------------------------\n")
+  cat("The following biases are present:", "\n")
+  cat(paste(bias_description, collapse = "\n"), "\n")
+  cat("---------------------------------\n")
   cat("Exposure:", x$exposure, "\n")
   cat("Outcome:", x$outcome, "\n")
   if (!is.null(x$confounders)) {
     cat("Confounders:", paste(x$confounders, collapse = ", "), "\n")
   }
+  cat("---------------------------------\n")
   cat("Data head: \n")
   print(x$data[seq_len(min(5, nrow(x$data))), ])
   invisible(x)
@@ -83,9 +115,10 @@ print.data_observed <- function(x, ...) {
 #' Represent validation causal data
 #'
 #' @description
-#' `data_validation` combines the validation dataframe with specific
-#' identification of the appropriate columns for bias adjustment, including:
-#' true exposure, true outcome, confounders, misclassified exposure,
+#' `data_validation` is one of two different options to represent bias
+#' assumptions for bias adjustment. It combines the validation dataframe
+#' with specific identification of the appropriate columns for bias adjustment,
+#' including: true exposure, true outcome, confounders, misclassified exposure,
 #' misclassified outcome, and selection. The purpose of validation data is to
 #' use an external data source to transport the necessary causal relationships
 #' that are missing in the observed data.

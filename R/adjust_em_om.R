@@ -1,3 +1,11 @@
+# Adjust for exposure misclassification and outcome misclassification
+
+# the following functions feed into adjust_em_om():
+# adjust_em_om_val() (data_validation input),
+# adjust_em_om_coef_single() (bias_params input),
+# adjust_em_om_coef_multinom() (bias_params input)
+
+
 adjust_em_om_val <- function(
     data_observed,
     data_validation) {
@@ -5,10 +13,13 @@ adjust_em_om_val <- function(
     stop("All confounders in observed data must be present in validation data.", call. = FALSE)
   }
 
-  if (is.null(data_validation$misclassified_exposure) && is.null(data_validation$misclassified_outcome)) {
+  if (
+    is.null(data_validation$misclassified_exposure) ||
+      is.null(data_validation$misclassified_outcome)
+  ) {
     stop(
       paste0(
-        "This function is adjusting for a misclassified exposure and misclassified outcome.",
+        "Attempting to adjust for a misclassified exposure and misclassified outcome.",
         "\n",
         "Validation data must include a true exposure, misclassified exposure, true outcome, and misclassified outcome."
       ),
@@ -262,6 +273,7 @@ adjust_em_om_coef_single <- function(
 
   return(final)
 }
+
 
 adjust_em_om_coef_multinom <- function(
     data_observed,
@@ -561,192 +573,56 @@ adjust_em_om_coef_multinom <- function(
 }
 
 
-#' Adust for exposure misclassification and outcome misclassification.
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `adjust_emc_omc()` was renamed to `adjust_em_om()`
-#' @keywords internal
-#'
-#' @export
-adjust_emc_omc <- function(
-    data_observed,
-    x_model_coefs = NULL,
-    y_model_coefs = NULL,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level = 0.95) {
-  lifecycle::deprecate_warn("1.5.3", "adjust_emc_omc()", "adjust_em_om()")
-  adjust_em_om(
-    data_observed,
-    x_model_coefs,
-    y_model_coefs,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
-    level
-  )
-}
-
-
-#' Adust for exposure misclassification and outcome misclassification.
-#'
-#' `adjust_em_om` returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for exposure misclassification and outcome
-#' misclassification.
-#'
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters. Two different options for the bias parameters
-#' are available here: 1) parameters from separate models of *X* and *Y*
-#' (`x_model_coefs` and `y_model_coefs`) or 2) parameters from
-#' a joint model of *X* and *Y* (`x1y0_model_coefs`,
-#' `x0y1_model_coefs`, and `x1y1_model_coefs`).
-#'
-#' Values for the regression coefficients can be applied as
-#' fixed values or as single draws from a probability
-#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
-#' the advantage of allowing the researcher to capture the uncertainty
-#' in the bias parameter estimates. To incorporate this uncertainty in the
-#' estimate and confidence interval, this function should be run in loop across
-#' bootstrap samples of the dataframe for analysis. The estimate and
-#' confidence interval would then be obtained from the median and quantiles
-#' of the distribution of odds ratio estimates.
-#'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
-#' @param data_validation Object of class `data_validation` corresponding to
-#' the validation data used to adjust for bias in the observed data. Here, the
-#' validation data should have data for the same variables as in the observed
-#' data, plus data for the true and misclassified exposure and outcome
-#' corresponding to the observed exposure and outcome in `data_observed`.
-#' @param x_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(X=1)) = &delta;<sub>0</sub> + &delta;<sub>1</sub>X* + &delta;<sub>2</sub>Y* + &delta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(X=1)) = \delta_0 + \delta_1 X^* + \delta_2 Y^* + \delta{2+j} C_j, }}
-#' where *X* represents the binary true exposure, *X** is the
-#' binary misclassified exposure, *Y** is the binary misclassified
-#' outcome, *C* represents the vector of
-#' measured confounders (if any), and *j* corresponds to the number
-#' of measured confounders. The number of parameters is therefore 3 + *j*.
-#' @param y_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(Y=1)) = &beta;<sub>0</sub> + &beta;<sub>1</sub>X + &beta;<sub>2</sub>Y* + &beta;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(Y=1)) = \beta_0 + \beta_1 X + \beta_2 Y^* + \beta{{2+j}} C_j, }}
-#' where *Y* represents the binary true outcome,
-#' *X* is the binary exposure, *Y** is the binary
-#' misclassified outcome, *C* represents the vector of measured
-#' confounders (if any), and *j* corresponds to the number of measured
-#' confounders. The number of parameters is therefore 3 + *j*.
-#' @param x1y0_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(X=1,Y=0) / P(X=0,Y=0)) = &gamma;<sub>1,0</sub> + &gamma;<sub>1,1</sub>X* + &gamma;<sub>1,2</sub>Y* + &gamma;<sub>1,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=0) / P(X=0,Y=0)) = \gamma_{1,0} + \gamma_{1,1} X^* + \gamma_{1,2} Y^* + \gamma_{1,2+j} C_j, }}
-#' where *X* is the binary true exposure, *Y* is the binary
-#' true outcome, *X** is the binary misclassified exposure, *Y**
-#' is the binary misclassified outcome, *C* represents the vector of
-#' measured confounders (if any), and *j* corresponds to the
-#' number of measured confounders.
-#' @param x0y1_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(X=0,Y=1) / P(X=0,Y=0)) = &gamma;<sub>2,0</sub> + &gamma;<sub>2,1</sub>X* + &gamma;<sub>2,2</sub>Y* + &gamma;<sub>2,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=0,U=1) / P(X=0,U=0)) = \gamma_{2,0} + \gamma_{2,1} X^* + \gamma_{2,2} Y^* + \gamma_{2,2+j} C_j, }}
-#' where *X* is the binary true exposure, *Y* is the binary
-#' true outcome, *X** is the binary misclassified exposure, *Y**
-#' is the binary misclassified outcome, *C* represents the vector of
-#' measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders.
-#' @param x1y1_model_coefs The regression coefficients corresponding to the
-#' model:
-#' \ifelse{html}{\out{log(P(X=1,Y=1) / P(X=0,Y=0)) = &gamma;<sub>3,0</sub> + &gamma;<sub>3,1</sub>X* + &gamma;<sub>3,2</sub>Y* + &gamma;<sub>3,2+j</sub>C<sub>j</sub>, }}{\eqn{log(P(X=1,Y=1) / P(X=0,Y=0)) = \gamma_{3,0} + \gamma_{3,1} X^* + \gamma_{3,2} Y^* + \gamma_{3,2+j} C_j, }}
-#' where *X* is the binary true exposure, *Y* is the binary
-#' true outcome, *X** is the binary misclassified exposure, *Y**
-#' is the binary misclassified outcome, *C* represents the vector of
-#' measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders.
-#' @param level Value from 0-1 representing the full range of the confidence
-#' interval. Default is 0.95.
-#'
-#' @return A list where the first item is the odds ratio estimate of the
-#' effect of the exposure on the outcome and the second item is the
-#' confidence interval as the vector: (lower bound, upper bound).
-#'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_em_om,
-#'   exposure = "Xstar",
-#'   outcome = "Ystar",
-#'   confounders = "C1"
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_em_om_source,
-#'   true_exposure = "X",
-#'   true_outcome = "Y",
-#'   confounders = "C1",
-#'   misclassified_exposure = "Xstar",
-#'   misclassified_outcome = "Ystar"
-#' )
-#'
-#' adjust_em_om(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using x_model_coefs and y_model_coefs -------------------------------------
-#' adjust_em_om(
-#'   data_observed = df_observed,
-#'   x_model_coefs = c(-2.15, 1.64, 0.35, 0.38),
-#'   y_model_coefs = c(-3.10, 0.63, 1.60, 0.39)
-#' )
-#'
-#' # Using x1y0_model_coefs, x0y1_model_coefs, and x1y1_model_coefs ------------
-#' adjust_em_om(
-#'   data_observed = df_observed,
-#'   x1y0_model_coefs = c(-2.18, 1.63, 0.23, 0.36),
-#'   x0y1_model_coefs = c(-3.17, 0.22, 1.60, 0.40),
-#'   x1y1_model_coefs = c(-4.76, 1.82, 1.83, 0.72)
-#' )
-#'
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom stats binomial
-#' @importFrom stats glm
-#' @importFrom stats qnorm
-#' @importFrom stats plogis
-#' @importFrom rlang .data
-#'
-#' @export
-
 adjust_em_om <- function(
     data_observed,
     data_validation = NULL,
-    x_model_coefs = NULL,
-    y_model_coefs = NULL,
-    x1y0_model_coefs = NULL,
-    x0y1_model_coefs = NULL,
-    x1y1_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
-  check_inputs3(
-    data_validation,
-    list(x_model_coefs, y_model_coefs),
-    list(x1y0_model_coefs, x0y1_model_coefs, x1y1_model_coefs)
-  )
+  if (
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
+  ) {
+    stop(
+      "One of data_validation or bias_params must be non-null.",
+      call. = FALSE
+    )
+  }
 
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(
       data_observed,
       data_validation
     )
-  } else if (!is.null(x_model_coefs)) {
-    final <- adjust_em_om_coef_single(
-      data_observed,
-      x_model_coefs,
-      y_model_coefs
-    )
-  } else if (!is.null(x1y0_model_coefs)) {
-    final <- adjust_em_om_coef_multinom(
-      data_observed,
-      x1y0_model_coefs,
-      x0y1_model_coefs,
-      x1y1_model_coefs
-    )
+  } else if (!is.null(bias_params)) {
+    if (all(c("x", "y") %in% names(bias_params$coef_list))) {
+      final <- adjust_em_om_coef_single(
+        data_observed,
+        x_model_coefs = bias_params$coef_list$x,
+        y_model_coefs = bias_params$coef_list$y
+      )
+    } else if (
+      all(
+        c("x1y0", "x0y1", "x1y1") %in%
+          names(bias_params$coef_list)
+      )
+    ) {
+      final <- adjust_em_om_coef_multinom(
+        data_observed,
+        x1y0_model_coefs = bias_params$coef_list$x1y0,
+        x0y1_model_coefs = bias_params$coef_list$x0y1,
+        x1y1_model_coefs = bias_params$coef_list$x1y1
+      )
+    } else {
+      (
+        stop(
+          paste0(
+            "bias_params must specify parameters for ",
+            "exposure misclassification and outcome misclassification"
+          ),
+          call. = FALSE
+        )
+      )
+    }
   }
 
   est <- summary(final)$coef[2, 1]

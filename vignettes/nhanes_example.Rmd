@@ -86,22 +86,23 @@ exp(coef(base_mod))
 exp(confint(base_mod))
 ```
 
-The family of functions in `multibias` requires inputting the observed data as a `data_observed()` object.
+## 1. Adjust for uncontrolled confounding
+
+An important confounder, smoking, was not included in our analysis! We'll specify this bias in our `data_observed()` object.
 
 ```{r}
-df_obs <- data_observed(
+df_obs1 <- data_observed(
   data = nhanes_filtered,
+  bias = "uc",
   exposure = "alcohol_extreme",
   outcome = "mortstat",
   confounders = c("age", "gender_female")
 )
 
-print(df_obs)
+print(df_obs1)
 ```
 
-## 1. Adjust for uncontrolled confounding
-
-An important confounder, smoking, was not included in our analysis! Let's demonstrate how we could use validation data with smoking information to adjust for the uncontrolled confounding. Feature `smoked_100cigs` corresponds to whether a participant reported having smoked 100 cigarettes throughout their life.
+Let's demonstrate how we could use validation data with smoking information to adjust for the uncontrolled confounding. Feature `smoked_100cigs` corresponds to whether a participant reported having smoked 100 cigarettes throughout their life.
 
 ```{r}
 df_temp1 <- nhanes_filtered |>
@@ -115,11 +116,11 @@ df_val1 <- data_validation(
 )
 ```
 
-We now put these two objects into the `multibias` function named `adjust_uc()` to adjust for uncontrolled confounding. This new bias-adjusted odds ratio (1.4) is closer to the null than that of our base model. This is not a surprise considering that extreme drinkers are more likely to be smokers, and smoking increases the risk of death. Due to these strong correlations, part of the alcohol effect in our base model included the effect from smoking.
+We now put these two objects into `multibias_adjust()` to adjust for uncontrolled confounding. This new bias-adjusted odds ratio (1.4) is closer to the null than that of our base model. This is not a surprise considering that extreme drinkers are more likely to be smokers, and smoking increases the risk of death. Due to these strong correlations, part of the alcohol effect in our base model included the effect from smoking.
 
 ```{r}
 set.seed(1234)
-adjust_uc(df_obs, df_val1)
+multibias_adjust(df_obs1, df_val1)
 ```
 
 ## 2. Adjust for uncontrolled confounding and exposure misclassification
@@ -149,12 +150,23 @@ df_val2 <- data_validation(
 )
 ```
 
-We now put these two objects into the `multibias` function named `adjust_uc_em()` to adjust for uncontrolled confounding and exposure misclassification. The new bias-adjsted odds ratio is even closer to the null.
+We now put this validation dataframe into `multibias_adjust()` along with a new `data_observed` object that identifies the uncontrolled confounding and exposure misclassification biases.
 
 ```{r}
+
+df_obs2 <- data_observed(
+  data = nhanes_filtered,
+  bias = c("em", "uc"),
+  exposure = "alcohol_extreme",
+  outcome = "mortstat",
+  confounders = c("age", "gender_female")
+)
+
 set.seed(1234)
-adjust_uc_em(df_obs, df_val2)
+multibias_adjust(df_obs2, df_val2)
 ```
+
+The new bias-adjsted odds ratio is even closer to the null. The effect of alcohol is looking less meaningful when we bring these additional assumptions into consideration.
 
 ## 3. Adjust for uncontrolled confounding, exposure misclassification, and selection bias
 
@@ -229,11 +241,19 @@ df_val3 <- data_validation(
 )
 ```
 
-Now let's see if this differential study selection led to a bias of our alcohol risk effect. We now put these two objects into the `adjust_uc_em_sel()` function to adjust for uncontrolled confounding, exposure misclassification, and selection bias.
+Now let's see if this differential study selection led to a bias of our alcohol risk effect. We'll add this validation data to `multibias_adjust` with the observed data that specifies the three biases.
 
 ```{r}
+df_obs3 <- data_observed(
+  data = nhanes_filtered,
+  bias = c("em", "uc", "sel"),
+  exposure = "alcohol_extreme",
+  outcome = "mortstat",
+  confounders = c("age", "gender_female")
+)
+
 set.seed(1234)
-adjust_uc_em_sel(df_obs, df_val3)
+multibias_adjust(df_obs3, df_val3)
 ```
 
-Any selection bias based on the sampling weights seems to be pretty minor; the bias-adjusted odds ratio of the effect of alcohol on mortality does not change much relative to the prior adjustment we made.
+Any selection bias based on the sampling weights seems to be pretty minor; the bias-adjusted odds ratio of the effect of alcohol on mortality does not change much relative to the prior adjustment we made. Disagree with any of the bias assumptions made here? Multibias makes it very easy to re-iterate and test the sensitivity of the estimate to different assumptions.

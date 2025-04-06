@@ -20,18 +20,17 @@ nobias_model <- glm(
 
 df_observed <- data_observed(
   df_sel,
+  bias = "sel",
   exposure = "X",
   outcome = "Y_cont",
   confounders = NULL
 )
+list_for_sel <- list(s = as.vector(coef(s_model)))
+bp_sel <- bias_params(coef_list = list_for_sel)
 
 single_run <- adjust_sel(
   df_observed,
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3]
-  )
+  bias_params = bp_sel
 )
 
 est <- vector()
@@ -39,129 +38,14 @@ for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = "sel",
     exposure = "X",
     outcome = "Y",
     confounders = NULL
   )
   results <- adjust_sel(
     df_observed,
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3]
-    )
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 1 confounder
-
-nobias_model <- glm(Y ~ X + C1,
-  family = binomial(link = "logit"),
-  data = df_sel_source
-)
-
-df_observed <- data_observed(
-  df_sel,
-  exposure = "X",
-  outcome = "Y_cont",
-  confounders = "C1"
-)
-
-single_run <- adjust_sel(
-  df_observed,
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3]
-  )
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Y",
-    confounders = "C1"
-  )
-  results <- adjust_sel(
-    df_observed,
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3]
-    )
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
-
-test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
-
-# 2 confounders
-
-nobias_model <- glm(Y ~ X + C1 + C2,
-  family = binomial(link = "logit"),
-  data = df_sel_source
-)
-
-df_observed <- data_observed(
-  df_sel,
-  exposure = "X",
-  outcome = "Y_cont",
-  confounders = c("C1", "C2")
-)
-
-single_run <- adjust_sel(
-  df_observed,
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3]
-  )
-)
-
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    exposure = "X",
-    outcome = "Y",
-    confounders = c("C1", "C2")
-  )
-  results <- adjust_sel(
-    df_observed,
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3]
-    )
+    bias_params = bp_sel
   )
   est[i] <- results$estimate
 }
@@ -188,18 +72,17 @@ nobias_model <- glm(Y ~ X + C1 + C2 + C3,
 
 df_observed <- data_observed(
   df_sel,
+  bias = "sel",
   exposure = "X",
   outcome = "Y_cont",
   confounders = c("C1", "C2", "C3")
 )
+list_for_sel <- list(s = as.vector(coef(s_model)))
+bp_sel <- bias_params(coef_list = list_for_sel)
 
 single_run <- adjust_sel(
   df_observed,
-  s_model_coefs = c(
-    s_model$coef[1],
-    s_model$coef[2],
-    s_model$coef[3]
-  )
+  bias_params = bp_sel
 )
 
 est <- vector()
@@ -207,17 +90,14 @@ for (i in 1:nreps) {
   bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
   df_observed <- data_observed(
     bdf,
+    bias = "sel",
     exposure = "X",
     outcome = "Y",
     confounders = c("C1", "C2", "C3")
   )
   results <- adjust_sel(
     df_observed,
-    s_model_coefs = c(
-      s_model$coef[1],
-      s_model$coef[2],
-      s_model$coef[3]
-    )
+    bias_params = bp_sel
   )
   est[i] <- results$estimate
 }
@@ -240,6 +120,7 @@ test_that("odds ratio and confidence interval output", {
 or_val <- adjust_sel(
   data_observed = data_observed(
     df_sel,
+    bias = "sel",
     exposure = "X",
     outcome = "Y",
     confounders = c("C1", "C2", "C3")

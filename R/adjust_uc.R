@@ -1,3 +1,9 @@
+# Adjust for uncontrolled confounding
+
+# the following functions feed into adjust_uc():
+# adjust_uc_val() (data_validation input),
+# adjust_uc_coef() (bias_params input)
+
 adjust_uc_val <- function(
     data_observed,
     data_validation) {
@@ -13,7 +19,7 @@ adjust_uc_val <- function(
   ) {
     stop(
       paste0(
-        "This function adjusts for unobserved confounding from one confounder.",
+        "Attempting to adjust for unobserved confounding from one confounder.",
         "\n",
         "Validation data must have one more confounder than the observed data."
       ),
@@ -237,93 +243,17 @@ adjust_uc_coef <- function(
 }
 
 
-#' Adust for uncontrolled confounding.
-#'
-#' `adjust_uc` returns the exposure-outcome odds ratio and confidence
-#' interval, adjusted for uncontrolled confounding from a binary confounder.
-#'
-#' Bias adjustment can be performed by inputting either a validation dataset or
-#' the necessary bias parameters. Values for the bias parameters
-#' can be applied as fixed values or as single draws from a probability
-#' distribution (ex: `rnorm(1, mean = 2, sd = 1)`). The latter has
-#' the advantage of allowing the researcher to capture the uncertainty
-#' in the bias parameter estimates. To incorporate this uncertainty in the
-#' estimate and confidence interval, this function should be run in loop across
-#' bootstrap samples of the dataframe for analysis. The estimate and
-#' confidence interval would then be obtained from the median and quantiles
-#' of the distribution of odds ratio estimates.
-#'
-#' @param data_observed Object of class `data_observed` corresponding to the
-#' data to perform bias analysis on.
-#' @param data_validation Object of class `data_validation` corresponding to
-#' the validation data used to adjust for bias in the observed data. Here, the
-#' validation data should have data for the same variables as in the observed
-#' data, plus data for the confounder missing in `data_observed`.
-#' @param u_model_coefs The regression coefficients corresponding to the model:
-#' \ifelse{html}{\out{logit(P(U=1)) = &alpha;<sub>0</sub> + &alpha;<sub>1</sub>X + &alpha;<sub>2</sub>Y + &alpha;<sub>2+j</sub>C<sub>j</sub>, }}{\eqn{logit(P(U=1)) = \alpha_0 + \alpha_1 X + \alpha_2 Y + \alpha_{2+j} C_j, }}
-#' where *U* is the binary unmeasured confounder, *X* is the
-#' exposure, *Y* is the outcome, *C* represents the vector of
-#' measured confounders (if any),
-#' and *j* corresponds to the number of measured confounders.
-#' The number of parameters therefore equals 3 + *j*.
-#' @param level Value from 0-1 representing the full range of the confidence
-#' interval. Default is 0.95.
-#'
-#' @return A list where the first item is the odds ratio estimate of the
-#' effect of the exposure on the outcome and the second item is the
-#' confidence interval as the vector: (lower bound, upper bound).
-#'
-#' @examples
-#' df_observed <- data_observed(
-#'   data = df_uc,
-#'   exposure = "X_bi",
-#'   outcome = "Y_bi",
-#'   confounders = c("C1", "C2", "C3")
-#' )
-#'
-#' # Using validation data -----------------------------------------------------
-#' df_validation <- data_validation(
-#'   data = df_uc_source,
-#'   true_exposure = "X_bi",
-#'   true_outcome = "Y_bi",
-#'   confounders = c("C1", "C2", "C3", "U")
-#' )
-#'
-#' adjust_uc(
-#'   data_observed = df_observed,
-#'   data_validation = df_validation
-#' )
-#'
-#' # Using u_model_coefs -------------------------------------------------------
-#' adjust_uc(
-#'   data_observed = df_observed,
-#'   u_model_coefs = c(-0.19, 0.61, 0.70, -0.09, 0.10, -0.15)
-#' )
-#'
-#' @import dplyr
-#' @importFrom magrittr %>%
-#' @importFrom stats binomial
-#' @importFrom stats glm
-#' @importFrom stats lm
-#' @importFrom stats qnorm
-#' @importFrom stats rbinom
-#' @importFrom stats plogis
-#' @importFrom stats coef
-#' @importFrom rlang .data
-#'
-#' @export
-
 adjust_uc <- function(
     data_observed,
     data_validation = NULL,
-    u_model_coefs = NULL,
+    bias_params = NULL,
     level = 0.95) {
   if (
-    (!is.null(data_validation) && !is.null(u_model_coefs)) ||
-      (is.null(data_validation) && is.null(u_model_coefs))
+    (!is.null(data_validation) && !is.null(bias_params)) ||
+      (is.null(data_validation) && is.null(bias_params))
   ) {
     stop(
-      "One of data_validation or u_model_coefs must be non-null.",
+      "One of data_validation or bias_params must be non-null.",
       call. = FALSE
     )
   }
@@ -343,10 +273,16 @@ adjust_uc <- function(
       data_observed,
       data_validation
     )
-  } else if (!is.null(u_model_coefs)) {
+  } else if (!is.null(bias_params)) {
+    if (is.null(bias_params$coef_list$u)) {
+      stop(
+        "bias_params must specify parameters for u to adjust for uncontrolled confounding",
+        call. = FALSE
+      )
+    }
     final <- adjust_uc_coef(
       data_observed,
-      u_model_coefs
+      u_model_coefs = bias_params$coef_list$u
     )
   }
 
