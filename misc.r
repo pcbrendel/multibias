@@ -71,3 +71,25 @@ create_github_token()
 gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
+
+df_observed <- data_observed(
+  data = df_em_om,
+  bias = c("om", "em"),
+  exposure = "Xstar",
+  outcome = "Ystar",
+  confounders = "C1"
+)
+
+df_validation <- data_validation(
+  data = df_em_om_source,
+  true_exposure = "X",
+  true_outcome = "Y",
+  confounders = "C1",
+  misclassified_exposure = "Xstar",
+  misclassified_outcome = "Ystar"
+)
+
+multibias_adjust(
+  data_observed = df_observed,
+  data_validation = df_validation
+)

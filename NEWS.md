@@ -1,4 +1,17 @@
+# multibias 1.7
+
+* Created `bias_params` class to handle bias parameter inputs to
+`multibias_adjust()`
+* Replaced the various `adjust()` functions with a single `multibias_adjust()`
+function. Users now specify the biases they want to adjust for in the
+`data_observed` object. Bias adjustment formulas are now found in the
+`bias_params` documentation.
+* The user now specifies biases for adjustment in the `bias` input of
+`data_observed`
+* Removed `evans` data; now only used in vignette
+
 # multibias 1.6.3
+
 * Created a `pkgdown` web page: www.paulbrendel.com/multibias
 * Refined the vignette, including a new NHANES analysis
 

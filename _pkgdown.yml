@@ -22,37 +22,21 @@ navbar:
 
 reference:
 - title: Functions
+- subtitle: Multiple bias adjustment
+  desc: >
+    For a given exposure and outcome, obtain an exposure-outcome effect
+    estimate adjusted for one or more biases.
+  contents:
+  - multibias_adjust
+
+- title: Classes
 - subtitle: Causal data
   desc: >
     Combine a dataframe with specification of key variables to create a
-    causal data object. These objects are then used in bias-adjusting functions.
+    causal data object. These objects are then used in bias adjustment.
   contents:
   - data_observed
   - data_validation
-- subtitle: Single bias adjustment
-  desc: >
-    For a given exposure and outcome within `data_observed`,
-    obtain an exposure-outcome effect estimate adjusted for a
-    single source of bias.
-  contents:
-  - adjust_em
-  - adjust_om
-  - adjust_sel
-  - adjust_uc
-- subtitle: Multiple bias adjustment
-  desc: >
-    For a given exposure and outcome within `data_observed`,
-    obtain an exposure-outcome effect estimate adjusted for
-    multiple sources of bias.
-  contents:
-  - adjust_em_om
-  - adjust_em_sel
-  - adjust_uc_em_sel
-  - adjust_uc_em
-  - adjust_uc_om_sel
-  - adjust_uc_om
-  - adjust_uc_sel
-  - adjust_om_sel
 
 - title: Data
 - subtitle: Biased data
