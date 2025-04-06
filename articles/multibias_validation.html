@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multibias Validation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.6.3/vignettes/multibias_validation.Rmd" class="external-link"><code>vignettes/multibias_validation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/multibias_validation.Rmd" class="external-link"><code>vignettes/multibias_validation.Rmd</code></a></small>
       <div class="d-none name"><code>multibias_validation.Rmd</code></div>
     </div>
 
@@ -121,7 +121,7 @@ odds ratio of 2 due to the multiple bias sources.</p>
 <span><span class="va">biased_or</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">biased_model</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Biased Odds Ratio: "</span>, <span class="va">biased_or</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Biased Odds Ratio: 1.5"</span></span></code></pre></div>
-<p>The function <code><a href="../reference/adjust_uc_emc_sel.html">adjust_uc_emc_sel()</a></code> can be used here to
+<p>The function <code>adjust_uc_emc_sel()</code> can be used here to
 “reconstruct” the unbiased data and return the exposure-outcome odds
 ratio that would be observed in the unbiased setting.</p>
 <p>Models for the missing variables (<em>U</em>, <em>X</em>, <em>S</em>)
@@ -175,7 +175,7 @@ specify the desired number of bootstrap repitions.</p>
 <span><span class="va">nreps</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span>length <span class="op">=</span> <span class="va">nreps</span><span class="op">)</span></span></code></pre></div>
 <p>Next we run the parallel for loop in which we apply the
-<code><a href="../reference/adjust_uc_em_sel.html">adjust_uc_em_sel()</a></code> function to bootstrap samples of the
+<code>adjust_uc_em_sel()</code> function to bootstrap samples of the
 <code>df_uc_em_sel</code> data. Within the function, we include the
 following arguments: 1. The <code>data_observed</code> object, which
 includes the dataframe and key column names. 2. The bias parameters:
@@ -195,7 +195,7 @@ slightly different values for the bias parameters.</p>
 <span>                                   <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_uc_em_sel</span><span class="op">)</span>,</span>
 <span>                                   replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span>
 <span></span>
-<span>  <span class="va">est</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/adjust_uc_em_sel.html">adjust_uc_em_sel</a></span><span class="op">(</span></span>
+<span>  <span class="va">est</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">adjust_uc_em_sel</span><span class="op">(</span></span>
 <span>    data_observed <span class="op">=</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>      data <span class="op">=</span> <span class="va">df_sample</span>,</span>
 <span>      exposure <span class="op">=</span> <span class="st">"Xstar"</span>,</span>

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,7 @@
 </h2>
 <p>The multibias package is used to adjust for multiple biases in causal inference when working with observational data. Bias here refers to the case when the associational estimate of effect does not equal the causal estimate of effect:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>C</mi><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mn>1</mn><mo stretchy="false" form="prefix">|</mo><mi>X</mi><mo>=</mo><mn>0</mn><mo>,</mo><mi>C</mi><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>≠</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Y</mi><mrow><mi>X</mi><mo>=</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>Y</mi><mrow><mi>X</mi><mo>=</mo><mn>0</mn></mrow></msup><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(P(Y=1|X=1,C=0) / P(Y=1|X=0,C=0)) \neq (P(Y^{X=1}=1) / P(Y^{X=0}=1))</annotation></semantics></math></p>
-<p>The <code>adjust()</code> family of functions output odds ratio estimates adjusted for any combination of: uncontrolled confounding (<strong>uc</strong>), exposure misclassification (<strong>em</strong>), outcome misclassification (<strong>om</strong>), and selection bias (<strong>sel</strong>). For example, <code><a href="reference/adjust_uc_om_sel.html">adjust_uc_om_sel()</a></code> simultaneously adjusts for uncontrolled confounding, outcome misclassificaiton, and selection bias.</p>
+<p>The <code><a href="reference/multibias_adjust.html">multibias_adjust()</a></code> function outputs odds ratio estimates adjusted for any combination of: uncontrolled confounding (<strong>uc</strong>), exposure misclassification (<strong>em</strong>), outcome misclassification (<strong>om</strong>), and selection bias (<strong>sel</strong>).</p>
 <p>The package also includes several dataframes that are useful for validating the bias adjustment methods. Each dataframe contains different combinations of bias as identified by the same prefixing system. For each bias combination, there is a dataframe with incomplete information (as would be encountered in the real world) (e.g., <code>df_uc</code>) and a dataframe with complete information that was used to derive the biased data (e.g., <code>df_uc_source</code>).</p>
 </div>
 <div class="section level2">
@@ -92,97 +92,36 @@
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li>Determine the desired biases to adjust for in your observational data for a given exposure-outcome effect and identify the corresponding <code>adjust()</code> function (see tables below).</li>
+<li>Represent the observed causal data as a <code>data_observed</code> object. Here you provide the data, specify the key variables, and list the biases present in the data. See list below for the different bias combinations that multibias can handle.</li>
 <li>Obtain one of the two sources for bias adjustment:
 <ol style="list-style-type: decimal">
-<li>Bias parameters. These values could come from the literature, validation data, or expert opinion. Each parameter can be represented as a single value or as a probability distribution. See <code>adjust()</code> function documentation.</li>
-<li>Validation dataframe. The purpose of validation data is to use an external data source to transport the necessary causal relationships that are missing in the observed data.</li>
+<li>Bias parameters - via the <code>bias_params</code> object. Values for these parameters could come from the literature, validation data, or expert opinion. Each parameter can be represented as a single value or as a probability distribution. See the <code>bias_params</code> documentation for the full bias models.</li>
+<li>Validation dataframe - via the <code>data_validation</code> object. The purpose of validation data is to use an external data source to transport the necessary causal relationships that are missing in the observed data.</li>
 </ol>
 </li>
-<li>Run the <code>adjust()</code> function after inputting:
-<ol style="list-style-type: decimal">
-<li>The observed data as a <code>data_observed</code> object</li>
-<li>The bias parameters or validation data as <code>data_validation</code> object</li>
-<li>The level of the bias-adjusted effect estimate confidence interval</li>
-</ol>
-</li>
-<li>The <code>adjust()</code> function will output the bias-adjusted exposure-outcome odds ratio and confidence interval.</li>
+<li>Run <code><a href="reference/multibias_adjust.html">multibias_adjust()</a></code> using the above inputs to obtain the bias-adjusted exposure-outcome odds ratio and confidence interval.</li>
 </ol>
 <div class="section level3">
-<h3 id="single-bias-adjustments">Single bias adjustments<a class="anchor" aria-label="anchor" href="#single-bias-adjustments"></a>
+<h3 id="possible-bias-adjustments">Possible bias adjustments<a class="anchor" aria-label="anchor" href="#possible-bias-adjustments"></a>
 </h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Adjusts for</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/adjust_em.html">adjust_em()</a></code></td>
-<td>exposure misclassification</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/adjust_om.html">adjust_om()</a></code></td>
-<td>outcome misclassification</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/adjust_sel.html">adjust_sel()</a></code></td>
-<td>selection bias</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/adjust_uc.html">adjust_uc()</a></code></td>
-<td>uncontrolled confounding</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="multiple-bias-adjustments">Multiple bias adjustments<a class="anchor" aria-label="anchor" href="#multiple-bias-adjustments"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="50%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Adjusts for</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/adjust_em_sel.html">adjust_em_sel()</a></code></td>
-<td>exposure misclassification &amp; selection bias</td>
-</tr>
-<tr class="even">
-<td><code>adjust_em_om</code></td>
-<td>exposure misclassification &amp; outcome misclassification</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/adjust_om_sel.html">adjust_om_sel()</a></code></td>
-<td>outcome misclassification &amp; selection bias</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/adjust_uc_em.html">adjust_uc_em()</a></code></td>
-<td>uncontrolled confounding &amp; exposure misclassificaiton</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/adjust_uc_om.html">adjust_uc_om()</a></code></td>
-<td>uncontrolled confounding &amp; outcome misclassification</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/adjust_uc_sel.html">adjust_uc_sel()</a></code></td>
-<td>uncontrolled confounding &amp; selection bias</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/adjust_uc_em_sel.html">adjust_uc_em_sel()</a></code></td>
-<td>uncontrolled confounding, exposure misclassification, &amp; selection bias</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/adjust_uc_om_sel.html">adjust_uc_om_sel()</a></code></td>
-<td>uncontrolled confounding, outcome misclassification, &amp; selection bias</td>
-</tr>
-</tbody>
-</table>
+<p><strong>Single Bias</strong></p>
+<ul>
+<li>exposure misclassification</li>
+<li>outcome misclassification</li>
+<li>selection bias</li>
+<li>uncontrolled confounding</li>
+</ul>
+<p><strong>Multiple Biases</strong></p>
+<ul>
+<li>exposure misclassification &amp; selection bias</li>
+<li>exposure misclassification &amp; outcome misclassification</li>
+<li>outcome misclassification &amp; selection bias</li>
+<li>uncontrolled confounding &amp; exposure misclassificaiton</li>
+<li>uncontrolled confounding &amp; outcome misclassification</li>
+<li>uncontrolled confounding &amp; selection bias</li>
+<li>uncontrolled confounding, exposure misclassification, &amp; selection bias</li>
+<li>uncontrolled confounding, outcome misclassification, &amp; selection bias</li>
+</ul>
 </div>
 </div>
 <div class="section level2">
@@ -192,8 +131,6 @@
 <li>Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, <em>International Journal of Epidemiology</em>, Volume 52, Issue 4, Pages 1220–1230. <a href="https://doi.org/10.1093/ije/dyad001" class="external-link uri">https://doi.org/10.1093/ije/dyad001</a>
 </li>
 <li><a href="https://link.springer.com/book/10.1007/978-0-387-87959-8" class="external-link">Applying Quantitative Bias Analysis to Epidemiologic Data</a></li>
-<li>
-<a href="https://www.paulbrendel.com" class="external-link">www.paulbrendel.com</a>.</li>
 </ul>
 </div>
 </div>

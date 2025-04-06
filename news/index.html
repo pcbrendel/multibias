@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,18 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.6.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/pcbrendel/multibias/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.7" id="multibias-17">multibias 1.7<a class="anchor" aria-label="anchor" href="#multibias-17"></a></h2>
+<ul><li>Created <code>bias_params</code> class to handle bias parameter inputs to <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code>
+</li>
+<li>Replaced the various <code>adjust()</code> functions with a single <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> function. Users now specify the biases they want to adjust for in the <code>data_observed</code> object. Bias adjustment formulas are now found in the <code>bias_params</code> documentation.</li>
+<li>The user now specifies biases for adjustment in the <code>bias</code> input of <code>data_observed</code>
+</li>
+<li>Removed <code>evans</code> data; now only used in vignette</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.6.3" id="multibias-163">multibias 1.6.3<a class="anchor" aria-label="anchor" href="#multibias-163"></a></h2><p class="text-muted">CRAN release: 2025-02-23</p>
 <ul><li>Created a <code>pkgdown</code> web page: www.paulbrendel.com/multibias</li>

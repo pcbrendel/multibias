@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to multibias</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.6.3/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
       <div class="d-none name"><code>multibias.Rmd</code></div>
     </div>
 
@@ -77,10 +77,12 @@
 in causal inference research. This document walks you through the key
 steps to performing the analysis.</p>
 <div class="section level2">
-<h2 id="identify-the-biases-in-your-data">1. Identify the biases in your data<a class="anchor" aria-label="anchor" href="#identify-the-biases-in-your-data"></a>
+<h2 id="create-data_observed">1. Create data_observed<a class="anchor" aria-label="anchor" href="#create-data_observed"></a>
 </h2>
-<p>All epidemiological biases can be generalized into four main
-groups:</p>
+<p>Represent your observed data as a <code>data_observed</code> object.
+Here you include the dataframe, specify the key variables in the data,
+and identify the bias impacting the data. All epidemiological biases can
+be generalized into four main groups:</p>
 <ul>
 <li>Uncontrolled confounding (<strong>uc</strong>)</li>
 <li>Exposure misclassificaiton (<strong>em</strong>)</li>
@@ -88,10 +90,7 @@ groups:</p>
 <li>Selection bias (<strong>sel</strong>)</li>
 </ul>
 <p>Multibias is capable of handling bias adjustment for most of the
-combinations of the above four biases. Choose the <code>adjust()</code>
-function corresponding to the biases of interest using the appropriate
-prefix. For example, <code><a href="../reference/adjust_uc_sel.html">adjust_uc_sel()</a></code> adjusts for
-uncontrolled confounding and selection bias.</p>
+combinations of the above four biases.</p>
 <p>For purposes of demonstration, multibias includes datasets with
 different bias combinations. For a given bias or biases, it includes the
 biased data (e.g., <code>df_uc_sel</code>: missing a confounder and not
@@ -107,24 +106,17 @@ missing confounder and subjects who were not selected).</p>
 <li>
 <code>C1-C3</code> = binary confounders</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="create-data_observed">2. Create data_observed<a class="anchor" aria-label="anchor" href="#create-data_observed"></a>
-</h2>
-<p>Each <code>adjust()</code> function in multibias requires inputting
-your observed, biased data as a <code>data_observed</code> object. Here
-you specify the dataframe and identify the key variables in the
-data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  <span class="va">df_uc_sel</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
 <span>  exposure <span class="op">=</span> <span class="st">"X"</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="obtain-source-for-bias-adjustment">3. Obtain source for bias adjustment<a class="anchor" aria-label="anchor" href="#obtain-source-for-bias-adjustment"></a>
+<h2 id="create-source-for-bias-adjustment">2. Create source for bias adjustment<a class="anchor" aria-label="anchor" href="#create-source-for-bias-adjustment"></a>
 </h2>
 <p>Next, you need to have some information that can be used to quantify
 the assumed bias or biases. There are two options here.</p>
@@ -139,8 +131,12 @@ have bias parameters to predict the missing binary confounder
 <code>U</code> (as the vector <code>u_coefs</code>) and study selection
 indicator <code>S</code> (as the vector <code>s_coefs</code>).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">u_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.19</span>, <span class="fl">0.61</span>, <span class="fl">0.72</span>, <span class="op">-</span><span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="op">-</span><span class="fl">0.15</span><span class="op">)</span></span>
-<span><span class="va">s_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.92</span>, <span class="fl">0.94</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">bp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bias_params.html">bias_params</a></span><span class="op">(</span></span>
+<span>  coef_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    u <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.19</span>, <span class="fl">0.61</span>, <span class="fl">0.72</span>, <span class="op">-</span><span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="op">-</span><span class="fl">0.15</span><span class="op">)</span>,</span>
+<span>    s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.92</span>, <span class="fl">0.94</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="option-2-validation-data">Option 2: Validation data<a class="anchor" aria-label="anchor" href="#option-2-validation-data"></a>
@@ -162,17 +158,16 @@ for whether a given individual was selected into the study.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="run-the-bias-adjustment">4. Run the bias adjustment<a class="anchor" aria-label="anchor" href="#run-the-bias-adjustment"></a>
+<h2 id="run-the-bias-adjustment">3. Run the bias adjustment<a class="anchor" aria-label="anchor" href="#run-the-bias-adjustment"></a>
 </h2>
 <p>Finally, we can run the multi-bias adjustment!</p>
 <div class="section level3">
 <h3 id="single-run">Single run<a class="anchor" aria-label="anchor" href="#single-run"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/adjust_uc_sel.html">adjust_uc_sel</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
-<span>  u_model_coefs <span class="op">=</span> <span class="va">u_coefs</span>,</span>
-<span>  s_model_coefs <span class="op">=</span> <span class="va">s_coefs</span></span>
+<span>  bias_params <span class="op">=</span> <span class="va">bp</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 2.001141</span></span>
@@ -181,7 +176,7 @@ for whether a given individual was selected into the study.</p>
 <span><span class="co">#&gt; [1] 1.948436 2.055271</span></span></code></pre></div>
 <p>or</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/adjust_uc_sel.html">adjust_uc_sel</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  data_validation <span class="op">=</span> <span class="va">df_validation</span></span>
 <span><span class="op">)</span></span>
@@ -213,11 +208,12 @@ Computational performance can be improved via parallelization.</p>
 <span>  <span class="va">df_bootstrap</span> <span class="op">&lt;-</span> <span class="va">df_uc_sel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span>
 <span>  <span class="va">df_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>    <span class="va">df_bootstrap</span>,</span>
+<span>    bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
 <span>    exposure <span class="op">=</span> <span class="st">"X"</span>,</span>
 <span>    outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
 <span>    confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/adjust_uc_sel.html">adjust_uc_sel</a></span><span class="op">(</span></span>
+<span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>    <span class="va">df_observed</span>,</span>
 <span>    <span class="va">df_validation</span></span>
 <span>  <span class="op">)</span></span>

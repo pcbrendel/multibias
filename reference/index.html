@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,8 +45,19 @@
 
     </div><div class="section level2">
 
-      <h3 id="causal-data">Causal data<a class="anchor" aria-label="anchor" href="#causal-data"></a></h3>
-      <div class="section-desc"><p>Combine a dataframe with specification of key variables to create a causal data object. These objects are then used in bias-adjusting functions.</p></div>
+
+
+
+      <dl><dt>
+
+          <code><a href="multibias_adjust.html">multibias_adjust()</a></code>
+
+        </dt>
+        <dd>Simultaneously adjust for multiple biases</dd>
+      </dl></div><div class="section level2">
+      <h2 id="classes">Classes<a class="anchor" aria-label="anchor" href="#classes"></a></h2>
+
+
 
 
     </div><div class="section level2">
@@ -66,100 +77,12 @@
 
         </dt>
         <dd>Represent validation causal data</dd>
-      </dl></div><div class="section level2">
-
-      <h3 id="single-bias-adjustment">Single bias adjustment<a class="anchor" aria-label="anchor" href="#single-bias-adjustment"></a></h3>
-      <div class="section-desc"><p>For a given exposure and outcome within <code>data_observed</code>, obtain an exposure-outcome effect estimate adjusted for a single source of bias.</p></div>
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="adjust_em.html">adjust_em()</a></code>
-
-        </dt>
-        <dd>Adust for exposure misclassification.</dd>
       </dl><dl><dt>
 
-          <code><a href="adjust_om.html">adjust_om()</a></code>
+          <code><a href="bias_params.html">bias_params()</a></code>
 
         </dt>
-        <dd>Adust for outcome misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_sel.html">adjust_sel()</a></code>
-
-        </dt>
-        <dd>Adust for selection bias.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc.html">adjust_uc()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding.</dd>
-      </dl></div><div class="section level2">
-
-      <h3 id="multiple-bias-adjustment">Multiple bias adjustment<a class="anchor" aria-label="anchor" href="#multiple-bias-adjustment"></a></h3>
-      <div class="section-desc"><p>For a given exposure and outcome within <code>data_observed</code>, obtain an exposure-outcome effect estimate adjusted for multiple sources of bias.</p></div>
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="adjust_em_om.html">adjust_em_om()</a></code>
-
-        </dt>
-        <dd>Adust for exposure misclassification and outcome misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_em_sel.html">adjust_em_sel()</a></code>
-
-        </dt>
-        <dd>Adust for exposure misclassification and selection bias.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc_em_sel.html">adjust_uc_em_sel()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding, exposure misclassification, and selection bias.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc_em.html">adjust_uc_em()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding and exposure misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc_om_sel.html">adjust_uc_om_sel()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding, outcome misclassification, and selection bias.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc_om.html">adjust_uc_om()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding and outcome misclassification.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_uc_sel.html">adjust_uc_sel()</a></code>
-
-        </dt>
-        <dd>Adust for uncontrolled confounding and selection bias.</dd>
-      </dl><dl><dt>
-
-          <code><a href="adjust_om_sel.html">adjust_om_sel()</a></code>
-
-        </dt>
-        <dd>Adust for outcome misclassification and selection bias.</dd>
+        <dd>Represent bias parameters</dd>
       </dl></div><div class="section level2">
       <h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a></h2>
 
@@ -332,23 +255,6 @@
 
         </dt>
         <dd>Data source for <code>df_uc</code></dd>
-      </dl></div><div class="section level2">
-
-      <h3 id="other">Other<a class="anchor" aria-label="anchor" href="#other"></a></h3>
-      <div class="section-desc"><p>Other miscellaneous dataframes for analysis.</p></div>
-
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="evans.html">evans</a></code>
-
-        </dt>
-        <dd>Evans County dataset</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

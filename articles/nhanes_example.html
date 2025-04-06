@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multibias example: NHANES</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.6.3/vignettes/nhanes_example.Rmd" class="external-link"><code>vignettes/nhanes_example.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/nhanes_example.Rmd" class="external-link"><code>vignettes/nhanes_example.Rmd</code></a></small>
       <div class="d-none name"><code>nhanes_example.Rmd</code></div>
     </div>
 
@@ -169,22 +169,31 @@ covariates and considerations are not considered here.</p>
 <span><span class="co">#&gt; alcohol_extreme 1.0999439503 2.1670092413</span></span>
 <span><span class="co">#&gt; gender_female   0.5393792722 0.8637743150</span></span>
 <span><span class="co">#&gt; age             1.0758586614 1.0950985762</span></span></code></pre></div>
-<p>The family of functions in <code>multibias</code> requires inputting
-the observed data as a <code><a href="../reference/data_observed.html">data_observed()</a></code> object.</p>
+</div>
+<div class="section level2">
+<h2 id="adjust-for-uncontrolled-confounding">1. Adjust for uncontrolled confounding<a class="anchor" aria-label="anchor" href="#adjust-for-uncontrolled-confounding"></a>
+</h2>
+<p>An important confounder, smoking, was not included in our analysis!
+We’ll specify this bias in our <code><a href="../reference/data_observed.html">data_observed()</a></code> object.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">df_obs1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
+<span>  bias <span class="op">=</span> <span class="st">"uc"</span>,</span>
 <span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">df_obs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">df_obs1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Observed Data</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; ---------------------------------</span></span>
+<span><span class="co">#&gt; The following biases are present: </span></span>
+<span><span class="co">#&gt; Uncontrolled Confounding </span></span>
+<span><span class="co">#&gt; ---------------------------------</span></span>
 <span><span class="co">#&gt; Exposure: alcohol_extreme </span></span>
 <span><span class="co">#&gt; Outcome: mortstat </span></span>
 <span><span class="co">#&gt; Confounders: age, gender_female </span></span>
+<span><span class="co">#&gt; ---------------------------------</span></span>
 <span><span class="co">#&gt; Data head: </span></span>
 <span><span class="co">#&gt;   alcohol_extreme mortstat age gender_female</span></span>
 <span><span class="co">#&gt; 1               0        0  69             0</span></span>
@@ -192,12 +201,7 @@ the observed data as a <code><a href="../reference/data_observed.html">data_obse
 <span><span class="co">#&gt; 3               0        0  56             0</span></span>
 <span><span class="co">#&gt; 4               0        0  61             1</span></span>
 <span><span class="co">#&gt; 5               1        0  56             1</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="adjust-for-uncontrolled-confounding">1. Adjust for uncontrolled confounding<a class="anchor" aria-label="anchor" href="#adjust-for-uncontrolled-confounding"></a>
-</h2>
-<p>An important confounder, smoking, was not included in our analysis!
-Let’s demonstrate how we could use validation data with smoking
+<p>Let’s demonstrate how we could use validation data with smoking
 information to adjust for the uncontrolled confounding. Feature
 <code>smoked_100cigs</code> corresponds to whether a participant
 reported having smoked 100 cigarettes throughout their life.</p>
@@ -211,16 +215,16 @@ reported having smoked 100 cigarettes throughout their life.</p>
 <span>  true_outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span>, <span class="st">"smoked_100cigs"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>We now put these two objects into the <code>multibias</code> function
-named <code><a href="../reference/adjust_uc.html">adjust_uc()</a></code> to adjust for uncontrolled confounding.
-This new bias-adjusted odds ratio (1.4) is closer to the null than that
-of our base model. This is not a surprise considering that extreme
-drinkers are more likely to be smokers, and smoking increases the risk
-of death. Due to these strong correlations, part of the alcohol effect
-in our base model included the effect from smoking.</p>
+<p>We now put these two objects into <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> to
+adjust for uncontrolled confounding. This new bias-adjusted odds ratio
+(1.4) is closer to the null than that of our base model. This is not a
+surprise considering that extreme drinkers are more likely to be
+smokers, and smoking increases the risk of death. Due to these strong
+correlations, part of the alcohol effect in our base model included the
+effect from smoking.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/adjust_uc.html">adjust_uc</a></span><span class="op">(</span><span class="va">df_obs</span>, <span class="va">df_val1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs1</span>, <span class="va">df_val1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 1.411961</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -259,18 +263,30 @@ the exteme drinking indicator: <code>alcohol_extreme_adj</code>.</p>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span>, <span class="st">"smoked_100cigs"</span><span class="op">)</span>,</span>
 <span>  misclassified_exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>We now put these two objects into the <code>multibias</code> function
-named <code><a href="../reference/adjust_uc_em.html">adjust_uc_em()</a></code> to adjust for uncontrolled confounding
-and exposure misclassification. The new bias-adjsted odds ratio is even
-closer to the null.</p>
+<p>We now put this validation dataframe into
+<code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> along with a new
+<code>data_observed</code> object that identifies the uncontrolled
+confounding and exposure misclassification biases.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/adjust_uc_em.html">adjust_uc_em</a></span><span class="op">(</span><span class="va">df_obs</span>, <span class="va">df_val2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="va">df_obs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span><span class="op">)</span>,</span>
+<span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
+<span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 1.216906</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
 <span><span class="co">#&gt; [1] 0.8335281 1.7766173</span></span></code></pre></div>
+<p>The new bias-adjsted odds ratio is even closer to the null. The
+effect of alcohol is looking less meaningful when we bring these
+additional assumptions into consideration.</p>
 </div>
 <div class="section level2">
 <h2 id="adjust-for-uncontrolled-confounding-exposure-misclassification-and-selection-bias">3. Adjust for uncontrolled confounding, exposure misclassification,
@@ -347,12 +363,20 @@ participant was selected into our study.</p>
 <span>  selection <span class="op">=</span> <span class="st">"selection"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Now let’s see if this differential study selection led to a bias of
-our alcohol risk effect. We now put these two objects into the
-<code><a href="../reference/adjust_uc_em_sel.html">adjust_uc_em_sel()</a></code> function to adjust for uncontrolled
-confounding, exposure misclassification, and selection bias.</p>
+our alcohol risk effect. We’ll add this validation data to
+<code>multibias_adjust</code> with the observed data that specifies the
+three biases.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/adjust_uc_em_sel.html">adjust_uc_em_sel</a></span><span class="op">(</span><span class="va">df_obs</span>, <span class="va">df_val3</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">df_obs3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
+<span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
+<span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs3</span>, <span class="va">df_val3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 1.332608</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -360,8 +384,10 @@ confounding, exposure misclassification, and selection bias.</p>
 <span><span class="co">#&gt; [1] 0.9950054 1.7847580</span></span></code></pre></div>
 <p>Any selection bias based on the sampling weights seems to be pretty
 minor; the bias-adjusted odds ratio of the effect of alcohol on
-mortality does not change much relative to the prior adjustment we
-made.</p>
+mortality does not change much relative to the prior adjustment we made.
+Disagree with any of the bias assumptions made here? Multibias makes it
+very easy to re-iterate and test the sensitivity of the estimate to
+different assumptions.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
