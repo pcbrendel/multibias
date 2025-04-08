@@ -75,7 +75,7 @@ exposure_outcome_table <- nhanes_filtered |>
   ungroup() |>
   mutate(proportion = count / sum(count))
 
-print("Distribution of Exposure and Outcome:")
+# Distribution of Exposure and Outcome:
 print(exposure_outcome_table)
 
 demographic_table <- nhanes_filtered |>
@@ -92,7 +92,7 @@ demographic_table <- nhanes_filtered |>
     )
   )
 
-print("\nDemographic Characteristics by Exposure Status:")
+# Demographic Characteristics by Exposure Status:
 print(demographic_table)
 ```
 
@@ -114,7 +114,7 @@ base_results <- data.frame(
   ci_upper = round(exp(confint(base_mod)), 2)[-1, 2]
 )
 
-print("Base Model Results: Odds Ratios and 95% Confidence Intervals")
+# Base Model Results: Odds Ratios and 95% Confidence Intervals
 print(base_results)
 ```
 
@@ -123,6 +123,7 @@ Our base model suggests that extreme alcohol consumption is associated with a 1.
 ## Multiple Bias Analysis
 
 We'll now progressively adjust for three types of bias:
+
 1. Uncontrolled confounding (smoking status)
 2. Exposure misclassification (alcohol underreporting)
 3. Selection bias (NHANES sampling weights)
@@ -157,7 +158,8 @@ df_val1 <- data_validation(
 # Perform bias adjustment
 set.seed(1234)
 uc_adjusted <- multibias_adjust(df_obs1, df_val1)
-print("Uncontrolled Confounding Adjusted Results:")
+
+# Uncontrolled Confounding Adjusted Results:
 print(uc_adjusted)
 ```
 
@@ -203,7 +205,8 @@ df_val2 <- data_validation(
 # Perform bias adjustment
 set.seed(1234)
 em_uc_adjusted <- multibias_adjust(df_obs2, df_val2)
-print("Exposure Misclassification + Confounding Adjusted Results:")
+
+# Exposure Misclassification + Confounding Adjusted Results:
 print(em_uc_adjusted)
 ```
 
@@ -275,7 +278,8 @@ df_val3 <- data_validation(
 # Perform final bias adjustment
 set.seed(1234)
 final_adjusted <- multibias_adjust(df_obs3, df_val3)
-print("All Biases Adjusted Results:")
+
+# Triple Bias Adjusted Results:
 print(final_adjusted)
 ```
 
@@ -288,9 +292,9 @@ Let's compare all our estimates to see how each bias adjustment affects our resu
 comparison_table <- data.frame(
   Model = c(
     "Base Model",
-    "Adjusted for Uncontrolled Confounding",
-    "Adjusted for Exposure Misclassification & Uncontrolled Confounding",
-    "Adjusted for Three Biases"
+    "Adjusted - Single Bias",
+    "Adjusted - Double Biases",
+    "Adjusted - Triple Biases"
   ),
   OR = c(
     round(exp(coef(base_mod))["alcohol_extreme"], 2),
@@ -312,7 +316,7 @@ comparison_table <- data.frame(
   )
 )
 
-print("Comparison of Bias-Adjusted Estimates:")
+# Comparison of Bias-Adjusted Estimates:
 print(comparison_table)
 ```
 
