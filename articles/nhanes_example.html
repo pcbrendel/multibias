@@ -291,7 +291,7 @@ likely to under-report their alcohol consumption.</p>
 <span><span class="va">df_temp2</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">smoked_100cigs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    <span class="co"># Assume 50% higher reported consumption for high SES individuals</span></span>
+<span>    <span class="co"># Assume 50% higher consumption for high SES individuals</span></span>
 <span>    alcohol_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
 <span>      <span class="va">income</span> <span class="op">==</span> <span class="st">"$100,000 and Over"</span> <span class="op">|</span> <span class="va">education</span> <span class="op">==</span> <span class="st">"College graduate or above"</span>,</span>
 <span>      <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
@@ -314,10 +314,10 @@ likely to under-report their alcohol consumption.</p>
 <span></span>
 <span><span class="co"># Perform bias adjustment</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">em_uc_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
+<span><span class="va">uc_em_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Exposure Misclassification + Confounding Adjusted Results:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">)</span></span>
+<span><span class="co"># Exposure Misclassification &amp; Confounding Adjusted Results:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 1.139375</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -423,19 +423,19 @@ affects our results:</p>
 <span>  OR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  CI_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  CI_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -457,12 +457,12 @@ affects our results:</p>
 estimated relationship between alcohol consumption and mortality:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Uncontrolled Confounding</strong>: Adjusting for smoking
-status reduced the odds ratio from 1.60 to 1.45, suggesting that part of
+status reduced the odds ratio from 1.56 to 1.41, suggesting that part of
 the observed association was due to the confounding effect of
 smoking.</p></li>
 <li><p><strong>Exposure Misclassification</strong>: Further adjustment
 for potential underreporting of alcohol consumption reduced the odds
-ratio to 1.35, indicating that measurement error may have led to an
+ratio to 1.14, indicating that measurement error may have led to an
 overestimate of the true effect.</p></li>
 <li><p><strong>Selection Bias</strong>: The final adjustment for NHANES
 sampling weights had minimal impact on the estimate, suggesting that
