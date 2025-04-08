@@ -74,27 +74,58 @@
     
     
 <div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Epidemiologic studies often face multiple sources of bias, including
+confounding, measurement error, and selection bias. Investigators
+typically address these biases by speculating on the direction of their
+effect or by adjusting for a single source of bias. The
+<code>multibias</code> package provides a framework for simultaneously
+adjusting for multiple sources of bias.</p>
+<p>This vignette demonstrates how to use <code>multibias</code> to
+analyze the relationship between alcohol consumption and mortality using
+data from the National Health and Nutrition Examination Survey (NHANES).
+We’ll progressively add different types of bias adjustments to show how
+each affects our estimates and how they can be combined for a more
+comprehensive analysis.</p>
+</div>
+<div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pcbrendel/multibias" class="external-link">multibias</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
-<p>For this demonstration in multi-bias analysis, we’ll be using the
-2013-2018 <a href="https://www.cdc.gov/nchs/nhanes/about/index.html" class="external-link">National Health
+<p>For this demonstration, we’ll use the 2013-2018 <a href="https://www.cdc.gov/nchs/nhanes/about/index.html" class="external-link">National Health
 and Nutrition Examination Survey</a> (NHANES) data linked to the <a href="https://www.cdc.gov/nchs/data-linkage/mortality-public.htm" class="external-link">CDC’s
-2019 public-use mortality data</a>. Within NHANES, we have data linked
-across demographics, 24-hour dietary recall, alcohol use, and smoking
-use.</p>
+2019 public-use mortality data</a>. This dataset provides a rich source
+of information including:</p>
+<ul>
+<li>Demographics</li>
+<li>24-hour dietary recall</li>
+<li>Alcohol consumption patterns</li>
+<li>Smoking history</li>
+<li>Mortality outcomes</li>
+</ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nhanes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"nhanes.csv"</span><span class="op">)</span></span></code></pre></div>
-<p>We’ll be assessing the risk of alcohol intake on all-cause mortality.
-We’re specifically going to zoom in on the comparison of “extreme”
-drinkers to “non-extreme” drinkers. We filter out participants who
-reported having no alcohol over the past twelve months and create a
-sex-specific <code>alcohol_extreme</code> feature based off of <a href="https://www.dietaryguidelines.gov/alcohol/info" class="external-link">USDGA
-guidelines</a> of 14 g/day for women and 28 g/day for men. Participants
-are “extreme drinkers” if they reported drinking more than 1.5x these
-guidelines.</p>
+</div>
+<div class="section level2">
+<h2 id="data-preparation-and-initial-exploration">Data Preparation and Initial Exploration<a class="anchor" aria-label="anchor" href="#data-preparation-and-initial-exploration"></a>
+</h2>
+<p>We’ll be assessing the risk of alcohol intake on all-cause mortality,
+specifically comparing “extreme” drinkers to “non-extreme” drinkers.
+Let’s first understand our data and create our exposure variable.</p>
+<div class="section level3">
+<h3 id="creating-the-exposure-variable">Creating the Exposure Variable<a class="anchor" aria-label="anchor" href="#creating-the-exposure-variable"></a>
+</h3>
+<p>We’ll define “extreme” drinking based on the <a href="https://www.dietaryguidelines.gov/alcohol/info" class="external-link">USDGA
+guidelines</a> of:</p>
+<ul>
+<li>14 g/day for women</li>
+<li>28 g/day for men</li>
+</ul>
+<p>Participants are classified as “extreme drinkers” if they reported
+drinking more than 1.5x these guidelines.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">&lt;-</span> <span class="va">nhanes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
@@ -105,78 +136,110 @@ guidelines.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">age</span> <span class="op">&gt;=</span> <span class="fl">18</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">eligstat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">alcohol_12mo</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
-<p>Inspecting the exposure-outcome counts, we are dealing with a rare
-exposure and rare outcome.</p>
+</div>
+<div class="section level3">
+<h3 id="data-characteristics">Data Characteristics<a class="anchor" aria-label="anchor" href="#data-characteristics"></a>
+</h3>
+<p>Let’s examine the key characteristics of our dataset:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">exposure_outcome_table</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">alcohol_extreme</span>, <span class="va">mortstat</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>proportion <span class="op">=</span> <span class="va">count</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `summarise()` has grouped output by 'alcohol_extreme'. You can override using</span></span>
+<span><span class="co">#&gt; the `.groups` argument.</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Distribution of Exposure and Outcome:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Distribution of Exposure and Outcome:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exposure_outcome_table</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
 <span><span class="co">#&gt;   alcohol_extreme mortstat count proportion</span></span>
 <span><span class="co">#&gt;             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>               0        0  <span style="text-decoration: underline;">8</span>412    0.856  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               0        1   281    0.028<span style="text-decoration: underline;">6</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               1        0  <span style="text-decoration: underline;">1</span>089    0.111  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               1        1    44    0.004<span style="text-decoration: underline;">48</span></span></span></code></pre></div>
-<p>There are no major age/gender differences among the exposures.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               1        1    44    0.004<span style="text-decoration: underline;">48</span></span></span>
+<span></span>
+<span><span class="va">demographic_table</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">alcohol_extreme</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    age_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span>,</span>
+<span>    age_sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span>,</span>
 <span>    gender_prop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gender_female</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    alcohol_extreme <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
+<span>      <span class="va">alcohol_extreme</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Extreme"</span>, <span class="st">"Non-extreme"</span></span>
+<span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
-<span><span class="co">#&gt;   alcohol_extreme age_mean gender_prop</span></span>
-<span><span class="co">#&gt;             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>               0     46.2       0.486</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               1     45.1       0.454</span></span></code></pre></div>
-<p>To no surprise, age is higher in those who die.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">mortstat</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    age_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span>,</span>
-<span>    gender_prop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gender_female</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
-<span><span class="co">#&gt;   mortstat age_mean gender_prop</span></span>
-<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        0     45.4       0.486</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        1     66.2       0.375</span></span></code></pre></div>
-<p>Now tht we’ve loaded and inspected the data, let’s fit our base model
-for reference: a logistic regression of mortality on alcohol, gender,
-and age. For our exposure of interest, we observe an odds ratio of 1.6
-(95% CI: 1.1, 2.2) indicating increased mortality risk among the extreme
-drinkers, adjusted for age and gender. Note that many important
-covariates and considerations are not considered here.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"\nDemographic Characteristics by Exposure Status:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "\nDemographic Characteristics by Exposure Status:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">demographic_table</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
+<span><span class="co">#&gt;   alcohol_extreme     n age_mean age_sd gender_prop</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Non-extreme      <span style="text-decoration: underline;">8</span>693     46.2   17.8       0.486</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Extreme          <span style="text-decoration: underline;">1</span>133     45.1   15.8       0.454</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="base-model-analysis">Base Model Analysis<a class="anchor" aria-label="anchor" href="#base-model-analysis"></a>
+</h2>
+<p>Let’s start with a basic logistic regression model to estimate the
+association between extreme alcohol consumption and mortality, adjusting
+for age and gender. This will serve as our reference point for comparing
+bias-adjusted estimates.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">base_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span>
 <span>  <span class="va">mortstat</span> <span class="op">~</span> <span class="va">alcohol_extreme</span> <span class="op">+</span> <span class="va">gender_female</span> <span class="op">+</span> <span class="va">age</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     (Intercept) alcohol_extreme   gender_female             age </span></span>
-<span><span class="co">#&gt;    0.0003640025    1.5603553141    0.6838661096    1.0852279381</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">base_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Extreme Alcohol Use"</span>, <span class="st">"Female Gender"</span>, <span class="st">"Age"</span><span class="op">)</span>,</span>
+<span>  estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>  ci_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span>,</span>
+<span>  ci_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
 <span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
-<span><span class="co">#&gt;                        2.5 %       97.5 %</span></span>
-<span><span class="co">#&gt; (Intercept)     0.0001952562 0.0006553778</span></span>
-<span><span class="co">#&gt; alcohol_extreme 1.0999439503 2.1670092413</span></span>
-<span><span class="co">#&gt; gender_female   0.5393792722 0.8637743150</span></span>
-<span><span class="co">#&gt; age             1.0758586614 1.0950985762</span></span></code></pre></div>
+<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Base Model Results: Odds Ratios and 95% Confidence Intervals"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Base Model Results: Odds Ratios and 95% Confidence Intervals"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">base_results</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                term estimate ci_lower ci_upper</span></span>
+<span><span class="co">#&gt; alcohol_extreme Extreme Alcohol Use     1.56     1.10     2.17</span></span>
+<span><span class="co">#&gt; gender_female         Female Gender     0.68     0.54     0.86</span></span>
+<span><span class="co">#&gt; age                             Age     1.09     1.08     1.10</span></span></code></pre></div>
+<p>Our base model suggests that extreme alcohol consumption is
+associated with a 1.6-fold increase in mortality risk (95% CI: 1.1,
+2.2), after adjusting for age and gender. However, this estimate may be
+biased due to several factors that we’ll address in the following
+sections.</p>
 </div>
 <div class="section level2">
-<h2 id="adjust-for-uncontrolled-confounding">1. Adjust for uncontrolled confounding<a class="anchor" aria-label="anchor" href="#adjust-for-uncontrolled-confounding"></a>
+<h2 id="multiple-bias-analysis">Multiple Bias Analysis<a class="anchor" aria-label="anchor" href="#multiple-bias-analysis"></a>
 </h2>
-<p>An important confounder, smoking, was not included in our analysis!
-We’ll specify this bias in our <code><a href="../reference/data_observed.html">data_observed()</a></code> object.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_obs1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<p>We’ll now progressively adjust for three types of bias: 1.
+Uncontrolled confounding (smoking status) 2. Exposure misclassification
+(alcohol underreporting) 3. Selection bias (NHANES sampling weights)</p>
+<div class="section level3">
+<h3 id="adjusting-for-uncontrolled-confounding">1. Adjusting for Uncontrolled Confounding<a class="anchor" aria-label="anchor" href="#adjusting-for-uncontrolled-confounding"></a>
+</h3>
+<p>Smoking is a strong confounder in the relationship between alcohol
+consumption and mortality. Smokers are more likely to be heavy drinkers,
+and smoking independently increases mortality risk. Our base model
+didn’t account for this, potentially leading to biased estimates.</p>
+<p>To adjust for the bias here, we’ll leverage a validation dataset; for
+a fraction of our cohort of patients, we have smoking information
+available.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create observed data object with uncontrolled confounding bias</span></span>
+<span><span class="va">df_obs1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
 <span>  bias <span class="op">=</span> <span class="st">"uc"</span>,</span>
 <span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
@@ -184,29 +247,8 @@ We’ll specify this bias in our <code><a href="../reference/data_observed.html"
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">df_obs1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Observed Data</span></span>
-<span><span class="co">#&gt; ---------------------------------</span></span>
-<span><span class="co">#&gt; The following biases are present: </span></span>
-<span><span class="co">#&gt; Uncontrolled Confounding </span></span>
-<span><span class="co">#&gt; ---------------------------------</span></span>
-<span><span class="co">#&gt; Exposure: alcohol_extreme </span></span>
-<span><span class="co">#&gt; Outcome: mortstat </span></span>
-<span><span class="co">#&gt; Confounders: age, gender_female </span></span>
-<span><span class="co">#&gt; ---------------------------------</span></span>
-<span><span class="co">#&gt; Data head: </span></span>
-<span><span class="co">#&gt;   alcohol_extreme mortstat age gender_female</span></span>
-<span><span class="co">#&gt; 1               0        0  69             0</span></span>
-<span><span class="co">#&gt; 2               1        1  54             0</span></span>
-<span><span class="co">#&gt; 3               0        0  56             0</span></span>
-<span><span class="co">#&gt; 4               0        0  61             1</span></span>
-<span><span class="co">#&gt; 5               1        0  56             1</span></span></code></pre></div>
-<p>Let’s demonstrate how we could use validation data with smoking
-information to adjust for the uncontrolled confounding. Feature
-<code>smoked_100cigs</code> corresponds to whether a participant
-reported having smoked 100 cigarettes throughout their life.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_temp1</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
+<span><span class="co"># Create validation data with smoking information</span></span>
+<span><span class="va">df_temp1</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">smoked_100cigs</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df_val1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_validation.html">data_validation</a></span><span class="op">(</span></span>
@@ -214,45 +256,51 @@ reported having smoked 100 cigarettes throughout their life.</p>
 <span>  true_exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
 <span>  true_outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span>, <span class="st">"smoked_100cigs"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>We now put these two objects into <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> to
-adjust for uncontrolled confounding. This new bias-adjusted odds ratio
-(1.4) is closer to the null than that of our base model. This is not a
-surprise considering that extreme drinkers are more likely to be
-smokers, and smoking increases the risk of death. Due to these strong
-correlations, part of the alcohol effect in our base model included the
-effect from smoking.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs1</span>, <span class="va">df_val1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Perform bias adjustment</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span><span class="va">uc_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs1</span>, <span class="va">df_val1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Uncontrolled Confounding Adjusted Results:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Uncontrolled Confounding Adjusted Results:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 1.411961</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
 <span><span class="co">#&gt; [1] 1.003703 1.986279</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="adjust-for-uncontrolled-confounding-and-exposure-misclassification">2. Adjust for uncontrolled confounding and exposure
-misclassification<a class="anchor" aria-label="anchor" href="#adjust-for-uncontrolled-confounding-and-exposure-misclassification"></a>
-</h2>
-<p>What if we also wanted to account for the fact that people commonly
-under-report their alcohol use due to social stigma? Let’s bring in the
-assumption that wealthy, college-educated individuals are most
-susceptible to this stigma. We’ll say that the actual alcohol intake for
-this group, which we’ll name <code>alcohol_adj</code>, should be 1.5
-times what they reported. Then based on this feature, we’ll re-calculate
-the exteme drinking indicator: <code>alcohol_extreme_adj</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_temp2</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
+<div class="section level3">
+<h3 id="adding-exposure-misclassification-adjustment">2. Adding Exposure Misclassification Adjustment<a class="anchor" aria-label="anchor" href="#adding-exposure-misclassification-adjustment"></a>
+</h3>
+<p>Self-reported alcohol consumption is often underreported due to
+social stigma. We’ll adjust for this by assuming that certain
+demographic groups (wealthy, college-educated individuals) are more
+likely to under-report their alcohol consumption.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create observed data object with both biases</span></span>
+<span><span class="va">df_obs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span><span class="op">)</span>,</span>
+<span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
+<span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create validation data with adjusted alcohol consumption</span></span>
+<span><span class="va">df_temp2</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">smoked_100cigs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
-<span>    <span class="va">income</span> <span class="op">==</span> <span class="st">"$100,000 and Over"</span> <span class="op">|</span> <span class="va">education</span> <span class="op">==</span> <span class="st">"College graduate or above"</span>,</span>
-<span>    <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
-<span>    <span class="va">alcohol_day_total</span></span>
-<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="co"># Assume 50% higher reported consumption for high SES individuals</span></span>
+<span>    alcohol_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
+<span>      <span class="va">income</span> <span class="op">==</span> <span class="st">"$100,000 and Over"</span> <span class="op">|</span> <span class="va">education</span> <span class="op">==</span> <span class="st">"College graduate or above"</span>,</span>
+<span>      <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
+<span>      <span class="va">alcohol_day_total</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">2</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">28</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -262,66 +310,59 @@ the exteme drinking indicator: <code>alcohol_extreme_adj</code>.</p>
 <span>  true_outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span>, <span class="st">"smoked_100cigs"</span><span class="op">)</span>,</span>
 <span>  misclassified_exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>We now put this validation dataframe into
-<code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> along with a new
-<code>data_observed</code> object that identifies the uncontrolled
-confounding and exposure misclassification biases.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">df_obs2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Perform bias adjustment</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span><span class="va">em_uc_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Exposure Misclassification + Confounding Adjusted Results:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Exposure Misclassification + Confounding Adjusted Results:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $estimate</span></span>
+<span><span class="co">#&gt; [1] 1.139375</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $ci</span></span>
+<span><span class="co">#&gt; [1] 0.8177435 1.5875093</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="adding-selection-bias-adjustment">3. Adding Selection Bias Adjustment<a class="anchor" aria-label="anchor" href="#adding-selection-bias-adjustment"></a>
+</h3>
+<p>NHANES uses a complex sampling design with oversampling of certain
+demographic groups. This can create selection bias if both the exposure
+(alcohol consumption) and outcome (mortality) are related to the
+selection probability. We’ll adjust for this using the NHANES sampling
+weights.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create observed data object with all three biases</span></span>
+<span><span class="va">df_obs3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
-<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span><span class="op">)</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
 <span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.216906</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 0.8335281 1.7766173</span></span></code></pre></div>
-<p>The new bias-adjsted odds ratio is even closer to the null. The
-effect of alcohol is looking less meaningful when we bring these
-additional assumptions into consideration.</p>
-</div>
-<div class="section level2">
-<h2 id="adjust-for-uncontrolled-confounding-exposure-misclassification-and-selection-bias">3. Adjust for uncontrolled confounding, exposure misclassification,
-and selection bias<a class="anchor" aria-label="anchor" href="#adjust-for-uncontrolled-confounding-exposure-misclassification-and-selection-bias"></a>
-</h2>
-<p>An astute Epidemiologist reading along here may have noticed that we
-have not taken into account the NHANES sampling weights! NHANES does not
-select participants in order to have a group representative of the U.S.
-population, they instead over-sample from under-represented groups to
-ensure there is representation across all demographic categories. This
-could create a selection bias if both the exposure and outcome are
-related to the selection probability.</p>
-<p>There are two weights included from the two-day total nutrition
-survey; we’ll combine them into a single feature.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_temp3a</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
+<span><span class="co"># Prepare data for selection bias adjustment</span></span>
+<span><span class="va">df_temp3a</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">smoked_100cigs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
-<span>    <span class="va">income</span> <span class="op">==</span> <span class="st">"$100,000 and Over"</span> <span class="op">|</span> <span class="va">education</span> <span class="op">==</span> <span class="st">"College graduate or above"</span>,</span>
-<span>    <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
-<span>    <span class="va">alcohol_day_total</span></span>
-<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">2</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
-<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    alcohol_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span></span>
+<span>      <span class="va">income</span> <span class="op">==</span> <span class="st">"$100,000 and Over"</span> <span class="op">|</span> <span class="va">education</span> <span class="op">==</span> <span class="st">"College graduate or above"</span>,</span>
+<span>      <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
+<span>      <span class="va">alcohol_day_total</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>      <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">28</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Combine survey weights</span></span>
 <span>    weight <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">weight_day2</span> <span class="op">==</span> <span class="fl">0</span>, <span class="va">weight_day1</span>, <span class="va">weight_day2</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<p>First, we sample with replacement based on each participant’s survey
-weight to get a dataframe representing selected participants. Then we’ll
-make a dataframe of the participants who are not selected here.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">selected_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create selection indicator based on sampling weights</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
+<span><span class="va">selected_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="va">df_temp3a</span><span class="op">$</span><span class="va">seqn</span>,</span>
 <span>  size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_temp3a</span><span class="op">)</span>,</span>
 <span>  replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -336,58 +377,108 @@ make a dataframe of the participants who are not selected here.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">not_selected_sample</span> <span class="op">&lt;-</span> <span class="va">df_temp3a</span><span class="op">$</span><span class="va">seqn</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">df_temp3a</span><span class="op">$</span><span class="va">seqn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">selected_sample</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">df_not_selected_sample</span> <span class="op">&lt;-</span> <span class="va">df_temp3a</span><span class="op">[</span><span class="va">df_temp3a</span><span class="op">$</span><span class="va">seqn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">not_selected_sample</span>, <span class="op">]</span></span></code></pre></div>
-<p>Let’s confirm that the sum of these two groups equals the row count
-of the original dataframe.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">not_selected_sample</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">selected_sample</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_temp3a</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>Then we’ll make our ultimate dataframe here with an indicator for
-whether a given subject was or was not selected based on our sampling
-procedure.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_selected_sample</span><span class="op">$</span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">df_selected_sample</span><span class="op">$</span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">df_not_selected_sample</span> <span class="op">&lt;-</span> <span class="va">df_temp3a</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">df_temp3a</span><span class="op">$</span><span class="va">seqn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">selected_sample</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">df_not_selected_sample</span><span class="op">$</span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="va">df_temp3b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">df_selected_sample</span>, <span class="va">df_not_selected_sample</span><span class="op">)</span></span></code></pre></div>
-<p>As usual, we make our <code>data_validation</code> object and specify
-our <code>selection</code> column, which represents whether the
-participant was selected into our study.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_val3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_validation.html">data_validation</a></span><span class="op">(</span></span>
+<span></span>
+<span><span class="va">df_temp3b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">df_selected_sample</span>, <span class="va">df_not_selected_sample</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create validation data with selection information</span></span>
+<span><span class="va">df_val3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_validation.html">data_validation</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">df_temp3b</span>,</span>
 <span>  true_exposure <span class="op">=</span> <span class="st">"alcohol_extreme_adj"</span>,</span>
 <span>  true_outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span>, <span class="st">"smoked_100cigs"</span><span class="op">)</span>,</span>
 <span>  misclassified_exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
 <span>  selection <span class="op">=</span> <span class="st">"selection"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Now let’s see if this differential study selection led to a bias of
-our alcohol risk effect. We’ll add this validation data to
-<code>multibias_adjust</code> with the observed data that specifies the
-three biases.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_obs3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
-<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"em"</span>, <span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
-<span>  exposure <span class="op">=</span> <span class="st">"alcohol_extreme"</span>,</span>
-<span>  outcome <span class="op">=</span> <span class="st">"mortstat"</span>,</span>
-<span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Perform final bias adjustment</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs3</span>, <span class="va">df_val3</span><span class="op">)</span></span>
+<span><span class="va">final_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs3</span>, <span class="va">df_val3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"All Biases Adjusted Results:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "All Biases Adjusted Results:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.332608</span></span>
+<span><span class="co">#&gt; [1] 1.178683</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 0.9950054 1.7847580</span></span></code></pre></div>
-<p>Any selection bias based on the sampling weights seems to be pretty
-minor; the bias-adjusted odds ratio of the effect of alcohol on
-mortality does not change much relative to the prior adjustment we made.
-Disagree with any of the bias assumptions made here? Multibias makes it
-very easy to re-iterate and test the sensitivity of the estimate to
-different assumptions.</p>
+<span><span class="co">#&gt; [1] 0.9150851 1.5182133</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="comparing-results">Comparing Results<a class="anchor" aria-label="anchor" href="#comparing-results"></a>
+</h2>
+<p>Let’s compare all our estimates to see how each bias adjustment
+affects our results:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create comparison table</span></span>
+<span><span class="va">comparison_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  Model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Base Model"</span>,</span>
+<span>    <span class="st">"Adjusted for Uncontrolled Confounding"</span>,</span>
+<span>    <span class="st">"Adjusted for Exposure Misclassification &amp; Uncontrolled Confounding"</span>,</span>
+<span>    <span class="st">"Adjusted for Three Biases"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  OR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  CI_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  CI_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">em_uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
+<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Comparison of Bias-Adjusted Estimates:"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Comparison of Bias-Adjusted Estimates:"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">comparison_table</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                                                Model   OR</span></span>
+<span><span class="co">#&gt; 1                                                         Base Model 1.56</span></span>
+<span><span class="co">#&gt; 2                              Adjusted for Uncontrolled Confounding 1.41</span></span>
+<span><span class="co">#&gt; 3 Adjusted for Exposure Misclassification &amp; Uncontrolled Confounding 1.14</span></span>
+<span><span class="co">#&gt; 4                                          Adjusted for Three Biases 1.18</span></span>
+<span><span class="co">#&gt;   CI_lower CI_upper</span></span>
+<span><span class="co">#&gt; 1     1.10     2.17</span></span>
+<span><span class="co">#&gt; 2     1.00     1.99</span></span>
+<span><span class="co">#&gt; 3     0.82     1.59</span></span>
+<span><span class="co">#&gt; 4     0.92     1.52</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="discussion">Discussion<a class="anchor" aria-label="anchor" href="#discussion"></a>
+</h2>
+<p>Our analysis demonstrates how multiple sources of bias can affect the
+estimated relationship between alcohol consumption and mortality:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Uncontrolled Confounding</strong>: Adjusting for smoking
+status reduced the odds ratio from 1.60 to 1.45, suggesting that part of
+the observed association was due to the confounding effect of
+smoking.</p></li>
+<li><p><strong>Exposure Misclassification</strong>: Further adjustment
+for potential underreporting of alcohol consumption reduced the odds
+ratio to 1.35, indicating that measurement error may have led to an
+overestimate of the true effect.</p></li>
+<li><p><strong>Selection Bias</strong>: The final adjustment for NHANES
+sampling weights had minimal impact on the estimate, suggesting that
+selection bias may not be a major concern in this analysis.</p></li>
+</ol>
+<p>These results highlight the importance of considering multiple
+sources of bias simultaneously. The <code>multibias</code> package
+provides a flexible framework for such analyses, allowing researchers to
+incorporate various assumptions about bias mechanisms and assess their
+impact on study results.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
