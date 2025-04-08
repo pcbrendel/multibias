@@ -45,7 +45,7 @@ We'll be assessing the risk of alcohol intake on all-cause mortality, specifical
 
 ### Creating the Exposure Variable
 
-We'll define "extreme" drinking based on the [USDGA guidelines](https://www.dietaryguidelines.gov/alcohol/info) of:
+We'll anchor our classification based on the US Dietary Guidelines for Americans (USDGA) suggested limit:
 
 - 14 g/day for women
 - 28 g/day for men
@@ -322,7 +322,7 @@ print(comparison_table)
 
 ## Discussion
 
-Our analysis demonstrates how multiple sources of bias can affect the estimated relationship between alcohol consumption and mortality:
+This analysis demonstrates how multiple sources of bias can affect the estimated relationship between alcohol consumption and mortality:
 
 1. **Uncontrolled Confounding**: Adjusting for smoking status reduced the odds ratio from 1.56 to 1.41, suggesting that part of the observed association was due to the confounding effect of smoking.
 
