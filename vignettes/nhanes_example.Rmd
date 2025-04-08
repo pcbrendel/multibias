@@ -9,7 +9,7 @@ vignette: >
 
 ## Introduction
 
-Epidemiologic studies often face multiple sources of bias simultaneously, including confounding, measurement error, and selection bias. Traditional approaches typically address these biases one at a time, which can lead to incomplete adjustment and potentially misleading results. The `multibias` package provides a framework for simultaneously adjusting for multiple sources of bias.
+Epidemiologic studies often face multiple sources of bias, including confounding, measurement error, and selection bias. Investigators typically address these biases by speculating on the direction of their effect or by adjusting for a single source of bias. The `multibias` package provides a framework for simultaneously adjusting for multiple sources of bias.
 
 This vignette demonstrates how to use `multibias` to analyze the relationship between alcohol consumption and mortality using data from the National Health and Nutrition Examination Survey (NHANES). We'll progressively add different types of bias adjustments to show how each affects our estimates and how they can be combined for a more comprehensive analysis.
 
@@ -327,17 +327,3 @@ Our analysis demonstrates how multiple sources of bias can affect the estimated 
 3. **Selection Bias**: The final adjustment for NHANES sampling weights had minimal impact on the estimate, suggesting that selection bias may not be a major concern in this analysis.
 
 These results highlight the importance of considering multiple sources of bias simultaneously. The `multibias` package provides a flexible framework for such analyses, allowing researchers to incorporate various assumptions about bias mechanisms and assess their impact on study results.
-
-## Limitations and Considerations
-
-Several limitations should be considered when interpreting these results:
-
-1. **Bias Assumptions**: Our adjustments rely on specific assumptions about bias mechanisms (e.g., 50% higher reported consumption among high SES individuals). These assumptions should be based on prior research and may need to be varied in sensitivity analyses.
-
-2. **Validation Data**: The quality of bias adjustments depends on the availability and quality of validation data. In practice, such data may be limited or imperfect.
-
-3. **Unmeasured Confounding**: While we adjusted for age, sex, and, smoking, other important confounders may exist that we couldn't account for.
-
-4. **Generalizability**: NHANES participants may not be representative of the general population, even after accounting for sampling weights.
-
-The `multibias` package allows researchers to easily test different assumptions and assess the sensitivity of their results to various bias scenarios.
