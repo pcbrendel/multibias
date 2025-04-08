@@ -181,7 +181,7 @@ df_obs2 <- data_observed(
 df_temp2 <- nhanes_filtered |>
   filter(!is.na(smoked_100cigs)) |>
   mutate(
-    # Assume 50% higher reported consumption for high SES individuals
+    # Assume 50% higher consumption for high SES individuals
     alcohol_adj = if_else(
       income == "$100,000 and Over" | education == "College graduate or above",
       alcohol_day_total * 1.5,
@@ -204,10 +204,10 @@ df_val2 <- data_validation(
 
 # Perform bias adjustment
 set.seed(1234)
-em_uc_adjusted <- multibias_adjust(df_obs2, df_val2)
+uc_em_adjusted <- multibias_adjust(df_obs2, df_val2)
 
-# Exposure Misclassification + Confounding Adjusted Results:
-print(em_uc_adjusted)
+# Exposure Misclassification & Confounding Adjusted Results:
+print(uc_em_adjusted)
 ```
 
 ### 3. Adding Selection Bias Adjustment
@@ -299,19 +299,19 @@ comparison_table <- data.frame(
   OR = c(
     round(exp(coef(base_mod))["alcohol_extreme"], 2),
     round(uc_adjusted$estimate, 2),
-    round(em_uc_adjusted$estimate, 2),
+    round(uc_em_adjusted$estimate, 2),
     round(final_adjusted$estimate, 2)
   ),
   CI_lower = c(
     round(exp(confint(base_mod))["alcohol_extreme", 1], 2),
     round(uc_adjusted$ci[1], 2),
-    round(em_uc_adjusted$ci[1], 2),
+    round(uc_em_adjusted$ci[1], 2),
     round(final_adjusted$ci[1], 2)
   ),
   CI_upper = c(
     round(exp(confint(base_mod))["alcohol_extreme", 2], 2),
     round(uc_adjusted$ci[2], 2),
-    round(em_uc_adjusted$ci[2], 2),
+    round(uc_em_adjusted$ci[2], 2),
     round(final_adjusted$ci[2], 2)
   )
 )
@@ -324,9 +324,9 @@ print(comparison_table)
 
 Our analysis demonstrates how multiple sources of bias can affect the estimated relationship between alcohol consumption and mortality:
 
-1. **Uncontrolled Confounding**: Adjusting for smoking status reduced the odds ratio from 1.60 to 1.45, suggesting that part of the observed association was due to the confounding effect of smoking.
+1. **Uncontrolled Confounding**: Adjusting for smoking status reduced the odds ratio from 1.56 to 1.41, suggesting that part of the observed association was due to the confounding effect of smoking.
 
-2. **Exposure Misclassification**: Further adjustment for potential underreporting of alcohol consumption reduced the odds ratio to 1.35, indicating that measurement error may have led to an overestimate of the true effect.
+2. **Exposure Misclassification**: Further adjustment for potential underreporting of alcohol consumption reduced the odds ratio to 1.14, indicating that measurement error may have led to an overestimate of the true effect.
 
 3. **Selection Bias**: The final adjustment for NHANES sampling weights had minimal impact on the estimate, suggesting that selection bias may not be a major concern in this analysis.
 
