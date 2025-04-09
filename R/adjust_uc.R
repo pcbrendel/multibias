@@ -132,110 +132,51 @@ adjust_uc_coef <- function(
     y_binary <- FALSE
   }
 
+  # Extract U model coefficients
   u1_0 <- u_model_coefs[1]
   u1_x <- u_model_coefs[2]
   u1_y <- u_model_coefs[3]
+  u_coefs_c <- u_model_coefs[4:len_u_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(X = x, Y = y)
-    df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y))
+  # Create base dataframe
+  df <- data.frame(X = x, Y = y)
 
-    if (y_binary) {
-      final <- glm(
-        Y ~ X + Upred,
-        family = binomial(link = "logit"),
-        data = df
-      )
-    } else {
-      final <- lm(
-        Y ~ X + Upred,
-        data = df
-      )
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
     }
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(X = x, Y = y, C1 = c1)
+  }
 
-    u1_c1 <- u_model_coefs[4]
+  # Construct U prediction formula dynamically
+  u_formula <- "u1_0 + u1_x * df$X + u1_y * df$Y"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      u_formula <- paste0(u_formula, " + u_coefs_c[", i, "] * df$C", i)
+    }
+  }
 
-    df$Upred <- rbinom(
-      n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Y + u1_c1 * df$C1)
+  # Calculate U predictions
+  df$Upred <- rbinom(n, 1, plogis(eval(parse(text = u_formula))))
+
+  # Construct final model formula
+  model_terms <- c("X", "Upred")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(paste("Y ~", paste(model_terms, collapse = " + ")))
+
+  # Fit final model
+  if (y_binary) {
+    final <- glm(
+      model_formula,
+      family = binomial(link = "logit"),
+      data = df
     )
-
-    if (y_binary) {
-      final <- glm(
-        Y ~ X + C1 + Upred,
-        family = binomial(link = "logit"),
-        data = df
-      )
-    } else {
-      final <- lm(
-        Y ~ X + C1 + Upred,
-        data = df
-      )
-    }
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
-
-    u1_c1 <- u_model_coefs[4]
-    u1_c2 <- u_model_coefs[5]
-
-    df$Upred <- rbinom(
-      n, 1, plogis(
-        u1_0 + u1_x * df$X + u1_y * df$Y + u1_c1 * df$C1 + u1_c2 * df$C2
-      )
-    )
-
-    if (y_binary) {
-      final <- glm(
-        Y ~ X + C1 + C2 + Upred,
-        family = binomial(link = "logit"),
-        data = df
-      )
-    } else {
-      final <- lm(
-        Y ~ X + C1 + C2 + Upred,
-        data = df
-      )
-    }
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
-
-    u1_c1 <- u_model_coefs[4]
-    u1_c2 <- u_model_coefs[5]
-    u1_c3 <- u_model_coefs[6]
-
-    df$Upred <- rbinom(
-      n, 1,
-      plogis(
-        u1_0 + u1_x * df$X + u1_y * df$Y +
-          u1_c1 * df$C1 + u1_c2 * df$C2 + u1_c3 * df$C3
-      )
-    )
-
-    if (y_binary) {
-      final <- glm(
-        Y ~ X + C1 + C2 + C3 + Upred,
-        family = binomial(link = "logit"),
-        data = df
-      )
-    } else {
-      final <- lm(
-        Y ~ X + C1 + C2 + C3 + Upred,
-        data = df
-      )
-    }
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
+  } else {
+    final <- lm(
+      model_formula,
+      data = df
     )
   }
 
