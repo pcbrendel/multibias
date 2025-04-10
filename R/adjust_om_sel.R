@@ -149,154 +149,78 @@ adjust_om_sel_coef <- function(
     )
   )
 
+  # Extract model coefficients
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_ystar <- s_model_coefs[3]
+  s_coefs_c <- s_model_coefs[4:len_s_coefs]
 
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
+  y_coefs_c <- y_model_coefs[4:len_y_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(X = x, Ystar = ystar)
+  # Create base dataframe
+  df <- data.frame(X = x, Ystar = ystar)
 
-    y1_pred <- plogis(y1_0 + y1_x * x + y1_ystar * ystar)
-    y1_pred <- rep(y1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ybar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar),
-        pY = case_when(
-          Ybar == 1 ~ y1_pred,
-          Ybar == 0 ~ 1 - y1_pred
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ X,
-        family = binomial(link = "logit"),
-        weights = (combined$pY / combined$pS),
-        data = combined
-      )
-    })
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1)
-    y1_c1 <- y_model_coefs[4]
-    s1_c1 <- s_model_coefs[4]
-
-    y1_pred <- plogis(y1_0 + y1_x * x + y1_ystar * ystar + y1_c1 * c1)
-    y1_pred <- rep(y1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ybar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-            s1_c1 * .data$C1
-        ),
-        pY = case_when(
-          Ybar == 1 ~ y1_pred,
-          Ybar == 0 ~ 1 - y1_pred
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ X + C1,
-        family = binomial(link = "logit"),
-        weights = (combined$pY / combined$pS),
-        data = combined
-      )
-    })
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2)
-
-    s1_c1 <- s_model_coefs[4]
-    s1_c2 <- s_model_coefs[5]
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-
-    y1_pred <- plogis(
-      y1_0 + y1_x * x +
-        y1_ystar * ystar + y1_c1 * c1 + y1_c2 * c2
-    )
-    y1_pred <- rep(y1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ybar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-            s1_c1 * .data$C1 + s1_c2 * .data$C2
-        ),
-        pY = case_when(
-          Ybar == 1 ~ y1_pred,
-          Ybar == 0 ~ 1 - y1_pred
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ X + C1 + C2,
-        family = binomial(link = "logit"),
-        weights = (combined$pY / combined$pS),
-        data = combined
-      )
-    })
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
-
-    s1_c1 <- s_model_coefs[4]
-    s1_c2 <- s_model_coefs[5]
-    s1_c3 <- s_model_coefs[6]
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-    y1_c3 <- y_model_coefs[6]
-
-    y1_pred <- plogis(
-      y1_0 + y1_x * x + y1_ystar * ystar + y1_c1 * c1 + y1_c2 * c2 + y1_c3 * c3
-    )
-    y1_pred <- rep(y1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ybar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_x * .data$X + s1_ystar * .data$Ystar +
-            s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
-        ),
-        pY = case_when(
-          Ybar == 1 ~ y1_pred,
-          Ybar == 0 ~ 1 - y1_pred
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ X + C1 + C2 + C3,
-        family = binomial(link = "logit"),
-        weights = (combined$pY / combined$pS),
-        data = combined
-      )
-    })
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
+    }
   }
+
+  # Construct Y prediction formula dynamically
+  y_formula <- "y1_0 + y1_x * x + y1_ystar * ystar"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate Y predictions
+  y1_pred <- plogis(eval(parse(text = y_formula)))
+  y1_pred <- rep(y1_pred, times = 2)
+
+  # Create combined dataframe with both Y=0 and Y=1 scenarios
+  combined <- bind_rows(df, df) %>%
+    mutate(
+      Ybar = rep(c(1, 0), each = n),
+      pY = case_when(
+        Ybar == 1 ~ y1_pred,
+        Ybar == 0 ~ 1 - y1_pred
+      )
+    )
+
+  # Calculate selection probabilities with all confounders
+  if (is.null(confounders)) {
+    # No confounders case
+    combined$pS <- plogis(s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar)
+  } else {
+    # With confounders - construct the full formula
+    s_terms <- paste0("s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar")
+    for (i in seq_along(confounders)) {
+      s_terms <- paste0(s_terms, " + s_coefs_c[", i, "] * combined$C", i)
+    }
+    combined$pS <- plogis(eval(parse(text = s_terms)))
+  }
+
+  # Construct final model formula
+  model_terms <- c("X")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(paste("Ybar ~", paste(model_terms, collapse = " + ")))
+
+  # Fit final model with weights
+  suppressWarnings({
+    final <- glm(
+      model_formula,
+      family = binomial(link = "logit"),
+      weights = (combined$pY / combined$pS),
+      data = combined
+    )
+  })
 
   return(final)
 }

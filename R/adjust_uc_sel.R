@@ -169,6 +169,7 @@ adjust_uc_sel_coef <- function(
     y_binary <- FALSE
   }
 
+  # Extract model coefficients
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_y <- s_model_coefs[3]
@@ -176,167 +177,66 @@ adjust_uc_sel_coef <- function(
   u1_0 <- u_model_coefs[1]
   u1_x <- u_model_coefs[2]
   u1_y <- u_model_coefs[3]
+  u_coefs_c <- u_model_coefs[4:len_u_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(X = x, Y = y)
+  # Create base dataframe
+  df <- data.frame(X = x, Y = y)
 
-    u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y)
-    u1_pred <- rep(u1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ubar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_y * .data$Y),
-        pU = case_when(
-          Ubar == 1 ~ u1_pred,
-          Ubar == 0 ~ 1 - u1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + Ubar,
-          family = binomial(link = "logit"),
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + Ubar,
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
     }
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(X = x, Y = y, C1 = c1)
-    u1_c1 <- u_model_coefs[4]
+  }
 
-    u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y + u1_c1 * c1)
-    u1_pred <- rep(u1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ubar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_y * .data$Y),
-        pU = case_when(
-          Ubar == 1 ~ u1_pred,
-          Ubar == 0 ~ 1 - u1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1 + Ubar,
-          family = binomial(link = "logit"),
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1 + Ubar,
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
+  # Construct U prediction formula dynamically
+  u_formula <- "u1_0 + u1_x * x + u1_y * y"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      u_formula <- paste0(u_formula, " + u_coefs_c[", i, "] * df$C", i)
     }
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
+  }
 
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
+  # Calculate U predictions
+  u1_pred <- plogis(eval(parse(text = u_formula)))
+  u1_pred <- rep(u1_pred, times = 2)
 
-    u1_c1 <- u_model_coefs[4]
-    u1_c2 <- u_model_coefs[5]
-
-    u1_pred <- plogis(u1_0 + u1_x * x + u1_y * y + u1_c1 * c1 + u1_c2 * c2)
-    u1_pred <- rep(u1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ubar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_y * .data$Y),
-        pU = case_when(
-          Ubar == 1 ~ u1_pred,
-          Ubar == 0 ~ 1 - u1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1 + C2 + Ubar,
-          family = binomial(link = "logit"),
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1 + C2 + Ubar,
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    }
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
-
-    u1_c1 <- u_model_coefs[4]
-    u1_c2 <- u_model_coefs[5]
-    u1_c3 <- u_model_coefs[6]
-
-    u1_pred <- plogis(
-      u1_0 + u1_x * x + u1_y * y +
-        u1_c1 * c1 + u1_c2 * c2 + u1_c3 * c3
+  # Create combined dataframe with both U=0 and U=1 scenarios
+  combined <- bind_rows(df, df) %>%
+    mutate(
+      Ubar = rep(c(1, 0), each = n),
+      pU = case_when(
+        Ubar == 1 ~ u1_pred,
+        Ubar == 0 ~ 1 - u1_pred
+      ),
+      pS = plogis(s1_0 + s1_x * X + s1_y * Y)
     )
-    u1_pred <- rep(u1_pred, times = 2)
 
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Ubar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_x * .data$X + s1_y * .data$Y),
-        pU = case_when(
-          Ubar == 1 ~ u1_pred,
-          Ubar == 0 ~ 1 - u1_pred
-        )
+  # Construct final model formula
+  model_terms <- c("X", "Ubar")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(paste("Y ~", paste(model_terms, collapse = " + ")))
+
+  # Fit final model with weights
+  if (y_binary) {
+    suppressWarnings({
+      final <- glm(
+        model_formula,
+        family = binomial(link = "logit"),
+        weights = (combined$pU / combined$pS),
+        data = combined
       )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1 + C2 + C3 + Ubar,
-          family = binomial(link = "logit"),
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1 + C2 + C3 + Ubar,
-          weights = (combined$pU / combined$pS),
-          data = combined
-        )
-      })
-    }
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
+    })
+  } else {
+    suppressWarnings({
+      final <- lm(
+        model_formula,
+        weights = (combined$pU / combined$pS),
+        data = combined
+      )
+    })
   }
 
   return(final)
