@@ -171,7 +171,7 @@ adjust_om_sel_coef <- function(
   }
 
   # Construct Y prediction formula dynamically
-  y_formula <- "y1_0 + y1_x * x + y1_ystar * ystar"
+  y_formula <- "y1_0 + y1_x * df$X + y1_ystar * df$Ystar"
   if (!is.null(confounders)) {
     for (i in seq_along(confounders)) {
       y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)

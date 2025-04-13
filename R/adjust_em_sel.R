@@ -194,7 +194,7 @@ adjust_em_sel_coef <- function(
   }
 
   # Construct X prediction formula dynamically
-  x_formula <- "x1_0 + x1_xstar * xstar + x1_y * y"
+  x_formula <- "x1_0 + x1_xstar * df$Xstar + x1_y * df$Y"
   if (!is.null(confounders)) {
     for (i in seq_along(confounders)) {
       x_formula <- paste0(x_formula, " + x_coefs_c[", i, "] * df$C", i)

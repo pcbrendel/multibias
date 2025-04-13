@@ -190,7 +190,7 @@ adjust_uc_sel_coef <- function(
   }
 
   # Construct U prediction formula dynamically
-  u_formula <- "u1_0 + u1_x * x + u1_y * y"
+  u_formula <- "u1_0 + u1_x * df$X + u1_y * df$Y"
   if (!is.null(confounders)) {
     for (i in seq_along(confounders)) {
       u_formula <- paste0(u_formula, " + u_coefs_c[", i, "] * df$C", i)
@@ -209,7 +209,7 @@ adjust_uc_sel_coef <- function(
         Ubar == 1 ~ u1_pred,
         Ubar == 0 ~ 1 - u1_pred
       ),
-      pS = plogis(s1_0 + s1_x * X + s1_y * Y)
+      pS = plogis(s1_0 + s1_x * .data$X + s1_y * .data$Y)
     )
 
   # Construct final model formula
