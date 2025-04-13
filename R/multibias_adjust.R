@@ -117,6 +117,7 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
+#' @importFrom stats as.formula
 #' @importFrom stats binomial
 #' @importFrom stats coef
 #' @importFrom stats lm
