@@ -1,8 +1,8 @@
 # Adjust for uncontrolled confounding and selection bias
 
 # the following functions feed into adjust_uc_sel():
-# adjust_uc_sel_val() (data_validation input),
-# adjust_uc_sel_coef() (bias_params input)
+# adjust_uc_sel_val() (data_validation input, method: weighting & imputation),
+# adjust_uc_sel_coef() (bias_params input, method: weighting)
 
 adjust_uc_sel_val <- function(
     data_observed,
@@ -217,7 +217,9 @@ adjust_uc_sel_coef <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Y ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Y ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model with weights
   if (y_binary) {
@@ -248,15 +250,7 @@ adjust_uc_sel <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
+  check_inputs2(data_validation, bias_params)
 
   data <- data_observed$data
   x <- data[, data_observed$exposure]
@@ -290,23 +284,5 @@ adjust_uc_sel <- function(
     )
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  if (y_binary) {
-    estimate <- exp(est)
-    ci <- c(
-      exp(est + se * qnorm(alpha / 2)),
-      exp(est + se * qnorm(1 - alpha / 2))
-    )
-  } else {
-    estimate <- est
-    ci <- c(
-      est + se * qnorm(alpha / 2),
-      est + se * qnorm(1 - alpha / 2)
-    )
-  }
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary)
 }

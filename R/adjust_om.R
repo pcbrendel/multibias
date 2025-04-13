@@ -145,7 +145,9 @@ adjust_om_coef <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Ypred ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Ypred ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model
   final <- glm(
@@ -163,10 +165,6 @@ adjust_om <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  check_inputs2(data_validation, bias_params)
-
-  data <- data_observed$data
-
   if (!is.null(data_validation)) {
     final <- adjust_om_val(
       data_observed,

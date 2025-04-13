@@ -1,8 +1,8 @@
 # Adjust for exposure misclassification
 
 # the following functions feed into adjust_em():
-# adjust_em_val() (data_validation input),
-# adjust_em_coef() (bias_params input)
+# adjust_em_val() (data_validation input, method: imputation),
+# adjust_em_coef() (bias_params input, method: imputation)
 
 adjust_em_val <- function(
     data_observed,
@@ -164,7 +164,9 @@ adjust_em_coef <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Y ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Y ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model
   if (y_binary) {
@@ -189,8 +191,6 @@ adjust_em <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  check_inputs2(data_validation, bias_params)
-
   data <- data_observed$data
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]

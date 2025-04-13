@@ -1,8 +1,8 @@
 # Adjust for selection bias
 
 # the following functions feed into adjust_sel():
-# adjust_sel_val() (data_validation input),
-# adjust_sel_coef() (bias_params input)
+# adjust_sel_val() (data_validation input, method: weighting),
+# adjust_sel_coef() (bias_params input, method: weighting)
 
 adjust_sel_val <- function(
     data_observed,
@@ -152,7 +152,9 @@ adjust_sel_coef <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Y ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Y ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model with weights
   suppressWarnings({
@@ -181,8 +183,6 @@ adjust_sel <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  check_inputs2(data_validation, bias_params)
-
   data <- data_observed$data
   x <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]

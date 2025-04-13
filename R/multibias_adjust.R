@@ -134,6 +134,8 @@ multibias_adjust <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
+  check_inputs2(data_validation, bias_params)
+
   bias_dict <- list(
     "uc" = adjust_uc,
     "em" = adjust_em,

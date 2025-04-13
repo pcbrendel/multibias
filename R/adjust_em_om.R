@@ -1,9 +1,9 @@
 # Adjust for exposure misclassification and outcome misclassification
 
 # the following functions feed into adjust_em_om():
-# adjust_em_om_val() (data_validation input),
-# adjust_em_om_coef_single() (bias_params input),
-# adjust_em_om_coef_multinom() (bias_params input)
+# adjust_em_om_val() (data_validation input, method: imputation),
+# adjust_em_om_coef_single() (bias_params input, method: imputation),
+# adjust_em_om_coef_multinom() (bias_params input, method: weighting)
 
 
 adjust_em_om_val <- function(
@@ -198,7 +198,9 @@ adjust_em_om_coef_single <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Ypred ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Ypred ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model
   final <- glm(
@@ -333,7 +335,9 @@ adjust_em_om_coef_multinom <- function(
   if (!is.null(confounders)) {
     model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
   }
-  model_formula <- as.formula(paste("Ybar ~", paste(model_terms, collapse = " + ")))
+  model_formula <- as.formula(
+    paste("Ybar ~", paste(model_terms, collapse = " + "))
+  )
 
   # Fit final model with weights
   suppressWarnings({
@@ -354,16 +358,6 @@ adjust_em_om <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
-
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(
       data_observed,
@@ -401,15 +395,5 @@ adjust_em_om <- function(
     }
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  estimate <- exp(est)
-  ci <- c(
-    exp(est + se * qnorm(alpha / 2)),
-    exp(est + se * qnorm(1 - alpha / 2))
-  )
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary = TRUE)
 }
