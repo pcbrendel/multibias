@@ -24,6 +24,10 @@
 #' bias parameters used to adjust for bias in the observed data. There must
 #' be parameters corresponding to the bias or biases specified in
 #' `data_observed`.
+#' @param bootstrap Boolean for whether to perform bootstrapping to obtain
+#' the estimate and confidence interval.
+#' @param bootstrap_reps Integer number of bootstrap samples to run in
+#' bootstrapping.
 #' @param level Value from 0-1 representing the full range of the confidence
 #' interval. Default is 0.95.
 #'
@@ -117,14 +121,8 @@
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
-#' @importFrom stats as.formula
-#' @importFrom stats binomial
-#' @importFrom stats coef
-#' @importFrom stats lm
-#' @importFrom stats glm
-#' @importFrom stats plogis
-#' @importFrom stats rbinom
-#' @importFrom stats qnorm
+#' @importFrom stats as.formula binomial coef lm median glm plogis rbinom
+#' @importFrom stats qnorm quantile
 #' @importFrom rlang .data
 #'
 #' @export
@@ -133,6 +131,8 @@ multibias_adjust <- function(
     data_observed,
     data_validation = NULL,
     bias_params = NULL,
+    bootstrap = FALSE,
+    bootstrap_reps = 100,
     level = 0.95) {
   check_inputs2(data_validation, bias_params)
 
@@ -153,7 +153,36 @@ multibias_adjust <- function(
 
   bias_key <- paste(sort(data_observed$bias), collapse = "_")
   adjust_fn <- bias_dict[[bias_key]]
-  output <- adjust_fn(data_observed, data_validation, bias_params, level)
+
+  if (bootstrap == FALSE) {
+    output <- adjust_fn(data_observed, data_validation, bias_params, level)
+  } else if (bootstrap == TRUE) {
+    df <- data_observed$data
+    n <- nrow(df)
+    est <- numeric(bootstrap_reps)
+
+    indices <- matrix(
+      sample.int(n, n * bootstrap_reps, replace = TRUE),
+      nrow = n,
+      ncol = bootstrap_reps
+    )
+
+    for (i in seq_len(bootstrap_reps)) {
+      data_observed$data <- df[indices[, i], ]
+      final <- adjust_fn(
+        data_observed,
+        data_validation,
+        bias_params
+      )
+      est[i] <- final$estimate
+    }
+
+    alpha <- 1 - level
+    output <- list(
+      estimate = median(est),
+      ci = as.vector(quantile(est, c(alpha / 2, 1 - alpha / 2)))
+    )
+  }
 
   return(output)
 }
