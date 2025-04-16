@@ -114,9 +114,12 @@
 #'   )
 #' )
 #'
+#' # with bootstrapping
 #' multibias_adjust(
 #'   data_observed = df_observed,
-#'   bias_params = bp2
+#'   bias_params = bp2,
+#'   bootstrap = TRUE,
+#'   bootstrap_reps = 100
 #' )
 #'
 #' @import dplyr

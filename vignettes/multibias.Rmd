@@ -103,34 +103,15 @@ We observe that the bias-adjusted odds ratio of the effect of X on Y is approxim
 
 ### Bootstrapping
 
-Multibias performs bias adjustment via a combination of imputation and/or regression weighting. When imputation is involved, there will be some inherent randomness in the sampling. A single run, therefore, will not produce an exactly consistent result unless a seed is specified. Bootstrapping is thus recommended to quantify the random error. Computational performance can be improved via parallelization.
+To obtain a confidence interval that captures uncertainty in both the random error and the systematic error, bootstrapping is advised. The `multibias_adjust()` function comes with built-in parameters that make this simple. If improved computational performance is desired, users may want to incorporate parallelization.
 
 ```{r}
-n <- nrow(df_uc_sel)
-est <- vector()
-nreps <- 100
-
-for (i in 1:nreps) {
-  df_bootstrap <- df_uc_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    df_bootstrap,
-    bias = c("uc", "sel"),
-    exposure = "X",
-    outcome = "Y",
-    confounders = c("C1", "C2", "C3")
-  )
-  results <- multibias_adjust(
-    df_observed,
-    df_validation
-  )
-  est[i] <- results$estimate
-}
-
-# odds ratio estimate
-round(median(est), 2)
-
-# confidence interval
-round(quantile(est, c(.025, .975)), 2)
+multibias_adjust(
+  data_observed = df_observed,
+  data_validation = df_validation,
+  bootstrap = TRUE,
+  bootstrap_reps = 100
+)
 ```
 
 When adjusting via bias parameters, the user can alternatively provide each bias parameter value as a probability distribution. The resulting confidence interval from bootstrapping can then quantify uncertainty in both the random error and the systematic error. Check out the vignette article "Multibias Validation" for a demonstration of this approach.
