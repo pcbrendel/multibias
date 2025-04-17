@@ -4,7 +4,7 @@
 \name{multibias-package}
 \alias{multibias}
 \alias{multibias-package}
-\title{multibias: Simultaneous Multi-Bias Adjustment}
+\title{multibias: Multiple Bias Analysis in Causal Inference}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
