@@ -48,13 +48,14 @@ In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) e
 
 ```{r, eval = TRUE}
 biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, ,
-                    family = binomial(link = "logit"),
-                    data = df_uc_em_sel)
+  family = binomial(link = "logit"),
+  data = df_uc_em_sel
+)
 biased_or <- round(exp(coef(biased_model)[2]), 2)
 print(paste0("Biased Odds Ratio: ", biased_or))
 ```
 
-The function `adjust_uc_emc_sel()` can be used here to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
+The function `multibias_adjust()` can be used to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
 
 Models for the missing variables (*U*, *X*, *S*) are used to facilitate this data reconstruction. For the above DAG, the corresponding bias models are:
 
@@ -64,62 +65,44 @@ Models for the missing variables (*U*, *X*, *S*) are used to facilitate this dat
 
 where j indicates the number of measured confounders.
 
-To perform the bias adjustment, it is necessary to obtain values of these bias parameters. Potential sources of these bias parameters include internal validation data, estimates in the literature, and expert opinion. For purposes of demonstrating the methodology, we will obtain the exact values of these bias parameters. This is possible because for purposes of validation we have access to the data of missing values that would otherwise be absent in real-world practice. This source data is available in `multibias` as `df_uc_emc_sel_source`.
+To perform the bias adjustment, it is necessary to obtain values of these bias parameters. Potential sources of these bias parameters may include validation data, estimates in the literature, and expert opinion. For purposes of demonstrating the methodology, we will obtain the exact values of these bias parameters. This is possible because we have access to the data of missing values that would otherwise be absent in real-world practice. This source data is available in multibias as `df_uc_emc_sel_source`.
 
 ```{r, eval = TRUE}
 u_model <- glm(U ~ X + Y,
-               family = binomial(link = "logit"),
-               data = df_uc_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_uc_em_sel_source
+)
 x_model <- glm(X ~ Xstar + Y + C1 + C2 + C3,
-               family = binomial(link = "logit"),
-               data = df_uc_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_uc_em_sel_source
+)
 s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
-               family = binomial(link = "logit"),
-               data = df_uc_em_sel_source)
+  family = binomial(link = "logit"),
+  data = df_uc_em_sel_source
+)
 ```
 
-In this example we'll perform probabilistic bias analysis, representing each bias parameter as a single draw from a probability distribution. For this reason, we will run the analysis over 1,000 iterations with bootstrap samples to obtain a valid confidence interval. To speed up the computation we will run the for loop in parallel using the `foreach()` function in the `doParallel` package.
-We create a cluster, make a seed for consistent results, and specify the desired number of bootstrap repitions.
+In this example we'll perform probabilistic bias analysis, representing each bias parameter as a draw from a Normal distribution. This allows us to account for our uncertainty in the "true" value of the bias parameters. We will leverage bootstrap sampling, which is built into `multibias_adjust()` to obtain a confidence interval that incorporates both uncertainty from random error and uncertainty from systematic error (our bias parameters). Each loop iteration will thus have slightly different values for the bias parameters.
 
-```{r, eval = FALSE}
-library(doParallel)
+We create our `data_observed` object, specifying the three biases of interest, and our `bias_params` object, bringing in the model results we determined above.
 
-no_cores <- detectCores() - 1
-registerDoParallel(cores = no_cores)
-cl <- makeCluster(no_cores)
+```{r}
+df_observed <- data_observed(
+  data = df_uc_em_sel,
+  bias = c("uc", "em", "sel"),
+  exposure = "Xstar",
+  outcome = "Y",
+  confounders = c("C1", "C2", "C3")
+)
 
-set.seed(1234)
-nreps <- 1000
-est <- vector(length = nreps)
-```
-
-Next we run the parallel for loop in which we apply the `adjust_uc_em_sel()` function to bootstrap samples of the `df_uc_em_sel` data. Within the function, we include the following arguments:
-1. The `data_observed` object, which includes the dataframe and key column names.
-2. The bias parameters: *U* model coefficients, *X* model coefficients, and *S* model coefficients.
-
-Using the results from the fitted bias models above, we'll use Normal distribution draws for each bias parameter where the mean correponds to the estimated coefficient from the bias model and the standard deviation comes from the estimated standard deviation (i.e., standard error) of the coefficient in the bias model. Each loop iteration will thus have slightly different values for the bias parameters.
-
-```{r, eval = FALSE}
-or <- foreach(i = 1:nreps, .combine = c,
-              .packages = c("dplyr", "multibias")) %dopar% {
-
-  df_sample <- df_uc_em_sel[sample(seq_len(nrow(df_uc_em_sel)),
-                                   nrow(df_uc_em_sel),
-                                   replace = TRUE), ]
-
-  est[i] <- adjust_uc_em_sel(
-    data_observed = data_observed(
-      data = df_sample,
-      exposure = "Xstar",
-      outcome = "Y",
-      confounders = c("C1", "C2", "C3")
-    ),
-    u_model_coefs = c(
+bp <- bias_params(
+  coef_list = list(
+    u = c(
       rnorm(1, mean = u_model$coef[1], sd = summary(u_model)$coef[1, 2]),
       rnorm(1, mean = u_model$coef[2], sd = summary(u_model)$coef[2, 2]),
       rnorm(1, mean = u_model$coef[3], sd = summary(u_model)$coef[3, 2])
     ),
-    x_model_coefs = c(
+    x = c(
       rnorm(1, mean = x_model$coef[1], sd = summary(x_model)$coef[1, 2]),
       rnorm(1, mean = x_model$coef[2], sd = summary(x_model)$coef[2, 2]),
       rnorm(1, mean = x_model$coef[3], sd = summary(x_model)$coef[3, 2]),
@@ -127,7 +110,7 @@ or <- foreach(i = 1:nreps, .combine = c,
       rnorm(1, mean = x_model$coef[5], sd = summary(x_model)$coef[5, 2]),
       rnorm(1, mean = x_model$coef[6], sd = summary(x_model)$coef[6, 2])
     ),
-    s_model_coefs = c(
+    s = c(
       rnorm(1, mean = s_model$coef[1], sd = summary(s_model)$coef[1, 2]),
       rnorm(1, mean = s_model$coef[2], sd = summary(s_model)$coef[2, 2]),
       rnorm(1, mean = s_model$coef[3], sd = summary(s_model)$coef[3, 2]),
@@ -135,17 +118,20 @@ or <- foreach(i = 1:nreps, .combine = c,
       rnorm(1, mean = s_model$coef[5], sd = summary(s_model)$coef[5, 2]),
       rnorm(1, mean = s_model$coef[6], sd = summary(s_model)$coef[6, 2])
     )
-  )$estimate
-}
+  )
+)
 ```
-Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence interval from the distribution of 1,000 odds ratio estimates. As expected, OR<sub>YX</sub> ~ 2, indicating that we were successfully able to obtain a bias-adjusted estimate in our biased data that approximates the known, unbiased estimate.
 
-```{r, eval = FALSE}
-# odds ratio estimate
-round(median(or), 2)
-#> 2.02
+These are specified as inputs of `multibias`. In addition, we will indicate that we want results ran over 1,000 bootstrap samples.
 
-# confidence interval
-round(quantile(or, c(.025, .975)), 2)
-#> 1.93 2.11
+```{r}
+multibias_adjust(
+  data_observed = df_observed,
+  bias_params = bp,
+  bootstrap = TRUE,
+  bootstrap_reps = 1000,
+  level = 0.95
+)
 ```
+
+We arrive at an estimate of the effect of X on Y of approximately 2, correctly corresponding to the relationship that was built into the data. This showcases the power of multibias to allow researchers to arrive at valid causal effect estimates in the presence of missing or incomplete data.
