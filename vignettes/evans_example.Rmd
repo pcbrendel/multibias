@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message = FALSE}
 library(multibias)
 library(dplyr)
 ```
@@ -24,10 +24,11 @@ library(dplyr)
 The Evans County Heart Study was a prospective cohort study conducted in Evans County, Georgia, from 1960 to 1969. The study aimed to investigate risk factors for cardiovascular disease in a rural population. For this example, we'll use a subset of the data focusing on 609 participants aged 40 and older.
 
 The key variables in our analysis are:
-- `SMK`: Smoking status (1 = smoker, 0 = non-smoker)
-- `CHD`: Coronary heart disease status (1 = present, 0 = absent)
-- `HPT`: Hypertension status (1 = present, 0 = absent)
-- `AGE`: Age in years
+
+* `SMK`: Smoking status (1 = smoker, 0 = non-smoker)
+* `CHD`: Coronary heart disease status (1 = present, 0 = absent)
+* `HPT`: Hypertension status (1 = present, 0 = absent)
+* `AGE`: Age in years
 
 Let's load and examine the data:
 
