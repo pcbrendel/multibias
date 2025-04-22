@@ -1,5 +1,4 @@
 set.seed(1234)
-n <- 20000
 nreps <- 10
 
 # 0 confounders
