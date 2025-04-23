@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to multibias</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.0/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
       <div class="d-none name"><code>multibias.Rmd</code></div>
     </div>
 
@@ -193,41 +193,23 @@ the observed effect closer to the null or further from the null.</p>
 <div class="section level3">
 <h3 id="bootstrapping">Bootstrapping<a class="anchor" aria-label="anchor" href="#bootstrapping"></a>
 </h3>
-<p>Multibias performs bias adjustment via a combination of imputation
-and/or regression weighting. When imputation is involved, there will be
-some inherent randomness in the sampling. A single run, therefore, will
-not produce an exactly consistent result unless a seed is specified.
-Bootstrapping is thus recommended to quantify the random error.
-Computational performance can be improved via parallelization.</p>
+<p>To obtain a confidence interval that captures uncertainty in both the
+random error and the systematic error, bootstrapping is advised. The
+<code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> function comes with built-in parameters
+that make this simple. If improved computational performance is desired,
+users may want to incorporate parallelization.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_uc_sel</span><span class="op">)</span></span>
-<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">nreps</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
-<span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">nreps</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">df_bootstrap</span> <span class="op">&lt;-</span> <span class="va">df_uc_sel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, <span class="va">n</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span>
-<span>  <span class="va">df_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
-<span>    <span class="va">df_bootstrap</span>,</span>
-<span>    bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uc"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
-<span>    exposure <span class="op">=</span> <span class="st">"X"</span>,</span>
-<span>    outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
-<span>    confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
-<span>    <span class="va">df_observed</span>,</span>
-<span>    <span class="va">df_validation</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="va">est</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">$</span><span class="va">estimate</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># odds ratio estimate</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2</span></span>
-<span></span>
-<span><span class="co"># confidence interval</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">est</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">.975</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  2.5% 97.5% </span></span>
-<span><span class="co">#&gt;  1.94  2.06</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
+<span>  data_validation <span class="op">=</span> <span class="va">df_validation</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; $estimate</span></span>
+<span><span class="co">#&gt; [1] 2.002853</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $ci</span></span>
+<span><span class="co">#&gt; [1] 1.937064 2.068439</span></span></code></pre></div>
 <p>When adjusting via bias parameters, the user can alternatively
 provide each bias parameter value as a probability distribution. The
 resulting confidence interval from bootstrapping can then quantify

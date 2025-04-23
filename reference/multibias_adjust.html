@@ -9,7 +9,7 @@ interval, adjusted for one or more biases."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ interval, adjusted for one or more biases."><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Simultaneously adjust for multiple biases</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.0/R/multibias_adjust.R" class="external-link"><code>R/multibias_adjust.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/R/multibias_adjust.R" class="external-link"><code>R/multibias_adjust.R</code></a></small>
       <div class="d-none name"><code>multibias_adjust.Rd</code></div>
     </div>
 
@@ -52,6 +52,8 @@ interval, adjusted for one or more biases.</p>
 <span>  <span class="va">data_observed</span>,</span>
 <span>  data_validation <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  bias_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -77,6 +79,16 @@ validation data should have data for the same variables as in
 bias parameters used to adjust for bias in the observed data. There must
 be parameters corresponding to the bias or biases specified in
 <code>data_observed</code>.</p></dd>
+
+
+<dt id="arg-bootstrap">bootstrap<a class="anchor" aria-label="anchor" href="#arg-bootstrap"></a></dt>
+<dd><p>Boolean for whether to perform bootstrapping to obtain
+the estimate and confidence interval.</p></dd>
+
+
+<dt id="arg-bootstrap-reps">bootstrap_reps<a class="anchor" aria-label="anchor" href="#arg-bootstrap-reps"></a></dt>
+<dd><p>Integer number of bootstrap samples to run in
+bootstrapping.</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -208,15 +220,18 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># with bootstrapping</span></span></span>
 <span class="r-in"><span><span class="fu">multibias_adjust</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span></span>
-<span class="r-in"><span>  bias_params <span class="op">=</span> <span class="va">bp2</span></span></span>
+<span class="r-in"><span>  bias_params <span class="op">=</span> <span class="va">bp2</span>,</span></span>
+<span class="r-in"><span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.994691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.99589</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.943281 2.047462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.968454 2.015429</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

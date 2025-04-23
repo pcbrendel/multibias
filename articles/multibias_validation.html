@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multibias Validation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.0/vignettes/multibias_validation.Rmd" class="external-link"><code>vignettes/multibias_validation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/multibias_validation.Rmd" class="external-link"><code>vignettes/multibias_validation.Rmd</code></a></small>
       <div class="d-none name"><code>multibias_validation.Rmd</code></div>
     </div>
 
@@ -116,12 +116,13 @@ of the outcome on the exposure and confounders, we do not observe an
 odds ratio of 2 due to the multiple bias sources.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biased_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">Xstar</span> <span class="op">+</span> <span class="va">C1</span> <span class="op">+</span> <span class="va">C2</span> <span class="op">+</span> <span class="va">C3</span>, ,</span>
-<span>                    family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
-<span>                    data <span class="op">=</span> <span class="va">df_uc_em_sel</span><span class="op">)</span></span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">df_uc_em_sel</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">biased_or</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">biased_model</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Biased Odds Ratio: "</span>, <span class="va">biased_or</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Biased Odds Ratio: 1.5"</span></span></code></pre></div>
-<p>The function <code>adjust_uc_emc_sel()</code> can be used here to
+<p>The function <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> can be used to
 “reconstruct” the unbiased data and return the exposure-outcome odds
 ratio that would be observed in the unbiased setting.</p>
 <p>Models for the missing variables (<em>U</em>, <em>X</em>, <em>S</em>)
@@ -138,76 +139,54 @@ corresponding bias models are:</p>
 </ul>
 <p>where j indicates the number of measured confounders.</p>
 <p>To perform the bias adjustment, it is necessary to obtain values of
-these bias parameters. Potential sources of these bias parameters
-include internal validation data, estimates in the literature, and
-expert opinion. For purposes of demonstrating the methodology, we will
-obtain the exact values of these bias parameters. This is possible
-because for purposes of validation we have access to the data of missing
-values that would otherwise be absent in real-world practice. This
-source data is available in <code>multibias</code> as
+these bias parameters. Potential sources of these bias parameters may
+include validation data, estimates in the literature, and expert
+opinion. For purposes of demonstrating the methodology, we will obtain
+the exact values of these bias parameters. This is possible because we
+have access to the data of missing values that would otherwise be absent
+in real-world practice. This source data is available in multibias as
 <code>df_uc_emc_sel_source</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">u_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">U</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">Y</span>,</span>
-<span>               family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
-<span>               data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span><span class="op">)</span></span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">x_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">X</span> <span class="op">~</span> <span class="va">Xstar</span> <span class="op">+</span> <span class="va">Y</span> <span class="op">+</span> <span class="va">C1</span> <span class="op">+</span> <span class="va">C2</span> <span class="op">+</span> <span class="va">C3</span>,</span>
-<span>               family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
-<span>               data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span><span class="op">)</span></span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">s_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">S</span> <span class="op">~</span> <span class="va">Xstar</span> <span class="op">+</span> <span class="va">Y</span> <span class="op">+</span> <span class="va">C1</span> <span class="op">+</span> <span class="va">C2</span> <span class="op">+</span> <span class="va">C3</span>,</span>
-<span>               family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
-<span>               data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span><span class="op">)</span></span></code></pre></div>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">df_uc_em_sel_source</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>In this example we’ll perform probabilistic bias analysis,
-representing each bias parameter as a single draw from a probability
-distribution. For this reason, we will run the analysis over 1,000
-iterations with bootstrap samples to obtain a valid confidence interval.
-To speed up the computation we will run the for loop in parallel using
-the <code>foreach()</code> function in the <code>doParallel</code>
-package. We create a cluster, make a seed for consistent results, and
-specify the desired number of bootstrap repitions.</p>
+representing each bias parameter as a draw from a Normal distribution.
+This allows us to account for our uncertainty in the “true” value of the
+bias parameters. We will leverage bootstrap sampling, which is built
+into <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> to obtain a confidence interval
+that incorporates both uncertainty from random error and uncertainty
+from systematic error (our bias parameters). Each loop iteration will
+thus have slightly different values for the bias parameters.</p>
+<p>We create our <code>data_observed</code> object, specifying the three
+biases of interest, and our <code>bias_params</code> object, bringing in
+the model results we determined above.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RevolutionAnalytics/doparallel" class="external-link">doParallel</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">df_observed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">df_uc_em_sel</span>,</span>
+<span>  bias <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uc"</span>, <span class="st">"em"</span>, <span class="st">"sel"</span><span class="op">)</span>,</span>
+<span>  exposure <span class="op">=</span> <span class="st">"Xstar"</span>,</span>
+<span>  outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
+<span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">no_cores</span> <span class="op">&lt;-</span> <span class="fu">detectCores</span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
-<span><span class="fu">registerDoParallel</span><span class="op">(</span>cores <span class="op">=</span> <span class="va">no_cores</span><span class="op">)</span></span>
-<span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">makeCluster</span><span class="op">(</span><span class="va">no_cores</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">nreps</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span>length <span class="op">=</span> <span class="va">nreps</span><span class="op">)</span></span></code></pre></div>
-<p>Next we run the parallel for loop in which we apply the
-<code>adjust_uc_em_sel()</code> function to bootstrap samples of the
-<code>df_uc_em_sel</code> data. Within the function, we include the
-following arguments: 1. The <code>data_observed</code> object, which
-includes the dataframe and key column names. 2. The bias parameters:
-<em>U</em> model coefficients, <em>X</em> model coefficients, and
-<em>S</em> model coefficients.</p>
-<p>Using the results from the fitted bias models above, we’ll use Normal
-distribution draws for each bias parameter where the mean correponds to
-the estimated coefficient from the bias model and the standard deviation
-comes from the estimated standard deviation (i.e., standard error) of
-the coefficient in the bias model. Each loop iteration will thus have
-slightly different values for the bias parameters.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">or</span> <span class="op">&lt;-</span> <span class="fu">foreach</span><span class="op">(</span>i <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">nreps</span>, .combine <span class="op">=</span> <span class="va">c</span>,</span>
-<span>              .packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"multibias"</span><span class="op">)</span><span class="op">)</span> <span class="op">%dopar%</span> <span class="op">{</span></span>
-<span></span>
-<span>  <span class="va">df_sample</span> <span class="op">&lt;-</span> <span class="va">df_uc_em_sel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_uc_em_sel</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                                   <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_uc_em_sel</span><span class="op">)</span>,</span>
-<span>                                   replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span>
-<span></span>
-<span>  <span class="va">est</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">adjust_uc_em_sel</span><span class="op">(</span></span>
-<span>    data_observed <span class="op">=</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
-<span>      data <span class="op">=</span> <span class="va">df_sample</span>,</span>
-<span>      exposure <span class="op">=</span> <span class="st">"Xstar"</span>,</span>
-<span>      outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
-<span>      confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    u_model_coefs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span><span class="va">bp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bias_params.html">bias_params</a></span><span class="op">(</span></span>
+<span>  coef_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    u <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">u_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">u_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">u_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">u_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">u_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">u_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
-<span>    x_model_coefs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">x_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">x_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">x_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -215,7 +194,7 @@ slightly different values for the bias parameters.</p>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">x_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">x_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">6</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
-<span>    s_model_coefs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    s <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">s_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">s_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">s_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -223,21 +202,29 @@ slightly different values for the bias parameters.</p>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">s_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">s_model</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s_model</span><span class="op">)</span><span class="op">$</span><span class="va">coef</span><span class="op">[</span><span class="fl">6</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span><span class="op">$</span><span class="va">estimate</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>Finally, we obtain the OR<sub>YX</sub> estimate and 95% confidence
-interval from the distribution of 1,000 odds ratio estimates. As
-expected, OR<sub>YX</sub> ~ 2, indicating that we were successfully able
-to obtain a bias-adjusted estimate in our biased data that approximates
-the known, unbiased estimate.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># odds ratio estimate</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">or</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2.02</span></span>
-<span></span>
-<span><span class="co"># confidence interval</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">or</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">.975</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 1.93 2.11</span></span></code></pre></div>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>These are specified as inputs of <code>multibias</code>. In addition,
+we will indicate that we want results ran over 1,000 bootstrap
+samples.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
+<span>  bias_params <span class="op">=</span> <span class="va">bp</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; $estimate</span></span>
+<span><span class="co">#&gt; [1] 2.053982</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $ci</span></span>
+<span><span class="co">#&gt; [1] 1.986672 2.120928</span></span></code></pre></div>
+<p>We arrive at an estimate of the effect of X on Y of approximately 2,
+correctly corresponding to the relationship that was built into the
+data. This showcases the power of multibias to allow researchers to
+arrive at valid causal effect estimates in the presence of missing or
+incomplete data.</p>
   </main>
 </div>
 

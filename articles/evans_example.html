@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,20 +67,58 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multibias example: Evans</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.0/vignettes/evans_example.Rmd" class="external-link"><code>vignettes/evans_example.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/evans_example.Rmd" class="external-link"><code>vignettes/evans_example.Rmd</code></a></small>
       <div class="d-none name"><code>evans_example.Rmd</code></div>
     </div>
 
     
     
+<p>This vignette demonstrates how to use <code>multibias</code> to
+adjust for uncontrolled confounding in a real-world dataset from the
+Evans County Heart Study. It specifically showcases how to reason and
+derive bias parameters that can be used to adjust for the uncontrolled
+confounding. We’ll examine the relationship between smoking and coronary
+heart disease (CHD), showing how failing to account for age as a
+confounder can bias our estimates and how <code>multibias</code> can be
+used to arrive at the unbiased effect estimate despite missing data on
+the confounder.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pcbrendel/multibias" class="external-link">multibias</a></span><span class="op">)</span></span></code></pre></div>
-<p>We are interested in quantifying the effect of smoking (SMK) on
-coronary heart disease (CHD) using data from the <a href="https://en.wikipedia.org/wiki/Evans_County_Heart_Study" class="external-link">Evans
-County Heart Study</a>. Let’s inspect the dataframe we have for 609
-participants aged 40 and older.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/pcbrendel/multibias" class="external-link">multibias</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+<p>The Evans County Heart Study was a prospective cohort study conducted
+in Evans County, Georgia, from 1960 to 1969. The study aimed to
+investigate risk factors for cardiovascular disease in a rural
+population. For this example, we’ll use a subset of the data focusing on
+609 participants aged 40 and older.</p>
+<p>The key variables in our analysis are:</p>
+<ul>
+<li>
+<code>SMK</code>: Smoking status (1 = smoker, 0 = non-smoker)</li>
+<li>
+<code>CHD</code>: Coronary heart disease status (1 = present, 0 =
+absent)</li>
+<li>
+<code>HPT</code>: Hypertension status (1 = present, 0 = absent)</li>
+<li>
+<code>AGE</code>: Age in years</li>
+</ul>
+<p>Let’s load and examine the data:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">evans</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"evans.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">summary_stats</span> <span class="op">&lt;-</span> <span class="va">evans</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
+<span>    n <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    mean_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">AGE</span><span class="op">)</span>,</span>
+<span>    sd_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">AGE</span><span class="op">)</span>,</span>
+<span>    prop_smokers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">SMK</span><span class="op">)</span>,</span>
+<span>    prop_chd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">CHD</span><span class="op">)</span>,</span>
+<span>    prop_hpt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">HPT</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">summary_stats</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     n mean_age   sd_age prop_smokers  prop_chd  prop_hpt</span></span>
+<span><span class="co">#&gt; 1 609 53.70608 9.258388     0.635468 0.1165846 0.4187192</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">evans</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   ID CHD AGE CHL SMK ECG DBP SBP HPT</span></span>
 <span><span class="co">#&gt; 1 21   0  56 270   0   0  80 138   0</span></span>
@@ -89,10 +127,10 @@ participants aged 40 and older.</p>
 <span><span class="co">#&gt; 4 71   0  64 179   1   0 100 200   1</span></span>
 <span><span class="co">#&gt; 5 74   0  49 243   1   0  82 145   0</span></span>
 <span><span class="co">#&gt; 6 91   0  46 252   1   0  88 142   0</span></span></code></pre></div>
-<p>This is clearly not the most robust data, but, for purposes of
+<p>This is clearly not the most comprehensive data, but, for purposes of
 demonstrating <code>multibias</code>, let’s proceed by pretending that
 our data was missing information on AGE. Let’s inspect the resulting
-effect estimate, adjusted for hypertension (HPT).</p>
+smoking-CHD effect estimate, adjusted for hypertension (HPT).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">biased_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">CHD</span> <span class="op">~</span> <span class="va">SMK</span> <span class="op">+</span> <span class="va">HPT</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span>,</span>
@@ -110,13 +148,6 @@ effect estimate, adjusted for hypertension (HPT).</p>
 <span><span class="co">#&gt; [1] "Biased Odds Ratio: 1.99"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"95% CI: ("</span>, <span class="va">or_ci_low</span>, <span class="st">", "</span>, <span class="va">or_ci_high</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "95% CI: (1.12, 3.55)"</span></span></code></pre></div>
-<p>This estimate is around what we’d expect. In the IJE article <a href="https://doi.org/10.1093/ije/dyv124" class="external-link">The association between
-tobacco smoking and coronary heart disease</a> the author notes:
-“Cigarette smokers have about twice as much coronary heart disease as
-non-smokers, whether measured by deaths, prevalence, or the incidence of
-new events.” However, we also know from studies like <a href="https://doi.org/10.1136/bmj.j5855" class="external-link">this BMJ meta-analysis</a> that
-the effect estimate can vary greatly depending on the degree of
-cigarette consumption.</p>
 <p>Can we anticipate whether this odds ratio without age-adjustment is
 biased towards or away from the null? Let’s consider the association of
 the uncontrolled confounder with the exposure and outcome.</p>
@@ -163,8 +194,8 @@ regression model.</p>
 <span><span class="va">u_coefs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>u <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">u_0</span>, <span class="va">u_x</span>, <span class="va">u_y</span>, <span class="va">u_c</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now let’s plug these bias parameters into
 <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> along with our
-<code>data_observed</code> object to obtain our bias-adjusted odds
-ratio.</p>
+<code>data_observed</code> object to obtain a bias-adjusted effect
+estimate.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">evans</span>,</span>
@@ -176,17 +207,19 @@ ratio.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
-<span>  <span class="va">df_obs</span>,</span>
-<span>  bias_params <span class="op">=</span> <span class="fu"><a href="../reference/bias_params.html">bias_params</a></span><span class="op">(</span>coef_list <span class="op">=</span> <span class="va">u_coefs</span><span class="op">)</span></span>
+<span>  data_observed <span class="op">=</span> <span class="va">df_obs</span>,</span>
+<span>  bias_params <span class="op">=</span> <span class="fu"><a href="../reference/bias_params.html">bias_params</a></span><span class="op">(</span>coef_list <span class="op">=</span> <span class="va">u_coefs</span><span class="op">)</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 2.279489</span></span>
+<span><span class="co">#&gt; [1] 2.229563</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.261951 4.117491</span></span></code></pre></div>
-<p>We get an odds ratio of 2.3 (95% CI: 1.3, 4.1). This matches our
-expectation that the bias adjustment would pull the odds ratio away from
-the null. How does this result compare to the result we would get if age
+<span><span class="co">#&gt; [1] 1.364743 3.962324</span></span></code></pre></div>
+<p>We get an odds ratio of 2.2. This matches our expectation that the
+bias adjustment would pull the odds ratio away from the null. How does
+this result compare to the result we would get if age
 <strong>wasn’t</strong> missing in the data and was incorporated in the
 outcome regression?</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -206,9 +239,9 @@ outcome regression?</p>
 <span><span class="co">#&gt; [1] "Odds Ratio: 2.31"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"95% CI: ("</span>, <span class="va">or_ci_low</span>, <span class="st">", "</span>, <span class="va">or_ci_high</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "95% CI: (1.1, 3.6)"</span></span></code></pre></div>
-<p>It turns out that our bias-adjusted odds ratio using
-<code>multibias</code> is close to this complete-data odds ratio of
-2.3.</p>
+<p>Based on these results, it appears that the bias-adjusted odds ratio
+obtained via <code>multibias</code> is close to this complete-data odds
+ratio of 2.3.</p>
   </main>
 </div>
 
