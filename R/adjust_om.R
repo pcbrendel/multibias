@@ -113,87 +113,48 @@ adjust_om_coef <- function(
     )
   )
 
+  # Extract Y model coefficients
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
+  y_coefs_c <- y_model_coefs[4:len_y_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(X = x, Ystar = ystar)
-    df$Ypred <- rbinom(n, 1, plogis(y1_0 + y1_x * df$X + y1_ystar * df$Ystar))
+  # Create base dataframe
+  df <- data.frame(X = x, Ystar = ystar)
 
-    final <- glm(
-      Ypred ~ X,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1)
-
-    y1_c1 <- y_model_coefs[4]
-
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$X + y1_ystar * df$Ystar +
-          y1_c1 * df$C1
-      )
-    )
-
-    final <- glm(
-      Ypred ~ X + C1,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2)
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$X + y1_ystar * df$Ystar +
-          y1_c1 * df$C1 + y1_c2 * df$C2
-      )
-    )
-
-    final <- glm(
-      Ypred ~ X + C1 + C2,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(X = x, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-    y1_c3 <- y_model_coefs[6]
-
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$X + y1_ystar * df$Ystar +
-          y1_c1 * df$C1 + y1_c2 * df$C2 + y1_c3 * df$C3
-      )
-    )
-
-    final <- glm(
-      Ypred ~ X + C1 + C2 + C3,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
+    }
   }
+
+  # Construct Y prediction formula dynamically
+  y_formula <- "y1_0 + y1_x * df$X + y1_ystar * df$Ystar"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate Y predictions
+  df$Ypred <- rbinom(n, 1, plogis(eval(parse(text = y_formula))))
+
+  # Construct final model formula
+  model_terms <- c("X")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(
+    paste("Ypred ~", paste(model_terms, collapse = " + "))
+  )
+
+  # Fit final model
+  final <- glm(
+    model_formula,
+    family = binomial(link = "logit"),
+    data = df
+  )
 
   return(final)
 }
@@ -204,17 +165,6 @@ adjust_om <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
-  data <- data_observed$data
-
   if (!is.null(data_validation)) {
     final <- adjust_om_val(
       data_observed,
@@ -233,15 +183,5 @@ adjust_om <- function(
     )
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  estimate <- exp(est)
-  ci <- c(
-    exp(est + se * qnorm(alpha / 2)),
-    exp(est + se * qnorm(1 - alpha / 2))
-  )
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary = TRUE)
 }

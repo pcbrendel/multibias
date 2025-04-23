@@ -1,8 +1,8 @@
 # Adjust for exposure misclassification and selection bias
 
 # the following functions feed into adjust_em_sel():
-# adjust_em_sel_val() (data_validation input),
-# adjust_em_sel_coef() (bias_params input)
+# adjust_em_sel_val() (data_validation input, method: imputation & weighting),
+# adjust_em_sel_coef() (bias_params input, method: weighting)
 
 adjust_em_sel_val <- function(
     data_observed,
@@ -172,194 +172,88 @@ adjust_em_sel_coef <- function(
     y_binary <- FALSE
   }
 
+  # Extract model coefficients
   s1_0 <- s_model_coefs[1]
   s1_xstar <- s_model_coefs[2]
   s1_y <- s_model_coefs[3]
+  s_coefs_c <- s_model_coefs[4:len_s_coefs]
 
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
   x1_y <- x_model_coefs[3]
+  x_coefs_c <- x_model_coefs[4:len_x_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(Xstar = xstar, Y = y)
+  # Create base dataframe
+  df <- data.frame(Xstar = xstar, Y = y)
 
-    x1_pred <- plogis(x1_0 + x1_xstar * xstar + x1_y * y)
-    x1_pred <- rep(x1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Xbar = rep(c(1, 0), each = n),
-        pS = plogis(s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y),
-        pX = case_when(
-          Xbar == 1 ~ x1_pred,
-          Xbar == 0 ~ 1 - x1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ Xbar,
-          family = binomial(link = "logit"),
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ Xbar,
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
     }
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1)
-    x1_c1 <- x_model_coefs[4]
-    s1_c1 <- s_model_coefs[4]
-
-    x1_pred <- plogis(x1_0 + x1_xstar * xstar + x1_y * y + x1_c1 * c1)
-    x1_pred <- rep(x1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Xbar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-            s1_c1 * .data$C1
-        ),
-        pX = case_when(
-          Xbar == 1 ~ x1_pred,
-          Xbar == 0 ~ 1 - x1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ Xbar + C1,
-          family = binomial(link = "logit"),
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ Xbar + C1,
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    }
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2)
-
-    s1_c1 <- s_model_coefs[4]
-    s1_c2 <- s_model_coefs[5]
-
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
-
-    x1_pred <- plogis(
-      x1_0 + x1_xstar * xstar +
-        x1_y * y + x1_c1 * c1 + x1_c2 * c2
-    )
-    x1_pred <- rep(x1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Xbar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-            s1_c1 * .data$C1 + s1_c2 * .data$C2
-        ),
-        pX = case_when(
-          Xbar == 1 ~ x1_pred,
-          Xbar == 0 ~ 1 - x1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ Xbar + C1 + C2,
-          family = binomial(link = "logit"),
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ Xbar + C1 + C2,
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    }
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(Xstar = xstar, Y = y, C1 = c1, C2 = c2, C3 = c3)
-
-    s1_c1 <- s_model_coefs[4]
-    s1_c2 <- s_model_coefs[5]
-    s1_c3 <- s_model_coefs[6]
-
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
-    x1_c3 <- x_model_coefs[6]
-
-    x1_pred <- plogis(
-      x1_0 + x1_xstar * xstar + x1_y * y + x1_c1 * c1 + x1_c2 * c2 + x1_c3 * c3
-    )
-    x1_pred <- rep(x1_pred, times = 2)
-
-    combined <- bind_rows(df, df) %>%
-      mutate(
-        Xbar = rep(c(1, 0), each = n),
-        pS = plogis(
-          s1_0 + s1_xstar * .data$Xstar + s1_y * .data$Y +
-            s1_c1 * .data$C1 + s1_c2 * .data$C2 + s1_c3 * .data$C3
-        ),
-        pX = case_when(
-          Xbar == 1 ~ x1_pred,
-          Xbar == 0 ~ 1 - x1_pred
-        )
-      )
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ Xbar + C1 + C2 + C3,
-          family = binomial(link = "logit"),
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ Xbar + C1 + C2 + C3,
-          weights = (combined$pX / combined$pS),
-          data = combined
-        )
-      })
-    }
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
   }
+
+  # Construct X prediction formula dynamically
+  x_formula <- "x1_0 + x1_xstar * df$Xstar + x1_y * df$Y"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      x_formula <- paste0(x_formula, " + x_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate X predictions
+  x1_pred <- plogis(eval(parse(text = x_formula)))
+  x1_pred <- rep(x1_pred, times = 2)
+
+  # Create combined dataframe with both X=0 and X=1 scenarios
+  combined <- bind_rows(df, df) %>%
+    mutate(
+      Xbar = rep(c(1, 0), each = n),
+      pX = case_when(
+        Xbar == 1 ~ x1_pred,
+        Xbar == 0 ~ 1 - x1_pred
+      )
+    )
+
+  # Calculate selection probabilities with all confounders
+  if (is.null(confounders)) {
+    # No confounders case
+    combined$pS <- plogis(s1_0 + s1_xstar * combined$Xstar + s1_y * combined$Y)
+  } else {
+    # With confounders - construct the full formula
+    s_terms <- paste0("s1_0 + s1_xstar * combined$Xstar + s1_y * combined$Y")
+    for (i in seq_along(confounders)) {
+      s_terms <- paste0(s_terms, " + s_coefs_c[", i, "] * combined$C", i)
+    }
+    combined$pS <- plogis(eval(parse(text = s_terms)))
+  }
+
+  # Construct final model formula
+  model_terms <- c("Xbar")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(
+    paste("Y ~", paste(model_terms, collapse = " + "))
+  )
+
+  # Fit final model with weights
+  suppressWarnings({
+    if (y_binary) {
+      final <- glm(
+        model_formula,
+        family = binomial(link = "logit"),
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    } else {
+      final <- lm(
+        model_formula,
+        weights = (combined$pX / combined$pS),
+        data = combined
+      )
+    }
+  })
 
   return(final)
 }
@@ -370,16 +264,6 @@ adjust_em_sel <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
-
   data <- data_observed$data
   xstar <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
@@ -412,23 +296,5 @@ adjust_em_sel <- function(
     )
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  if (y_binary) {
-    estimate <- exp(est)
-    ci <- c(
-      exp(est + se * qnorm(alpha / 2)),
-      exp(est + se * qnorm(1 - alpha / 2))
-    )
-  } else {
-    estimate <- est
-    ci <- c(
-      est + se * qnorm(alpha / 2),
-      est + se * qnorm(1 - alpha / 2)
-    )
-  }
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary)
 }

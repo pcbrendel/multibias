@@ -8,6 +8,8 @@ multibias_adjust(
   data_observed,
   data_validation = NULL,
   bias_params = NULL,
+  bootstrap = FALSE,
+  bootstrap_reps = 100,
   level = 0.95
 )
 }
@@ -24,6 +26,12 @@ validation data should have data for the same variables as in
 bias parameters used to adjust for bias in the observed data. There must
 be parameters corresponding to the bias or biases specified in
 \code{data_observed}.}
+
+\item{bootstrap}{Boolean for whether to perform bootstrapping to obtain
+the estimate and confidence interval.}
+
+\item{bootstrap_reps}{Integer number of bootstrap samples to run in
+bootstrapping.}
 
 \item{level}{Value from 0-1 representing the full range of the confidence
 interval. Default is 0.95.}
@@ -128,9 +136,12 @@ bp2 <- bias_params(
   )
 )
 
+# with bootstrapping
 multibias_adjust(
   data_observed = df_observed,
-  bias_params = bp2
+  bias_params = bp2,
+  bootstrap = TRUE,
+  bootstrap_reps = 100
 )
 
 }

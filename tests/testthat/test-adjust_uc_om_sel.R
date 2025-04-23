@@ -1,13 +1,7 @@
 set.seed(1234)
-n <- 10000
 nreps <- 10
 
 # SEPARATE BIAS PARAMETERS
-
-# cont X just for testing that function runs
-df_uc_om_sel$X_cont <- plogis(df_uc_om_sel$X) +
-  rnorm(nrow(df_uc_om_sel), mean = 0, sd = 0.1)
-
 # 0 confounders
 
 nobias_model <- glm(
@@ -15,6 +9,7 @@ nobias_model <- glm(
   family = binomial(link = "logit"),
   data = df_uc_om_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
 u_model <- glm(
   U ~ X + Y,
@@ -35,7 +30,7 @@ s_model <- glm(
 df_observed <- data_observed(
   df_uc_om_sel,
   bias = c("uc", "om", "sel"),
-  exposure = "X_cont",
+  exposure = "X",
   outcome = "Ystar",
   confounders = NULL
 )
@@ -51,29 +46,16 @@ single_run <- adjust_uc_om_sel(
   bias_params = bp_uc_om_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = c("uc", "om", "sel"),
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = NULL
-  )
-  results <- adjust_uc_om_sel(
-    df_observed,
-    bias_params = bp_uc_om_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_uc_om_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("0 confounders: odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),
@@ -88,6 +70,7 @@ nobias_model <- glm(
   family = binomial(link = "logit"),
   data = df_uc_om_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
 u_model <- glm(
   U ~ X + Y,
@@ -108,7 +91,7 @@ s_model <- glm(
 df_observed <- data_observed(
   df_uc_om_sel,
   bias = c("uc", "om", "sel"),
-  exposure = "X_cont",
+  exposure = "X",
   outcome = "Ystar",
   confounders = c("C1", "C2", "C3")
 )
@@ -124,29 +107,16 @@ single_run <- adjust_uc_om_sel(
   bias_params = bp_uc_om_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = c("uc", "om", "sel"),
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = c("C1", "C2", "C3")
-  )
-  results <- adjust_uc_om_sel(
-    df_observed,
-    bias_params = bp_uc_om_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_uc_om_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("3 confounders: odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),
@@ -155,17 +125,6 @@ test_that("3 confounders: odds ratio and confidence interval output", {
 })
 
 # MULTINOMIAL BIAS PARAMETERS
-
-# library(nnet)
-
-set.seed(1234)
-n <- 10000
-nreps <- 10
-
-# cont X just for testing that function runs
-df_uc_om_sel$X_cont <- plogis(df_uc_om_sel$X) +
-  rnorm(nrow(df_uc_om_sel), mean = 0, sd = 0.1)
-
 # 0 confounders
 
 nobias_model <- glm(
@@ -173,7 +132,9 @@ nobias_model <- glm(
   family = binomial(link = "logit"),
   data = df_uc_om_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
+# library(nnet)
 # uy_model <- multinom(
 #   paste(U, Y) ~ X + Ystar,
 #   data = df_uc_om_sel_source
@@ -205,29 +166,16 @@ single_run <- adjust_uc_om_sel(
   bias_params = bp_uc_om_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = c("uc", "om", "sel"),
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = NULL
-  )
-  results <- adjust_uc_om_sel(
-    df_observed,
-    bias_params = bp_uc_om_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_uc_om_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("0 confounders: odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),
@@ -242,6 +190,7 @@ nobias_model <- glm(
   family = binomial(link = "logit"),
   data = df_uc_om_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
 # uy_model <- multinom(
 #   paste(U, Y) ~ X + Ystar + C1 + C2 + C3,
@@ -274,29 +223,16 @@ single_run <- adjust_uc_om_sel(
   bias_params = bp_uc_om_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_uc_om_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = c("uc", "om", "sel"),
-    exposure = "X",
-    outcome = "Ystar",
-    confounders = c("C1", "C2", "C3")
-  )
-  results <- adjust_uc_om_sel(
-    df_observed,
-    bias_params = bp_uc_om_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_uc_om_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("3 confounders: odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),

@@ -1,9 +1,9 @@
 # Adjust for exposure misclassification and outcome misclassification
 
 # the following functions feed into adjust_em_om():
-# adjust_em_om_val() (data_validation input),
-# adjust_em_om_coef_single() (bias_params input),
-# adjust_em_om_coef_multinom() (bias_params input)
+# adjust_em_om_val() (data_validation input, method: imputation),
+# adjust_em_om_coef_single() (bias_params input, method: imputation),
+# adjust_em_om_coef_multinom() (bias_params input, method: weighting)
 
 
 adjust_em_om_val <- function(
@@ -150,126 +150,64 @@ adjust_em_om_coef_single <- function(
     )
   )
 
+  # Extract model coefficients
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
   x1_ystar <- x_model_coefs[3]
+  x_coefs_c <- x_model_coefs[4:len_x_coefs]
 
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
+  y_coefs_c <- y_model_coefs[4:len_y_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(Xstar = xstar, Ystar = ystar)
-    df$Xpred <- rbinom(
-      n, 1, plogis(
-        x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar
-      )
-    )
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar
-      )
-    )
+  # Create base dataframe
+  df <- data.frame(Xstar = xstar, Ystar = ystar)
 
-    final <- glm(
-      Ypred ~ Xpred,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1)
-
-    x1_c1 <- x_model_coefs[4]
-    y1_c1 <- y_model_coefs[4]
-
-    df$Xpred <- rbinom(
-      n, 1, plogis(
-        x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar + x1_c1 * df$C1
-      )
-    )
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar + y1_c1 * df$C1
-      )
-    )
-
-    final <- glm(
-      Ypred ~ Xpred + C1,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1, C2 = c2)
-
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-
-    df$Xpred <- rbinom(
-      n, 1, plogis(
-        x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar +
-          x1_c1 * df$C1 + x1_c2 * df$C2
-      )
-    )
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar +
-          y1_c1 * df$C1 + y1_c2 * df$C2
-      )
-    )
-
-    final <- glm(
-      Ypred ~ Xpred + C1 + C2,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
-
-    x1_c1 <- x_model_coefs[4]
-    x1_c2 <- x_model_coefs[5]
-    x1_c3 <- x_model_coefs[6]
-
-    y1_c1 <- y_model_coefs[4]
-    y1_c2 <- y_model_coefs[5]
-    y1_c3 <- y_model_coefs[6]
-
-    df$Xpred <- rbinom(
-      n, 1, plogis(
-        x1_0 + x1_xstar * df$Xstar +
-          x1_ystar * df$Ystar + x1_c1 * df$C1 +
-          x1_c2 * df$C2 + x1_c3 * df$C3
-      )
-    )
-    df$Ypred <- rbinom(
-      n, 1, plogis(
-        y1_0 + y1_x * df$Xpred +
-          y1_ystar * df$Ystar +
-          y1_c1 * df$C1 + y1_c2 * df$C2
-      )
-    )
-
-    final <- glm(
-      Ypred ~ Xpred + C1 + C2 + C3,
-      family = binomial(link = "logit"),
-      data = df
-    )
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
+    }
   }
+
+  # Construct X prediction formula dynamically
+  x_formula <- "x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      x_formula <- paste0(x_formula, " + x_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate X predictions
+  df$Xpred <- rbinom(n, 1, plogis(eval(parse(text = x_formula))))
+
+  # Construct Y prediction formula dynamically
+  y_formula <- "y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar"
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate Y predictions
+  df$Ypred <- rbinom(n, 1, plogis(eval(parse(text = y_formula))))
+
+  # Construct final model formula
+  model_terms <- c("Xpred")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(
+    paste("Ypred ~", paste(model_terms, collapse = " + "))
+  )
+
+  # Fit final model
+  final <- glm(
+    model_formula,
+    family = binomial(link = "logit"),
+    data = df
+  )
 
   return(final)
 }
@@ -318,256 +256,98 @@ adjust_em_om_coef_multinom <- function(
     )
   )
 
+  # Extract model coefficients
   x1y0_0 <- x1y0_model_coefs[1]
   x1y0_xstar <- x1y0_model_coefs[2]
   x1y0_ystar <- x1y0_model_coefs[3]
+  x1y0_coefs_c <- x1y0_model_coefs[4:len_x1y0_coefs]
 
   x0y1_0 <- x0y1_model_coefs[1]
   x0y1_xstar <- x0y1_model_coefs[2]
   x0y1_ystar <- x0y1_model_coefs[3]
+  x0y1_coefs_c <- x0y1_model_coefs[4:len_x0y1_coefs]
 
   x1y1_0 <- x1y1_model_coefs[1]
   x1y1_xstar <- x1y1_model_coefs[2]
   x1y1_ystar <- x1y1_model_coefs[3]
+  x1y1_coefs_c <- x1y1_model_coefs[4:len_x1y1_coefs]
 
-  if (is.null(confounders)) {
-    df <- data.frame(Xstar = xstar, Ystar = ystar)
+  # Create base dataframe
+  df <- data.frame(Xstar = xstar, Ystar = ystar)
 
-    p_x1y0 <- exp(x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar)
-    p_x0y1 <- exp(x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar)
-    p_x1y1 <- exp(x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar)
-
-    denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
-
-    x0y0_pred <- 1 / denom
-    x1y0_pred <- p_x1y0 / denom
-    x0y1_pred <- p_x0y1 / denom
-    x1y1_pred <- p_x1y1 / denom
-
-    df_xy_pred <- data.frame(
-      X0Y0 = x0y0_pred,
-      X1Y0 = x1y0_pred,
-      X0Y1 = x0y1_pred,
-      X1Y1 = x1y1_pred
-    )
-    df_xy_pred4 <- bind_rows(df_xy_pred, df_xy_pred, df_xy_pred, df_xy_pred)
-
-    combined <- bind_rows(df, df, df, df) %>%
-      bind_cols(df_xy_pred4) %>%
-      mutate(
-        Xbar = rep(c(1, 0, 1, 0), each = n),
-        Ybar = rep(c(1, 1, 0, 0), each = n),
-        pXY = case_when(
-          Xbar == 0 & Ybar == 0 ~ X0Y0,
-          Xbar == 1 & Ybar == 0 ~ X1Y0,
-          Xbar == 0 & Ybar == 1 ~ X0Y1,
-          Xbar == 1 & Ybar == 1 ~ X1Y1
-        )
-      )
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ Xbar,
-        family = binomial(link = "logit"),
-        weights = combined$pXY,
-        data = combined
-      )
-    })
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1)
-
-    x1y0_c1 <- x1y0_model_coefs[4]
-    x0y1_c1 <- x0y1_model_coefs[4]
-    x1y1_c1 <- x1y1_model_coefs[4]
-
-    p_x1y0 <- exp(
-      x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-        x1y0_c1 * df$C1
-    )
-    p_x0y1 <- exp(
-      x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-        x0y1_c1 * df$C1
-    )
-    p_x1y1 <- exp(
-      x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-        x1y1_c1 * df$C1
-    )
-
-    denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
-
-    x0y0_pred <- 1 / denom
-    x1y0_pred <- p_x1y0 / denom
-    x0y1_pred <- p_x0y1 / denom
-    x1y1_pred <- p_x1y1 / denom
-
-    df_xy_pred <- data.frame(
-      X0Y0 = x0y0_pred,
-      X1Y0 = x1y0_pred,
-      X0Y1 = x0y1_pred,
-      X1Y1 = x1y1_pred
-    )
-    df_xy_pred4 <- bind_rows(df_xy_pred, df_xy_pred, df_xy_pred, df_xy_pred)
-
-    combined <- bind_rows(df, df, df, df) %>%
-      bind_cols(df_xy_pred4) %>%
-      mutate(
-        Xbar = rep(c(1, 0, 1, 0), each = n),
-        Ybar = rep(c(1, 1, 0, 0), each = n),
-        pXY = case_when(
-          Xbar == 0 & Ybar == 0 ~ X0Y0,
-          Xbar == 1 & Ybar == 0 ~ X1Y0,
-          Xbar == 0 & Ybar == 1 ~ X0Y1,
-          Xbar == 1 & Ybar == 1 ~ X1Y1
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ Xbar + C1,
-        family = binomial(link = "logit"),
-        weights = combined$pXY,
-        data = combined
-      )
-    })
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1, C2 = c2)
-
-    x1y0_c1 <- x1y0_model_coefs[4]
-    x1y0_c2 <- x1y0_model_coefs[5]
-
-    x0y1_c1 <- x0y1_model_coefs[4]
-    x0y1_c2 <- x0y1_model_coefs[5]
-
-    x1y1_c1 <- x1y1_model_coefs[4]
-    x1y1_c2 <- x1y1_model_coefs[5]
-
-    p_x1y0 <- exp(
-      x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-        x1y0_c1 * df$C1 + x1y0_c2 * df$C2
-    )
-    p_x0y1 <- exp(
-      x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-        x0y1_c1 * df$C1 + x0y1_c2 * df$C2
-    )
-    p_x1y1 <- exp(
-      x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-        x1y1_c1 * df$C1 + x1y1_c2 * df$C2
-    )
-
-    denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
-
-    x0y0_pred <- 1 / denom
-    x1y0_pred <- p_x1y0 / denom
-    x0y1_pred <- p_x0y1 / denom
-    x1y1_pred <- p_x1y1 / denom
-
-    df_xy_pred <- data.frame(
-      X0Y0 = x0y0_pred,
-      X1Y0 = x1y0_pred,
-      X0Y1 = x0y1_pred,
-      X1Y1 = x1y1_pred
-    )
-    df_xy_pred4 <- bind_rows(df_xy_pred, df_xy_pred, df_xy_pred, df_xy_pred)
-
-    combined <- bind_rows(df, df, df, df) %>%
-      bind_cols(df_xy_pred4) %>%
-      mutate(
-        Xbar = rep(c(1, 0, 1, 0), each = n),
-        Ybar = rep(c(1, 1, 0, 0), each = n),
-        pXY = case_when(
-          Xbar == 0 & Ybar == 0 ~ X0Y0,
-          Xbar == 1 & Ybar == 0 ~ X1Y0,
-          Xbar == 0 & Ybar == 1 ~ X0Y1,
-          Xbar == 1 & Ybar == 1 ~ X1Y1
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ Xbar + C1 + C2,
-        family = binomial(link = "logit"),
-        weights = combined$pXY,
-        data = combined
-      )
-    })
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(Xstar = xstar, Ystar = ystar, C1 = c1, C2 = c2, C3 = c3)
-
-    x1y0_c1 <- x1y0_model_coefs[4]
-    x1y0_c2 <- x1y0_model_coefs[5]
-    x1y0_c3 <- x1y0_model_coefs[6]
-
-    x0y1_c1 <- x0y1_model_coefs[4]
-    x0y1_c2 <- x0y1_model_coefs[5]
-    x0y1_c3 <- x0y1_model_coefs[6]
-
-    x1y1_c1 <- x1y1_model_coefs[4]
-    x1y1_c2 <- x1y1_model_coefs[5]
-    x1y1_c3 <- x1y1_model_coefs[6]
-
-    p_x1y0 <- exp(
-      x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar +
-        x1y0_c1 * df$C1 + x1y0_c2 * df$C2 + x1y0_c3 * df$C3
-    )
-    p_x0y1 <- exp(
-      x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar +
-        x0y1_c1 * df$C1 + x0y1_c2 * df$C2 + x0y1_c3 * df$C3
-    )
-    p_x1y1 <- exp(
-      x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar +
-        x1y1_c1 * df$C1 + x1y1_c2 * df$C2 + x1y1_c3 * df$C3
-    )
-
-    denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
-
-    x0y0_pred <- 1 / denom
-    x1y0_pred <- p_x1y0 / denom
-    x0y1_pred <- p_x0y1 / denom
-    x1y1_pred <- p_x1y1 / denom
-
-    df_xy_pred <- data.frame(
-      X0Y0 = x0y0_pred,
-      X1Y0 = x1y0_pred,
-      X0Y1 = x0y1_pred,
-      X1Y1 = x1y1_pred
-    )
-    df_xy_pred4 <- bind_rows(df_xy_pred, df_xy_pred, df_xy_pred, df_xy_pred)
-
-    combined <- bind_rows(df, df, df, df) %>%
-      bind_cols(df_xy_pred4) %>%
-      mutate(
-        Xbar = rep(c(1, 0, 1, 0), each = n),
-        Ybar = rep(c(1, 1, 0, 0), each = n),
-        pXY = case_when(
-          Xbar == 0 & Ybar == 0 ~ X0Y0,
-          Xbar == 1 & Ybar == 0 ~ X1Y0,
-          Xbar == 0 & Ybar == 1 ~ X0Y1,
-          Xbar == 1 & Ybar == 1 ~ X1Y1
-        )
-      )
-
-    suppressWarnings({
-      final <- glm(
-        Ybar ~ Xbar + C1 + C2 + C3,
-        family = binomial(link = "logit"),
-        weights = combined$pXY,
-        data = combined
-      )
-    })
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
+    }
   }
+
+  # Construct prediction formulas dynamically
+  x1y0_formula <- "x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar"
+  x0y1_formula <- "x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar"
+  x1y1_formula <- "x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar"
+
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      x1y0_formula <- paste0(x1y0_formula, " + x1y0_coefs_c[", i, "] * df$C", i)
+      x0y1_formula <- paste0(x0y1_formula, " + x0y1_coefs_c[", i, "] * df$C", i)
+      x1y1_formula <- paste0(x1y1_formula, " + x1y1_coefs_c[", i, "] * df$C", i)
+    }
+  }
+
+  # Calculate predictions
+  p_x1y0 <- exp(eval(parse(text = x1y0_formula)))
+  p_x0y1 <- exp(eval(parse(text = x0y1_formula)))
+  p_x1y1 <- exp(eval(parse(text = x1y1_formula)))
+
+  denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
+
+  x0y0_pred <- 1 / denom
+  x1y0_pred <- p_x1y0 / denom
+  x0y1_pred <- p_x0y1 / denom
+  x1y1_pred <- p_x1y1 / denom
+
+  # Create prediction dataframe
+  df_xy_pred <- data.frame(
+    X0Y0 = x0y0_pred,
+    X1Y0 = x1y0_pred,
+    X0Y1 = x0y1_pred,
+    X1Y1 = x1y1_pred
+  )
+  df_xy_pred4 <- bind_rows(df_xy_pred, df_xy_pred, df_xy_pred, df_xy_pred)
+
+  # Create combined dataframe with all scenarios
+  combined <- bind_rows(df, df, df, df) %>%
+    bind_cols(df_xy_pred4) %>%
+    mutate(
+      Xbar = rep(c(1, 0, 1, 0), each = n),
+      Ybar = rep(c(1, 1, 0, 0), each = n),
+      pXY = case_when(
+        Xbar == 0 & Ybar == 0 ~ X0Y0,
+        Xbar == 1 & Ybar == 0 ~ X1Y0,
+        Xbar == 0 & Ybar == 1 ~ X0Y1,
+        Xbar == 1 & Ybar == 1 ~ X1Y1
+      )
+    )
+
+  # Construct final model formula
+  model_terms <- c("Xbar")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(
+    paste("Ybar ~", paste(model_terms, collapse = " + "))
+  )
+
+  # Fit final model with weights
+  suppressWarnings({
+    final <- glm(
+      model_formula,
+      family = binomial(link = "logit"),
+      weights = combined$pXY,
+      data = combined
+    )
+  })
 
   return(final)
 }
@@ -578,16 +358,6 @@ adjust_em_om <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
-
   if (!is.null(data_validation)) {
     final <- adjust_em_om_val(
       data_observed,
@@ -625,15 +395,5 @@ adjust_em_om <- function(
     }
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  estimate <- exp(est)
-  ci <- c(
-    exp(est + se * qnorm(alpha / 2)),
-    exp(est + se * qnorm(1 - alpha / 2))
-  )
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary = TRUE)
 }

@@ -1,9 +1,5 @@
 set.seed(1234)
-n <- 80000
 nreps <- 10
-
-# cont Y just for testing that function runs
-df_sel$Y_cont <- plogis(df_sel$Y) + rnorm(nrow(df_sel), mean = 0, sd = 0.1)
 
 s_model <- glm(S ~ X + Y,
   family = binomial(link = "logit"),
@@ -17,12 +13,13 @@ nobias_model <- glm(
   family = binomial(link = "logit"),
   data = df_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
 df_observed <- data_observed(
   df_sel,
   bias = "sel",
   exposure = "X",
-  outcome = "Y_cont",
+  outcome = "Y",
   confounders = NULL
 )
 list_for_sel <- list(s = as.vector(coef(s_model)))
@@ -33,29 +30,16 @@ single_run <- adjust_sel(
   bias_params = bp_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = "sel",
-    exposure = "X",
-    outcome = "Y",
-    confounders = NULL
-  )
-  results <- adjust_sel(
-    df_observed,
-    bias_params = bp_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),
@@ -69,12 +53,13 @@ nobias_model <- glm(Y ~ X + C1 + C2 + C3,
   family = binomial(link = "logit"),
   data = df_sel_source
 )
+or_true <- exp(summary(nobias_model)$coef[2, 1])
 
 df_observed <- data_observed(
   df_sel,
   bias = "sel",
   exposure = "X",
-  outcome = "Y_cont",
+  outcome = "Y",
   confounders = c("C1", "C2", "C3")
 )
 list_for_sel <- list(s = as.vector(coef(s_model)))
@@ -85,29 +70,16 @@ single_run <- adjust_sel(
   bias_params = bp_sel
 )
 
-est <- vector()
-for (i in 1:nreps) {
-  bdf <- df_sel[sample(seq_len(n), n, replace = TRUE), ]
-  df_observed <- data_observed(
-    bdf,
-    bias = "sel",
-    exposure = "X",
-    outcome = "Y",
-    confounders = c("C1", "C2", "C3")
-  )
-  results <- adjust_sel(
-    df_observed,
-    bias_params = bp_sel
-  )
-  est[i] <- results$estimate
-}
-
-or_true <- exp(summary(nobias_model)$coef[2, 1])
-or_adjusted <- median(est)
+bs_run <- multibias_adjust(
+  df_observed,
+  bias_params = bp_sel,
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
+)
 
 test_that("odds ratio and confidence interval output", {
-  expect_gt(or_adjusted, or_true - 0.1)
-  expect_lt(or_adjusted, or_true + 0.1)
+  expect_gt(bs_run$estimate, or_true - 0.1)
+  expect_lt(bs_run$estimate, or_true + 0.1)
   expect_vector(
     single_run$ci,
     ptype = double(),

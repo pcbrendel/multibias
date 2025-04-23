@@ -176,3 +176,25 @@ check_inputs3 <- function(input1, input2, input3, ignore = NULL) {
     )
   }
 }
+
+calculate_results <- function(final, level, y_binary) {
+  est <- summary(final)$coef[2, 1]
+  se <- summary(final)$coef[2, 2]
+  alpha <- 1 - level
+
+  if (y_binary) {
+    estimate <- exp(est)
+    ci <- c(
+      exp(est + se * qnorm(alpha / 2)),
+      exp(est + se * qnorm(1 - alpha / 2))
+    )
+  } else {
+    estimate <- est
+    ci <- c(
+      est + se * qnorm(alpha / 2),
+      est + se * qnorm(1 - alpha / 2)
+    )
+  }
+
+  return(list(estimate = estimate, ci = ci))
+}

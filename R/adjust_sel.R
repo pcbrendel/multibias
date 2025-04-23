@@ -1,8 +1,8 @@
 # Adjust for selection bias
 
 # the following functions feed into adjust_sel():
-# adjust_sel_val() (data_validation input),
-# adjust_sel_coef() (bias_params input)
+# adjust_sel_val() (data_validation input, method: weighting),
+# adjust_sel_coef() (bias_params input, method: weighting)
 
 adjust_sel_val <- function(
     data_observed,
@@ -129,112 +129,50 @@ adjust_sel_coef <- function(
     y_binary <- FALSE
   }
 
+  # Extract S model coefficients
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_y <- s_model_coefs[3]
 
-  if (is.null(confounders)) {
-    df <- data.frame(X = x, Y = y)
-    df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
+  # Create base dataframe
+  df <- data.frame(X = x, Y = y)
 
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X,
-          family = binomial(link = "logit"),
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X,
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
+  # Add confounders if they exist
+  if (!is.null(confounders)) {
+    for (i in seq_along(confounders)) {
+      df[[paste0("C", i)]] <- data[, confounders[i]]
     }
-  } else if (len_c == 1) {
-    c1 <- data[, confounders]
-    df <- data.frame(X = x, Y = y, C1 = c1)
-    df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1,
-          family = binomial(link = "logit"),
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1,
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    }
-  } else if (len_c == 2) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2)
-    df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1 + C2,
-          family = binomial(link = "logit"),
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1 + C2,
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    }
-  } else if (len_c == 3) {
-    c1 <- data[, confounders[1]]
-    c2 <- data[, confounders[2]]
-    c3 <- data[, confounders[3]]
-
-    df <- data.frame(X = x, Y = y, C1 = c1, C2 = c2, C3 = c3)
-    df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
-
-    if (y_binary) {
-      suppressWarnings({
-        final <- glm(
-          Y ~ X + C1 + C2 + C3,
-          family = binomial(link = "logit"),
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    } else {
-      suppressWarnings({
-        final <- lm(
-          Y ~ X + C1 + C2 + C3,
-          weights = (1 / df$pS),
-          data = df
-        )
-      })
-    }
-  } else if (len_c > 3) {
-    stop(
-      "This function is currently not compatible with >3 confounders.",
-      call. = FALSE
-    )
   }
+
+  # Calculate selection probabilities
+  df$pS <- plogis(s1_0 + s1_x * df$X + s1_y * df$Y)
+
+  # Construct final model formula
+  model_terms <- c("X")
+  if (!is.null(confounders)) {
+    model_terms <- c(model_terms, paste0("C", seq_along(confounders)))
+  }
+  model_formula <- as.formula(
+    paste("Y ~", paste(model_terms, collapse = " + "))
+  )
+
+  # Fit final model with weights
+  suppressWarnings({
+    if (y_binary) {
+      final <- glm(
+        model_formula,
+        family = binomial(link = "logit"),
+        weights = (1 / df$pS),
+        data = df
+      )
+    } else {
+      final <- lm(
+        model_formula,
+        weights = (1 / df$pS),
+        data = df
+      )
+    }
+  })
 
   return(final)
 }
@@ -245,17 +183,7 @@ adjust_sel <- function(
     data_validation = NULL,
     bias_params = NULL,
     level = 0.95) {
-  if (
-    (!is.null(data_validation) && !is.null(bias_params)) ||
-      (is.null(data_validation) && is.null(bias_params))
-  ) {
-    stop(
-      "One of data_validation or bias_params must be non-null.",
-      call. = FALSE
-    )
-  }
   data <- data_observed$data
-
   x <- data[, data_observed$exposure]
   y <- data[, data_observed$outcome]
 
@@ -283,23 +211,5 @@ adjust_sel <- function(
     )
   }
 
-  est <- summary(final)$coef[2, 1]
-  se <- summary(final)$coef[2, 2]
-  alpha <- 1 - level
-
-  if (y_binary) {
-    estimate <- exp(est)
-    ci <- c(
-      exp(est + se * qnorm(alpha / 2)),
-      exp(est + se * qnorm(1 - alpha / 2))
-    )
-  } else {
-    estimate <- est
-    ci <- c(
-      est + se * qnorm(alpha / 2),
-      est + se * qnorm(1 - alpha / 2)
-    )
-  }
-
-  return(list(estimate = estimate, ci = ci))
+  calculate_results(final, level, y_binary)
 }
