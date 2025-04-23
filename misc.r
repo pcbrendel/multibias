@@ -34,7 +34,7 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_em_sel") # creates test
-test_file("tests/testthat/test-adjust_uc_om_sel.R") # single test
+test_file("tests/testthat/test-adjust_uc_sel.R") # single test
 test() # tests all
 devtools::run_examples(".")
 

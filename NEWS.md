@@ -1,3 +1,10 @@
+# multibias 1.7.1
+
+* Updated code with dynamic formula construction so that there is no limit
+to the number of known confounders one can include when using `bias_params`
+as an input for `multibias_adjust()`
+* `multibias_adjust()` now has built in bootstrapping
+
 # multibias 1.7
 
 * Created `bias_params` class to handle bias parameter inputs to
