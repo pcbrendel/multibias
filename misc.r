@@ -8,9 +8,6 @@ library(pkgdown)
 # library(gitcreds)
 # library(available)
 
-# # registerS3method("print", "data_observed", print.data_observed)
-# # registerS3method("print", "data_validation", print.data_validation)
-
 # pkgdown
 # usethis::use_pkgdown_github_pages()
 build_readme() # sync the .md with the .Rmd
@@ -71,3 +68,16 @@ create_github_token()
 gh_token_help()
 gitcreds::gitcreds_set()
 git_sitrep()
+
+# ----
+
+df_observed <- data_observed(
+  df_uc_sel,
+  bias = c("uc", "sel"),
+  exposure = "X",
+  outcome = "Y",
+  confounders = c("C1", "C2", "C3")
+)
+
+print(df_observed)
+summary(df_observed)

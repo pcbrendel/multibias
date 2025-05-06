@@ -4,6 +4,7 @@
 to the number of known confounders one can include when using `bias_params`
 as an input for `multibias_adjust()`
 * `multibias_adjust()` now has built in bootstrapping
+* Added `summary()` method to `data_observed`
 
 # multibias 1.7
 

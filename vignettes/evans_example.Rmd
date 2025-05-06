@@ -46,26 +46,21 @@ summary_stats <- evans %>%
   )
 
 print(summary_stats)
-head(evans)
 ```
 
-This is clearly not the most comprehensive data, but, for purposes of demonstrating `multibias`, let's proceed by pretending that our data was missing information on AGE. Let's inspect the resulting smoking-CHD effect estimate, adjusted for hypertension (HPT).
+For purposes of demonstrating `multibias`, let's pretend that our data was missing information on the confounding variable, AGE. Let's create our `data_observed` object with uncontrolled confounding (bias = "uc") and inspect the biased SMK-CHD effect estimate, adjusted for hypertension (HPT).
 
 ```{r, eval = TRUE}
-biased_model <- glm(CHD ~ SMK + HPT,
-  family = binomial(link = "logit"),
-  data = evans
-)
-or <- round(exp(coef(biased_model)[2]), 2)
-or_ci_low <- round(
-  exp(coef(biased_model)[2] - 1.96 * summary(biased_model)$coef[2, 2]), 2
-)
-or_ci_high <- round(
-  exp(coef(biased_model)[2] + 1.96 * summary(biased_model)$coef[2, 2]), 2
+df_obs <- data_observed(
+  data = evans,
+  bias = "uc",
+  exposure = "SMK",
+  outcome = "CHD",
+  confounders = "HPT"
 )
 
-print(paste0("Biased Odds Ratio: ", or))
-print(paste0("95% CI: (", or_ci_low, ", ", or_ci_high, ")"))
+print(df_obs)
+summary(df_obs)
 ```
 
 Can we anticipate whether this odds ratio without age-adjustment is biased towards or away from the null? Let's consider the association of the uncontrolled confounder with the exposure and outcome.
@@ -99,14 +94,6 @@ u_coefs <- list(u = c(u_0, u_x, u_y, u_c))
 Now let's plug these bias parameters into `multibias_adjust()` along with our `data_observed` object to obtain a bias-adjusted effect estimate.
 
 ```{r, eval = TRUE}
-df_obs <- data_observed(
-  data = evans,
-  bias = "uc",
-  exposure = "SMK",
-  outcome = "CHD",
-  confounders = "HPT"
-)
-
 set.seed(1234)
 multibias_adjust(
   data_observed = df_obs,
@@ -124,10 +111,10 @@ full_model <- glm(CHD ~ SMK + HPT + AGE,
 )
 or <- round(exp(coef(full_model)[2]), 2)
 or_ci_low <- round(
-  exp(coef(biased_model)[2] - 1.96 * summary(full_model)$coef[2, 2]), 2
+  exp(coef(full_model)[2] - 1.96 * summary(full_model)$coef[2, 2]), 2
 )
 or_ci_high <- round(
-  exp(coef(biased_model)[2] + 1.96 * summary(full_model)$coef[2, 2]), 2
+  exp(coef(full_model)[2] + 1.96 * summary(full_model)$coef[2, 2]), 2
 )
 
 print(paste0("Odds Ratio: ", or))
