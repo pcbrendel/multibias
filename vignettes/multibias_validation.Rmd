@@ -44,15 +44,19 @@ A simulated dataframe corresponding to this DAG, `df_uc_emc_sel` can be loaded f
 head(df_uc_em_sel)
 ```
 
-In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources.
+In this data, the true, unbiased exposure-outcome odds ratio (OR<sub>YX</sub>) equals ~2. However, when we run a logistic regression of the outcome on the exposure and confounders, we do not observe an odds ratio of 2 due to the multiple bias sources. We create our `data_observed` object, specifying the three biases of interest, and observe the biased model results.
 
 ```{r, eval = TRUE}
-biased_model <- glm(Y ~ Xstar + C1 + C2 + C3, ,
-  family = binomial(link = "logit"),
-  data = df_uc_em_sel
+df_observed <- data_observed(
+  data = df_uc_em_sel,
+  bias = c("uc", "em", "sel"),
+  exposure = "Xstar",
+  outcome = "Y",
+  confounders = c("C1", "C2", "C3")
 )
-biased_or <- round(exp(coef(biased_model)[2]), 2)
-print(paste0("Biased Odds Ratio: ", biased_or))
+
+print(df_observed)
+summary(df_observed)
 ```
 
 The function `multibias_adjust()` can be used to "reconstruct" the unbiased data and return the exposure-outcome odds ratio that would be observed in the unbiased setting.
@@ -84,17 +88,9 @@ s_model <- glm(S ~ Xstar + Y + C1 + C2 + C3,
 
 In this example we'll perform probabilistic bias analysis, representing each bias parameter as a draw from a Normal distribution. This allows us to account for our uncertainty in the "true" value of the bias parameters. We will leverage bootstrap sampling, which is built into `multibias_adjust()` to obtain a confidence interval that incorporates both uncertainty from random error and uncertainty from systematic error (our bias parameters). Each loop iteration will thus have slightly different values for the bias parameters.
 
-We create our `data_observed` object, specifying the three biases of interest, and our `bias_params` object, bringing in the model results we determined above.
+We create our `bias_params` object, bringing in the model results we determined above.
 
 ```{r}
-df_observed <- data_observed(
-  data = df_uc_em_sel,
-  bias = c("uc", "em", "sel"),
-  exposure = "Xstar",
-  outcome = "Y",
-  confounders = c("C1", "C2", "C3")
-)
-
 bp <- bias_params(
   coef_list = list(
     u = c(
@@ -122,7 +118,7 @@ bp <- bias_params(
 )
 ```
 
-These are specified as inputs of `multibias`. In addition, we will indicate that we want results ran over 1,000 bootstrap samples.
+The `data_observed` and `bias_params` objects are specified as inputs of `multibias`. In addition, we will indicate that we want results ran over 1,000 bootstrap samples.
 
 ```{r}
 multibias_adjust(

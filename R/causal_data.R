@@ -111,6 +111,48 @@ print.data_observed <- function(x, ...) {
   invisible(x)
 }
 
+#' @importFrom broom tidy
+#' @export
+
+summary.data_observed <- function(object, ...) {
+  df <- data.frame(
+    exposure = object$data[, object$exposure],
+    Y = object$data[, object$outcome]
+  )
+  names(df)[1] <- object$exposure
+
+  df <- bind_cols(
+    df,
+    object$data %>%
+      select(all_of(object$confounders))
+  )
+
+  if (all(df$Y %in% 0:1)) {
+    y_binary <- TRUE
+  } else {
+    y_binary <- FALSE
+  }
+
+  if (y_binary) {
+    mod <- glm(
+      Y ~ .,
+      family = binomial(link = "logit"),
+      data = df
+    )
+    final <- broom::tidy(mod, conf.int = TRUE, exponentiate = TRUE)
+    cat("Note: Estimates are exponentiated (odds ratios) for binary outcomes\n\n")
+  } else {
+    mod <- lm(
+      Y ~ .,
+      data = df
+    )
+    final <- broom::tidy(mod, conf.int = TRUE, exponentiate = FALSE)
+    cat("Note: Estimates are not exponentiated for continuous outcomes\n\n")
+  }
+
+  return(final)
+}
+
 
 #' Represent validation causal data
 #'
