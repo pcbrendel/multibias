@@ -228,20 +228,20 @@ results we determined above.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The <code>data_observed</code> and <code>bias_params</code> objects
 are specified as inputs of <code>multibias</code>. In addition, we will
-indicate that we want results ran over 1,000 bootstrap samples.</p>
+indicate that we want results ran over bootstrap samples.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  bias_params <span class="op">=</span> <span class="va">bp</span>,</span>
 <span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  bootstrap_reps <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 2.053982</span></span>
+<span><span class="co">#&gt; [1] 2.033976</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.986672 2.120928</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.962694 2.088289</span></span></code></pre></div>
 <p>We arrive at an estimate of the effect of X on Y of approximately 2,
 correctly corresponding to the relationship that was built into the
 data. This showcases the power of multibias to allow researchers to

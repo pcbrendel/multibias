@@ -202,13 +202,13 @@ users may want to incorporate parallelization.</p>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  data_validation <span class="op">=</span> <span class="va">df_validation</span>,</span>
 <span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 2.002853</span></span>
+<span><span class="co">#&gt; [1] 1.994336</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.937064 2.068439</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.951153 2.028883</span></span></code></pre></div>
 <p>When adjusting via bias parameters, the user can alternatively
 provide each bias parameter value as a probability distribution. The
 resulting confidence interval from bootstrapping can then quantify
