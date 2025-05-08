@@ -110,7 +110,7 @@ multibias_adjust(
   data_observed = df_observed,
   data_validation = df_validation,
   bootstrap = TRUE,
-  bootstrap_reps = 100
+  bootstrap_reps = 10
 )
 ```
 
