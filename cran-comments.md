@@ -1,3 +1,7 @@
+# 5/8/25
+Reduced number of bootstrap reps in example
+
+# 5/8/25
 Reduced number of bootstrap reps in response to the following comment:
 
 Check: re-building of vignette outputs, Result: FAILURE

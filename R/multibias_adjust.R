@@ -119,7 +119,7 @@
 #'   data_observed = df_observed,
 #'   bias_params = bp2,
 #'   bootstrap = TRUE,
-#'   bootstrap_reps = 100
+#'   bootstrap_reps = 10
 #' )
 #'
 #' @import dplyr
