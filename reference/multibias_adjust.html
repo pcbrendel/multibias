@@ -221,18 +221,14 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with bootstrapping</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">multibias_adjust</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span></span>
 <span class="r-in"><span>  bias_params <span class="op">=</span> <span class="va">bp2</span>,</span></span>
 <span class="r-in"><span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  bootstrap_reps <span class="op">=</span> <span class="fl">10</span></span></span>
+<span class="r-in"><span>  bootstrap_reps <span class="op">=</span> <span class="fl">1000</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.989046</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.961996 2.009051</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
