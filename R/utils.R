@@ -196,5 +196,5 @@ calculate_results <- function(final, level, y_binary) {
     )
   }
 
-  return(list(estimate = estimate, ci = ci))
+  return(list(estimate = estimate, std.error = se, ci = ci))
 }
