@@ -1,3 +1,55 @@
+#' Create a Forest Plot comparing observed and adjusted effect estimates
+#'
+#' This function generates a forest plot comparing the observed effect estimate
+#' with adjusted effect estimates from sensitivity analyses. The plot includes
+#' point estimates and confidence intervals for each analysis.
+#'
+#' @param data_observed Object of class `data_observed` representing the
+#' observed causal data and effect of interest.
+#' @param multibias_result_list A named list of sensitivity analysis results.
+#' Each element should be a result from [multibias_adjust()].
+#' @param log_scale Boolean indicating whether to display the x-axis on the
+#' log scale. Default is FALSE.
+#'
+#' @return A ggplot object showing a forest plot with:
+#'   \itemize{
+#'     \item Point estimates (blue dots)
+#'     \item Confidence intervals (gray horizontal lines)
+#'     \item A vertical reference line at x=1 (dashed)
+#'     \item Appropriate labels and title
+#'   }
+#'
+#' @examples
+#' df_observed <- data_observed(
+#'   data = df_em,
+#'   bias = "em",
+#'   exposure = "Xstar",
+#'   outcome = "Y",
+#'   confounders = "C1"
+#' )
+#'
+#' bp1 <- bias_params(coef_list = list(x = c(-2.10, 1.62, 0.63, 0.35)))
+#' bp2 <- bias_params(coef_list = list(x = c(-2.10 * 2, 1.62 * 2, 0.63 * 2, 0.35 * 2)))
+#'
+#' result1 <- multibias_adjust(
+#'   data_observed = df_observed,
+#'   bias_params = bp1
+#' )
+#' result2 <- multibias_adjust(
+#'   data_observed = df_observed,
+#'   bias_params = bp2
+#' )
+#'
+#' multibias_plot(
+#'   data_observed = observed_data,
+#'   multibias_result_list = list(
+#'     "Adjusted with bias params" = result1,
+#'     "Adjusted with bias params doubled" = result2
+#'   )
+#' )
+#'
+#' @export
+
 multibias_plot <- function(
     data_observed,
     multibias_result_list,
@@ -16,56 +68,56 @@ multibias_plot <- function(
     ci_high = observed_ci_high
   )
 
-  # adjusted_est <- multibias_result$estimate
-  # adjusted_ci_low <- multibias_result$ci[1]
-  # adjusted_ci_high <- multibias_result$ci[2]
-
-  # print(observed_est)
-  # print(observed_se)
-  # print(adjusted_est)
-  # print(adjusted_se)
-
-  # xmin <- min(observed_est - observed_se * 5, adjusted_est - adjusted_se * 5)
-  # xmax <- max(observed_est + observed_se * 5, adjusted_est + adjusted_se * 5)
-
-  # df <- data.frame(
-  #   type = c("Observed", "Adjusted"),
-  #   est = c(observed_est, adjusted_est),
-  #   ci_low = c(observed_ci_low, adjusted_ci_low),
-  #   ci_high = c(observed_ci_high, adjusted_ci_high)
-  # )
-
   list_names <- names(multibias_result_list)
 
-  df_adjusted <- purrr::map_dfr(seq_along(multibias_result_list), function(list_index) {
-    list_item <- multibias_result_list[[list_index]]
-    name <- list_names[list_index]
+  list_adjusted <- purrr::map(
+    seq_along(multibias_result_list),
+    function(list_index) {
+      list_item <- multibias_result_list[[list_index]]
+      name <- list_names[list_index]
 
-    is_valid <- is.list(list_item) &&
-      all(c("estimate", "ci") %in% names(list_item)) &&
-      length(list_item$ci) == 2 &&
-      is.numeric(list_item$estimate) &&
-      is.numeric(list_item$ci)
+      is_valid <- is.list(list_item) &&
+        all(c("estimate", "ci") %in% names(list_item)) &&
+        length(list_item$ci) == 2 &&
+        is.numeric(list_item$estimate) &&
+        is.numeric(list_item$ci)
 
-    if (!is_valid) {
-      warning(paste("Item", name, "in multibias_result_list is not structured as expected. Skipping this item."), call. = FALSE)
-      return(NULL)
+      if (!is_valid) {
+        warning(
+          paste0(
+            "Item ",
+            name,
+            " in multibias_result_list is not structured as expected. ",
+            "Skipping this item."
+          ),
+          call. = FALSE
+        )
+        return(NULL)
+      }
+      tibble(
+        type = name,
+        est = list_item$estimate,
+        ci_low = list_item$ci[1],
+        ci_high = list_item$ci[2]
+      )
     }
-    tibble(
-      type = name,
-      est = list_item$estimate,
-      ci_low  = list_item$ci[1],
-      ci_high = list_item$ci[2]
-    )
-  })
+  )
 
+  df_adjusted <- purrr::list_rbind(list_adjusted)
   df <- rbind(df_observed, as.data.frame(df_adjusted))
 
-  final <- ggplot(data = df, aes(x = est, y = type)) +
-    geom_vline(aes(xintercept = 1), linetype = "dashed") +
-    geom_point(color = "blue") +
-    geom_errorbarh(aes(xmin = ci_low, xmax = ci_high), size = .5, height = .2, color = "gray50") +
-    labs(
+  final <- ggplot2::ggplot(
+    data = df, ggplot2::aes(x = .data$est, y = .data$type)
+  ) +
+    ggplot2::geom_vline(ggplot2::aes(xintercept = 1), linetype = "dashed") +
+    ggplot2::geom_point(color = "blue") +
+    ggplot2::geom_errorbarh(
+      ggplot2::aes(xmin = .data$ci_low, xmax = .data$ci_high),
+      size = .5,
+      height = .2,
+      color = "gray50"
+    ) +
+    ggplot2::labs(
       title = "Observed vs. Adjusted Effect Estimates",
       subtitle = paste0(
         "Sensitivity analysis of the ",
@@ -77,10 +129,10 @@ multibias_plot <- function(
       x = "Effect Estimate",
       y = ""
     ) +
-    theme_bw()
+    ggplot2::theme_bw()
 
   if (log_scale) {
-    if(any(df$est <= 0 | df$ci_low <= 0, na.rm = TRUE)) {
+    if (any(df$est <= 0 | df$ci_low <= 0, na.rm = TRUE)) {
       warning(
         paste0(
           "Some estimates or lower CI bounds are zero or negative. ",
@@ -91,7 +143,7 @@ multibias_plot <- function(
       )
     }
     final <- final +
-      scale_x_log10()
+      ggplot2::scale_x_log10()
   }
 
   return(final)
