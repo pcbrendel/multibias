@@ -46,6 +46,13 @@ df_observed <- data_observed(
 )
 ```
 
+Running the `summary()` method displays the generalized linear model results in
+tidy format.
+
+```{r}
+summary(df_observed)
+```
+
 ## 2. Create source for bias adjustment
 
 Next, you need to have some information that can be used to quantify the assumed bias or biases. There are two options here.
@@ -106,12 +113,27 @@ We observe that the bias-adjusted odds ratio of the effect of X on Y is approxim
 To obtain a confidence interval that captures uncertainty in both the random error and the systematic error, bootstrapping is advised. The `multibias_adjust()` function comes with built-in parameters that make this simple. If improved computational performance is desired, users may want to incorporate parallelization.
 
 ```{r}
-multibias_adjust(
+adjusted_results <- multibias_adjust(
   data_observed = df_observed,
   data_validation = df_validation,
   bootstrap = TRUE,
   bootstrap_reps = 10
 )
+adjusted_results
 ```
 
 When adjusting via bias parameters, the user can alternatively provide each bias parameter value as a probability distribution. The resulting confidence interval from bootstrapping can then quantify uncertainty in both the random error and the systematic error. Check out the vignette article "Multibias Validation" for a demonstration of this approach.
+
+## 4. Visualize results
+
+Data visualization of the sensitivity analysis can be performed using
+`multibias_plot()`. The `log_scale` parameter should be set to TRUE when dealing
+with binary outcomes.
+
+```{r}
+multibias_plot(
+  data_observed = df_observed,
+  multibias_result_list = list("Adjusted Estimate" = adjusted_results),
+  log_scale = TRUE
+)
+```
