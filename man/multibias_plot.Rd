@@ -2,7 +2,7 @@
 % Please edit documentation in R/multibias_plot.R
 \name{multibias_plot}
 \alias{multibias_plot}
-\title{Create a Forest Plot Comparing Observed and Adjusted Effect Estimates}
+\title{Create a Forest Plot comparing observed and adjusted effect estimates}
 \usage{
 multibias_plot(data_observed, multibias_result_list, log_scale = FALSE)
 }

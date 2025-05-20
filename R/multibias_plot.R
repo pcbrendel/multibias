@@ -106,6 +106,9 @@ multibias_plot <- function(
   df_adjusted <- purrr::list_rbind(list_adjusted)
   df <- rbind(df_observed, as.data.frame(df_adjusted))
 
+  # Set factor levels to control y-axis order
+  df$type <- factor(df$type, levels = rev(c("Observed", list_names)))
+
   final <- ggplot2::ggplot(
     data = df, ggplot2::aes(x = .data$est, y = .data$type)
   ) +
