@@ -15,3 +15,4 @@
 ^docs$
 ^pkgdown$
 ^README\.Rmd$
+^R/test_confounders\.R
