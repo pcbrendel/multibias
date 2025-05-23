@@ -35,7 +35,7 @@ list_for_uc_sel <- list(
 )
 bp_uc_sel <- bias_params(coef_list = list_for_uc_sel)
 
-single_run <- adjust_uc_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_sel
 )
@@ -91,7 +91,7 @@ list_for_uc_sel <- list(
 )
 bp_uc_sel <- bias_params(coef_list = list_for_uc_sel)
 
-single_run <- adjust_uc_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_sel
 )
@@ -115,7 +115,7 @@ test_that("odds ratio and confidence interval output", {
 
 # adjust with validation data
 
-or_val <- adjust_uc_sel(
+or_val <- multibias_adjust(
   data_observed = data_observed(
     df_uc_sel,
     bias = c("uc", "sel"),
@@ -129,7 +129,9 @@ or_val <- adjust_uc_sel(
     true_outcome = "Y",
     confounders = c("C1", "C2", "C3", "U"),
     selection = "S"
-  )
+  ),
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
 )
 
 test_that("adjust_uc_sel, validation data", {
