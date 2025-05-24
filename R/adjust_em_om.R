@@ -82,11 +82,15 @@ adjust_em_om_val <- function(
   )
 
   x_mod_coefs <- coef(x_mod)
-  x_pred <- x_mod_coefs[1]
+  x_mod_se <- sqrt(diag(vcov(x_mod)))
 
-  for (i in 2:length(x_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  x_mod_coefs_sampled <- rnorm(length(x_mod_coefs), x_mod_coefs, x_mod_se)
+  x_pred <- x_mod_coefs_sampled[1]
+
+  for (i in 2:length(x_mod_coefs_sampled)) {
     var_name <- names(x_mod_coefs)[i]
-    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs_sampled[i]
   }
 
   df$Xpred <- rbinom(n, 1, plogis(x_pred))
@@ -97,12 +101,16 @@ adjust_em_om_val <- function(
   )
 
   y_mod_coefs <- coef(y_mod)
-  y_pred <- y_mod_coefs[1]
+  y_mod_se <- sqrt(diag(vcov(y_mod)))
 
-  for (i in 2:length(y_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  y_mod_coefs_sampled <- rnorm(length(y_mod_coefs), y_mod_coefs, y_mod_se)
+  y_pred <- y_mod_coefs_sampled[1]
+
+  for (i in 2:length(y_mod_coefs_sampled)) {
     var_name <- names(y_mod_coefs)[i]
     var_name <- gsub("X", "Xpred", var_name) # col X is not in df
-    y_pred <- y_pred + df[[var_name]] * y_mod_coefs[i]
+    y_pred <- y_pred + df[[var_name]] * y_mod_coefs_sampled[i]
   }
 
   df$Ypred <- rbinom(n, 1, plogis(y_pred))

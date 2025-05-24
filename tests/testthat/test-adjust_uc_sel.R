@@ -115,7 +115,7 @@ test_that("odds ratio and confidence interval output", {
 
 # adjust with validation data
 
-or_val <- multibias_adjust(
+val_run <- multibias_adjust(
   data_observed = data_observed(
     df_uc_sel,
     bias = c("uc", "sel"),
@@ -135,6 +135,6 @@ or_val <- multibias_adjust(
 )
 
 test_that("adjust_uc_sel, validation data", {
-  expect_gt(or_val$estimate, or_true - 0.1)
-  expect_lt(or_val$estimate, or_true + 0.1)
+  expect_gt(val_run$estimate, or_true - 0.1)
+  expect_lt(val_run$estimate, or_true + 0.1)
 })
