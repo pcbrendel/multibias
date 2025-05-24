@@ -1,3 +1,4 @@
+library(vdiffr)
 set.seed(1234)
 nreps <- 10
 
@@ -71,7 +72,7 @@ df_observed <- data_observed(
 list_for_uc <- list(u = as.vector(coef(u_model)))
 bp_uc <- bias_params(coef_list = list_for_uc)
 
-single_run <- adjust_uc(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc
 )
@@ -95,7 +96,7 @@ test_that("adjust_uc, 3 confounders: OR and CI output", {
 
 # adjust with validation data
 
-or_val <- adjust_uc(
+val_run <- multibias_adjust(
   data_observed = data_observed(
     df_uc,
     bias = "uc",
@@ -108,10 +109,23 @@ or_val <- adjust_uc(
     true_exposure = "X_cont",
     true_outcome = "Y_cont",
     confounders = c("C1", "C2", "C3", "U")
-  )
+  ),
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
 )
 
 test_that("adjust_uc, validation data", {
-  expect_gt(or_val$estimate, or_true - 0.1)
-  expect_lt(or_val$estimate, or_true + 0.1)
+  expect_gt(val_run$estimate, or_true - 0.1)
+  expect_lt(val_run$estimate, or_true + 0.1)
+})
+
+# test plot
+
+plot <- multibias_plot(
+  data_observed = df_observed,
+  multibias_result_list = list("Adjusted" = val_run)
+)
+
+test_that("Plot output", {
+  expect_doppelganger("multibias_plot", plot)
 })
