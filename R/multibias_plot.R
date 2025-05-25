@@ -41,7 +41,7 @@
 #' )
 #'
 #' multibias_plot(
-#'   data_observed = observed_data,
+#'   data_observed = df_observed,
 #'   multibias_result_list = list(
 #'     "Adjusted with bias params" = result1,
 #'     "Adjusted with bias params doubled" = result2
