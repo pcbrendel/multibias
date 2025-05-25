@@ -121,7 +121,7 @@ df_obs1 <- data_observed(
 summary(df_obs1)
 ```
 
-Running the `summary()` method on our `data_observed` object prints the logistic regression results from the model estimating the association between extreme alcohol consumption and mortality, adjusting for age and gender. This will serve as our reference point for comparing bias-adjusted estimates. Our base model suggests that extreme alcohol consumption is associated with a 1.6-fold increase in mortality risk (95% CI: `r round(uc_adjusted$ci[1], 2)`, `r round(uc_adjusted$ci[2], 2)`), after adjusting for age and gender.
+Running the `summary()` method on our `data_observed` object prints the logistic regression results from the model estimating the association between extreme alcohol consumption and mortality, adjusting for age and gender. This will serve as our reference point for comparing bias-adjusted estimates. Our base model suggests that extreme alcohol consumption is associated with a 1.6-fold increase in mortality risk (95% CI: `r round(summary(df_obs1)$conf.low[2], 2)`, `r round(summary(df_obs1)$conf.high[2], 2)`), after adjusting for age and gender.
 
 To adjust for the bias here, we'll leverage a validation dataset; for a fraction of our cohort of patients, we have smoking information available.
 
@@ -143,7 +143,7 @@ uc_adjusted <- multibias_adjust(
   df_obs1,
   df_val1,
   bootstrap = TRUE,
-  bootstrap_reps = 10
+  bootstrap_reps = 100
 )
 
 # Uncontrolled Confounding Adjusted Results:
@@ -195,7 +195,7 @@ uc_em_adjusted <- multibias_adjust(
   df_obs2,
   df_val2,
   bootstrap = TRUE,
-  bootstrap_reps = 10
+  bootstrap_reps = 100
 )
 
 # Exposure Misclassification & Confounding Adjusted Results:
@@ -273,7 +273,7 @@ final_adjusted <- multibias_adjust(
   df_obs3,
   df_val3,
   bootstrap = TRUE,
-  bootstrap_reps = 10
+  bootstrap_reps = 100
 )
 
 # Triple Bias Adjusted Results:

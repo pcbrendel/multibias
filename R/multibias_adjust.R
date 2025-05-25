@@ -125,7 +125,7 @@
 #' @import dplyr
 #' @importFrom magrittr %>%
 #' @importFrom stats as.formula binomial coef lm median glm plogis rbinom
-#' @importFrom stats qnorm quantile
+#' @importFrom stats rnorm sd qnorm quantile vcov
 #' @importFrom rlang .data
 #'
 #' @export
