@@ -24,16 +24,32 @@ different assumptions related to the specified or unspecified confounders via
 technique such as E-values and tipping point analyses. However, we know that
 confounding is just one of several different types of biases that may impact
 causal estimates, and `multibias` helps fill this void. It does so by allowing
-for the simultaneous adjustment of **all** biases: uncontrolled confounding,
-exposure misclassification, outcome misclassification, and selection bias. This
-allows for a more transparent and complete understanding of how **all**
-potential sources of systematic error may be impacting the analysis.
+for the simultaneous adjustment of a variety of biases: uncontrolled
+confounding, exposure misclassification, outcome misclassification,
+and selection bias. This allows for a more transparent and complete
+understanding of how **all** potential sources of systematic error may be
+impacting the analysis.
 
-# My causal analysis leveraged a propensity score - how does that fit into a `multibias` analysis?
+# My causal analysis leveraged propensity scores - how does that fit into a multibias analysis?
 
-asdf
+While propensity score methods are valuable for handling confounding by measured
+variables, they don't address all potential sources of bias. This is where
+multibias analysis becomes a crucial next step.
 
-# What is bootstrapping and why does that matter here?
+A limitation of propensity scores is that they can only balance covariates
+that were actually measured and included in the propensity score model. A
+multibias analysis allows you to quantitatively assess the potential impact
+of such unmeasured confounding on top of the propensity score-adjusted
+analysis. In addition, propensity scores are designed specifically for
+confounding control. They do not inherently address other types of systematic
+error, such as selection bias and misclassification.
+
+In practice, you would first conduct your primary analysis using propensity
+scores to control for **measured** confounders. You would then use
+`multibias` to perform a sensitivity analysis for **unmeasured** confounders
+and other potential sources of bias.
+
+# What is bootstrapping and how is it relevant here?
 
 Bootstrapping is a statistical technique used to estimate the uncertainty
 around an estimate. Instead of analyzing your study data once, bootstrapping
@@ -60,7 +76,11 @@ parameters (a `bias_params` object) across bootstrap samples, you must input the
 
 # How do I cite `multibias`?
 
-asdf
+To get the most up-to-date citation information, please use the built-in `citation()` command in R.
+
+```{r}
+citation("multibias")
+```
 
 # Does `multibias` support time-to-event data and analyses?
 
