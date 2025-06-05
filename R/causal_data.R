@@ -18,6 +18,13 @@
 #' @param confounders String name(s) of the column(s) in `data` corresponding
 #' to the confounding variable(s).
 #'
+#' @return An object of class `data_observed` containing:
+#'   \item{data}{A dataframe with the selected columns}
+#'   \item{bias}{The type(s) of bias present}
+#'   \item{exposure}{The name of the exposure variable}
+#'   \item{outcome}{The name of the outcome variable}
+#'   \item{confounders}{The name(s) of the confounder variable(s)}
+#'
 #' @examples
 #' df <- data_observed(
 #'   data = df_sel,
@@ -84,6 +91,22 @@ data_observed <- function(
   return(obj)
 }
 
+
+#' Print method for data_observed objects
+#'
+#' @description
+#' Prints a formatted summary of a `data_observed` object, including:
+#' - The types of biases present
+#' - The exposure, outcome, and confounder variables
+#' - A preview of the first 5 rows of data
+#'
+#' @param x A `data_observed` object
+#' @param ... Additional arguments passed to print
+#'
+#' @return The input object invisibly, allowing for method chaining
+#'
+#' @method print data_observed
+#' @keywords internal
 #' @export
 
 print.data_observed <- function(x, ...) {
@@ -111,7 +134,27 @@ print.data_observed <- function(x, ...) {
   invisible(x)
 }
 
+
+#' Summary method for data_observed objects
+#'
+#' @description
+#' Provides a statistical summary of the observed data by fitting either:
+#' - A logistic regression model for binary outcomes
+#' - A linear regression model for continuous outcomes
+#'
+#' The model includes the exposure and all confounders as predictors.
+#' For binary outcomes, estimates are exponentiated to show odds ratios.
+#'
+#' @param object A `data_observed` object
+#' @param ... Additional arguments passed to summary
+#'
+#' @return A data frame containing model coefficients, standard errors,
+#'         confidence intervals, and p-values. For binary outcomes,
+#'         coefficients are exponentiated to show odds ratios.
+#'
+#' @method summary data_observed
 #' @importFrom broom tidy
+#' @keywords internal
 #' @export
 
 summary.data_observed <- function(object, ...) {
@@ -140,7 +183,9 @@ summary.data_observed <- function(object, ...) {
       data = df
     )
     final <- broom::tidy(mod, conf.int = TRUE, exponentiate = TRUE)
-    cat("Note: Estimates are exponentiated (odds ratios) for binary outcomes\n\n")
+    cat(
+      "Note: Estimates are exponentiated (odds ratios) for binary outcomes\n\n"
+    )
   } else {
     mod <- lm(
       Y ~ .,
@@ -178,6 +223,15 @@ summary.data_observed <- function(object, ...) {
 #' corresponding to the misclassified outcome.
 #' @param selection String name of the column in `data` corresponding to the
 #' selection indicator.
+#'
+#' @return An object of class `data_validation` containing:
+#'   \item{data}{A dataframe with the selected columns}
+#'   \item{true_exposure}{The name of the true exposure variable}
+#'   \item{true_outcome}{The name of the true outcome variable}
+#'   \item{confounders}{The name(s) of the confounder variable(s)}
+#'   \item{misclassified_exposure}{The name of the misclassified exposure variable}
+#'   \item{misclassified_outcome}{The name of the misclassified outcome variable}
+#'   \item{selection}{The name of the selection indicator variable}
 #'
 #' @examples
 #' df <- data_validation(
@@ -255,6 +309,21 @@ data_validation <- function(
   return(obj)
 }
 
+
+#' Print method for data_validation objects
+#'
+#' @description
+#' Prints a formatted summary of a `data_validation` object, including:
+#' - The true exposure and outcome variables
+#' - Any confounders, misclassified variables, or selection indicators
+#' - A preview of the first 5 rows of data
+#'
+#' @param x A `data_validation` object
+#' @param ... Additional arguments passed to print
+#'
+#' @return The input object invisibly
+#'
+#' @keywords internal
 #' @export
 
 print.data_validation <- function(x, ...) {

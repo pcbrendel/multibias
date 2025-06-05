@@ -35,6 +35,16 @@ corresponding to the misclassified outcome.}
 \item{selection}{String name of the column in \code{data} corresponding to the
 selection indicator.}
 }
+\value{
+An object of class \code{data_validation} containing:
+\item{data}{A dataframe with the selected columns}
+\item{true_exposure}{The name of the true exposure variable}
+\item{true_outcome}{The name of the true outcome variable}
+\item{confounders}{The name(s) of the confounder variable(s)}
+\item{misclassified_exposure}{The name of the misclassified exposure variable}
+\item{misclassified_outcome}{The name of the misclassified outcome variable}
+\item{selection}{The name of the selection indicator variable}
+}
 \description{
 \code{data_validation} is one of two different options to represent bias
 assumptions for bias adjustment. It combines the validation dataframe
