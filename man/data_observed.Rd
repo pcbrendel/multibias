@@ -24,6 +24,14 @@ outcome variable.}
 \item{confounders}{String name(s) of the column(s) in \code{data} corresponding
 to the confounding variable(s).}
 }
+\value{
+An object of class \code{data_observed} containing:
+\item{data}{A dataframe with the selected columns}
+\item{bias}{The type(s) of bias present}
+\item{exposure}{The name of the exposure variable}
+\item{outcome}{The name of the outcome variable}
+\item{confounders}{The name(s) of the confounder variable(s)}
+}
 \description{
 \code{data_observed} combines the observed dataframe with specific identification
 of the columns corresponding to the exposure, outcome, and confounders. It is

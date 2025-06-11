@@ -31,7 +31,7 @@ document()
 # testing
 usethis::use_testthat()
 use_test("adjust_em_sel") # creates test
-test_file("tests/testthat/test-adjust_uc_sel.R") # single test
+test_active_file("tests/testthat/test-adjust_uc_om_sel.R") # single test
 test() # tests all
 devtools::run_examples(".")
 
@@ -71,13 +71,21 @@ git_sitrep()
 
 # ----
 
-df_observed <- data_observed(
-  df_uc_sel,
-  bias = c("uc", "sel"),
-  exposure = "X",
-  outcome = "Y",
-  confounders = c("C1", "C2", "C3")
-)
+# df_observed <- data_observed(
+#   data = df_em,
+#   bias = "em",
+#   exposure = "Xstar",
+#   outcome = "Y",
+#   confounders = "C1"
+# )
 
-print(df_observed)
-summary(df_observed)
+# print(df_observed)
+# summary(df_observed)
+
+# df_validation <- data_validation(
+#   data = df_em_source,
+#   true_exposure = "X",
+#   true_outcome = "Y",
+#   confounders = "C1",
+#   misclassified_exposure = "Xstar"
+# )

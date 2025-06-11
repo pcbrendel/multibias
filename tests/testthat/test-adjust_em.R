@@ -26,7 +26,7 @@ df_observed <- data_observed(
 list_for_em <- list(x = as.vector(coef(x_model)))
 bp_em <- bias_params(coef_list = list_for_em)
 
-single_run <- adjust_em(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em
 )
@@ -73,7 +73,7 @@ df_observed <- data_observed(
 list_for_em <- list(x = as.vector(coef(x_model)))
 bp_em <- bias_params(coef_list = list_for_em)
 
-single_run <- adjust_em(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em
 )
@@ -97,7 +97,7 @@ test_that("odds ratio and confidence interval output", {
 
 # adjust with validation data
 
-or_val <- adjust_em(
+val_run <- multibias_adjust(
   data_observed = data_observed(
     df_em,
     bias = "em",
@@ -115,6 +115,6 @@ or_val <- adjust_em(
 )
 
 test_that("adjust_em, validation data", {
-  expect_gt(or_val$estimate, or_true - 0.1)
-  expect_lt(or_val$estimate, or_true + 0.1)
+  expect_gt(val_run$estimate, or_true - 0.1)
+  expect_lt(val_run$estimate, or_true + 0.1)
 })

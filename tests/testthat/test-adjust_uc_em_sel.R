@@ -41,7 +41,7 @@ list_for_uc_em_sel <- list(
 )
 bp_uc_em_sel <- bias_params(coef_list = list_for_uc_em_sel)
 
-single_run <- adjust_uc_em_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_em_sel
 )
@@ -102,7 +102,7 @@ list_for_uc_em_sel <- list(
 )
 bp_uc_em_sel <- bias_params(coef_list = list_for_uc_em_sel)
 
-single_run <- adjust_uc_em_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_em_sel
 )
@@ -161,7 +161,7 @@ list_for_uc_em_sel <- list(
 )
 bp_uc_em_sel <- bias_params(coef_list = list_for_uc_em_sel)
 
-single_run <- adjust_uc_em_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_em_sel
 )
@@ -218,7 +218,7 @@ list_for_uc_em_sel <- list(
 )
 bp_uc_em_sel <- bias_params(coef_list = list_for_uc_em_sel)
 
-single_run <- adjust_uc_em_sel(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_uc_em_sel
 )
@@ -242,7 +242,7 @@ test_that("3 confounders: odds ratio and confidence interval output", {
 
 # adjust with validation data
 
-or_val <- adjust_uc_em_sel(
+val_run <- multibias_adjust(
   data_observed = data_observed(
     df_uc_em_sel,
     bias = c("uc", "em", "sel"),
@@ -257,10 +257,12 @@ or_val <- adjust_uc_em_sel(
     confounders = c("C1", "C2", "C3", "U"),
     misclassified_exposure = "Xstar",
     selection = "S"
-  )
+  ),
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
 )
 
 test_that("adjust_uc_em_sel, validation data", {
-  expect_gt(or_val$estimate, or_true - 0.1)
-  expect_lt(or_val$estimate, or_true + 0.1)
+  expect_gt(val_run$estimate, or_true - 0.1)
+  expect_lt(val_run$estimate, or_true + 0.1)
 })

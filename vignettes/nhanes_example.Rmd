@@ -39,7 +39,7 @@ For this demonstration, we'll use the 2013-2018 [National Health and Nutrition E
 nhanes <- read.csv("nhanes.csv")
 ```
 
-## Data Preparation and Initial Exploration
+## Data Preparation and Exploration
 
 We'll be assessing the risk of alcohol intake on all-cause mortality, specifically comparing "extreme" drinkers to "non-extreme" drinkers. Let's first understand our data and create our exposure variable.
 
@@ -96,30 +96,6 @@ demographic_table <- nhanes_filtered |>
 print(demographic_table)
 ```
 
-## Base Model Analysis
-
-Let's start with a basic logistic regression model to estimate the association between extreme alcohol consumption and mortality, adjusting for age and gender. This will serve as our reference point for comparing bias-adjusted estimates.
-
-```{r}
-base_mod <- glm(
-  mortstat ~ alcohol_extreme + gender_female + age,
-  data = nhanes_filtered,
-  family = binomial(link = "logit")
-)
-
-base_results <- data.frame(
-  term = c("Extreme Alcohol Use", "Female Gender", "Age"),
-  estimate = round(exp(coef(base_mod)), 2)[-1],
-  ci_lower = round(exp(confint(base_mod)), 2)[-1, 1],
-  ci_upper = round(exp(confint(base_mod)), 2)[-1, 2]
-)
-
-# Base Model Results: Odds Ratios and 95% Confidence Intervals
-print(base_results)
-```
-
-Our base model suggests that extreme alcohol consumption is associated with a 1.6-fold increase in mortality risk (95% CI: 1.1, 2.2), after adjusting for age and gender. However, this estimate may be biased due to several factors that we'll address in the following sections.
-
 ## Multiple Bias Analysis
 
 We'll now progressively adjust for three types of bias:
@@ -130,9 +106,7 @@ We'll now progressively adjust for three types of bias:
 
 ### 1. Adjusting for Uncontrolled Confounding
 
-Smoking is a strong confounder in the relationship between alcohol consumption and mortality. Smokers are more likely to be heavy drinkers, and smoking independently increases mortality risk. Our base model didn't account for this, potentially leading to biased estimates.
-
-To adjust for the bias here, we'll leverage a validation dataset; for a fraction of our cohort of patients, we have smoking information available.
+Smoking is a strong confounder in the relationship between alcohol consumption and mortality. Smokers are more likely to be heavy drinkers, and smoking independently increases mortality risk. Our observed data doesn't account for this, potentially leading to biased estimates.
 
 ```{r}
 # Create observed data object with uncontrolled confounding bias
@@ -144,6 +118,14 @@ df_obs1 <- data_observed(
   confounders = c("age", "gender_female")
 )
 
+summary(df_obs1)
+```
+
+Running the `summary()` method on our `data_observed` object prints the logistic regression results from the model estimating the association between extreme alcohol consumption and mortality, adjusting for age and gender. This will serve as our reference point for comparing bias-adjusted estimates. Our base model suggests that extreme alcohol consumption is associated with a 1.6-fold increase in mortality risk (95% CI: `r round(summary(df_obs1)$conf.low[2], 2)`, `r round(summary(df_obs1)$conf.high[2], 2)`), after adjusting for age and gender.
+
+To adjust for the bias here, we'll leverage a validation dataset; for a fraction of our cohort of patients, we have smoking information available.
+
+```{r}
 # Create validation data with smoking information
 df_temp1 <- nhanes_filtered |>
   filter(!is.na(smoked_100cigs))
@@ -157,7 +139,12 @@ df_val1 <- data_validation(
 
 # Perform bias adjustment
 set.seed(1234)
-uc_adjusted <- multibias_adjust(df_obs1, df_val1)
+uc_adjusted <- multibias_adjust(
+  df_obs1,
+  df_val1,
+  bootstrap = TRUE,
+  bootstrap_reps = 100
+)
 
 # Uncontrolled Confounding Adjusted Results:
 print(uc_adjusted)
@@ -204,7 +191,12 @@ df_val2 <- data_validation(
 
 # Perform bias adjustment
 set.seed(1234)
-uc_em_adjusted <- multibias_adjust(df_obs2, df_val2)
+uc_em_adjusted <- multibias_adjust(
+  df_obs2,
+  df_val2,
+  bootstrap = TRUE,
+  bootstrap_reps = 100
+)
 
 # Exposure Misclassification & Confounding Adjusted Results:
 print(uc_em_adjusted)
@@ -277,56 +269,40 @@ df_val3 <- data_validation(
 
 # Perform final bias adjustment
 set.seed(1234)
-final_adjusted <- multibias_adjust(df_obs3, df_val3)
+final_adjusted <- multibias_adjust(
+  df_obs3,
+  df_val3,
+  bootstrap = TRUE,
+  bootstrap_reps = 100
+)
 
 # Triple Bias Adjusted Results:
 print(final_adjusted)
 ```
 
-## Comparing Results
+## Visualize Results
 
-Let's compare all our estimates to see how each bias adjustment affects our results:
+Let's visualize the sensitivity analysis to observe how our estimates change with each bias adjustment:
 
 ```{r}
-# Create comparison table
-comparison_table <- data.frame(
-  Model = c(
-    "Base Model",
-    "Adjusted - Single Bias",
-    "Adjusted - Double Biases",
-    "Adjusted - Triple Biases"
+multibias_plot(
+  df_obs1,
+  multibias_result_list = list(
+    "Adjusted - Single Bias" = uc_adjusted,
+    "Adjusted - Double Biases" = uc_em_adjusted,
+    "Adjusted - Triple Biases" = final_adjusted
   ),
-  OR = c(
-    round(exp(coef(base_mod))["alcohol_extreme"], 2),
-    round(uc_adjusted$estimate, 2),
-    round(uc_em_adjusted$estimate, 2),
-    round(final_adjusted$estimate, 2)
-  ),
-  CI_lower = c(
-    round(exp(confint(base_mod))["alcohol_extreme", 1], 2),
-    round(uc_adjusted$ci[1], 2),
-    round(uc_em_adjusted$ci[1], 2),
-    round(final_adjusted$ci[1], 2)
-  ),
-  CI_upper = c(
-    round(exp(confint(base_mod))["alcohol_extreme", 2], 2),
-    round(uc_adjusted$ci[2], 2),
-    round(uc_em_adjusted$ci[2], 2),
-    round(final_adjusted$ci[2], 2)
-  )
+  log_scale = TRUE
 )
-
-# Comparison of Bias-Adjusted Estimates:
-print(comparison_table)
 ```
 
 ## Discussion
 
 This analysis demonstrates how multiple sources of bias can affect the estimated relationship between alcohol consumption and mortality:
 
-1. **Uncontrolled Confounding**: Adjusting for smoking status reduced the odds ratio from 1.56 to 1.41, suggesting that part of the observed association was due to the confounding effect of smoking.
+1. **Uncontrolled Confounding**: Adjusting for smoking status reduced the odds ratio from 1.56 to `r round(uc_adjusted$estimate, 2)`, suggesting that part of the observed association was due to the confounding effect of smoking.
 
-2. **Exposure Misclassification**: Further adjustment for potential underreporting of alcohol consumption reduced the odds ratio to 1.14, indicating that measurement error may have led to an overestimate of the true effect.
+2. **Exposure Misclassification**: Further adjustment for potential underreporting of alcohol consumption reduced the odds ratio to `r round(uc_em_adjusted$estimate, 2)`, indicating that measurement error may have led to an overestimate of the true effect.
 
 3. **Selection Bias**: The final adjustment for NHANES sampling weights had minimal impact on the estimate, suggesting that selection bias may not be a major concern in this analysis.
 

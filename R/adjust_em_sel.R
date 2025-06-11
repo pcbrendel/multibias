@@ -86,11 +86,15 @@ adjust_em_sel_val <- function(
   )
 
   x_mod_coefs <- coef(x_mod)
-  x_pred <- x_mod_coefs[1]
+  x_mod_se <- sqrt(diag(vcov(x_mod)))
 
-  for (i in 2:length(x_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  x_mod_coefs_sampled <- rnorm(length(x_mod_coefs), x_mod_coefs, x_mod_se)
+  x_pred <- x_mod_coefs_sampled[1]
+
+  for (i in 2:length(x_mod_coefs_sampled)) {
     var_name <- names(x_mod_coefs)[i]
-    x_pred <- x_pred + df[[var_name]] * x_mod_coefs[i]
+    x_pred <- x_pred + df[[var_name]] * x_mod_coefs_sampled[i]
   }
 
   df$Xpred <- rbinom(n, 1, plogis(x_pred))
@@ -101,11 +105,15 @@ adjust_em_sel_val <- function(
   )
 
   s_mod_coefs <- coef(s_mod)
-  s_pred <- s_mod_coefs[1]
+  s_mod_se <- sqrt(diag(vcov(s_mod)))
 
-  for (i in 2:length(s_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  s_mod_coefs_sampled <- rnorm(length(s_mod_coefs), s_mod_coefs, s_mod_se)
+  s_pred <- s_mod_coefs_sampled[1]
+
+  for (i in 2:length(s_mod_coefs_sampled)) {
     var_name <- names(s_mod_coefs)[i]
-    s_pred <- s_pred + df[[var_name]] * s_mod_coefs[i]
+    s_pred <- s_pred + df[[var_name]] * s_mod_coefs_sampled[i]
   }
 
   df$Spred <- plogis(s_pred)

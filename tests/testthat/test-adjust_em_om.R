@@ -36,7 +36,7 @@ list_for_em_om <- list(
 )
 bp_em_om <- bias_params(coef_list = list_for_em_om)
 
-single_run <- adjust_em_om(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em_om
 )
@@ -92,7 +92,7 @@ list_for_em_om <- list(
 )
 bp_em_om <- bias_params(coef_list = list_for_em_om)
 
-single_run <- adjust_em_om(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em_om
 )
@@ -146,7 +146,7 @@ list_for_em_om <- list(
 )
 bp_em_om <- bias_params(coef_list = list_for_em_om)
 
-single_run <- adjust_em_om(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em_om
 )
@@ -198,7 +198,7 @@ list_for_em_om <- list(
 )
 bp_em_om <- bias_params(coef_list = list_for_em_om)
 
-single_run <- adjust_em_om(
+single_run <- multibias_adjust(
   df_observed,
   bias_params = bp_em_om
 )
@@ -222,7 +222,7 @@ test_that("3 confounders: odds ratio and confidence interval output", {
 
 # adjust with validation data
 
-or_val <- adjust_em_om(
+val_run <- multibias_adjust(
   data_observed = data_observed(
     df_em_om,
     bias = c("em", "om"),
@@ -237,10 +237,12 @@ or_val <- adjust_em_om(
     confounders = c("C1", "C2", "C3"),
     misclassified_exposure = "Xstar",
     misclassified_outcome = "Ystar"
-  )
+  ),
+  bootstrap = TRUE,
+  bootstrap_reps = nreps
 )
 
 test_that("adjust_em_om, validation data", {
-  expect_gt(or_val$estimate, or_true - 0.1)
-  expect_lt(or_val$estimate, or_true + 0.1)
+  expect_gt(val_run$estimate, or_true - 0.1)
+  expect_lt(val_run$estimate, or_true + 0.1)
 })

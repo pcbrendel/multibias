@@ -70,11 +70,15 @@ adjust_sel_val <- function(
   )
 
   s_mod_coefs <- coef(s_mod)
-  s_pred <- s_mod_coefs[1]
+  s_mod_se <- sqrt(diag(vcov(s_mod)))
 
-  for (i in 2:length(s_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  s_mod_coefs_sampled <- rnorm(length(s_mod_coefs), s_mod_coefs, s_mod_se)
+  s_pred <- s_mod_coefs_sampled[1]
+
+  for (i in 2:length(s_mod_coefs_sampled)) {
     var_name <- names(s_mod_coefs)[i]
-    s_pred <- s_pred + df[[var_name]] * s_mod_coefs[i]
+    s_pred <- s_pred + df[[var_name]] * s_mod_coefs_sampled[i]
   }
 
   df$Spred <- plogis(s_pred)

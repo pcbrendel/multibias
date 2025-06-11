@@ -60,6 +60,8 @@ devtools::install_github("pcbrendel/multibias")
         the observed data.
 3.  Run `multibias_adjust()` using the above inputs to obtain the
     bias-adjusted exposure-outcome odds ratio and confidence interval.
+4.  Visualize a Forest Plot of the observed effect estimate against
+    various bias-adjusted estimates via `multibias_plot()`.
 
 ### Possible bias adjustments
 

@@ -1,3 +1,13 @@
+# multibias 1.7.2
+
+* Added `multibias_plot()` to visualize sensitivity analysis results
+* When using validation data in `multibias_adjust()` the function now
+incorporates uncertainty of the effect estimates from the validation data
+by sampling from each estimate's mean and SE. Now, when using validation data,
+the confidence intervals from multibias bootstrapped results will represent
+two sources of uncertainty: random error and systematic error.
+* Added FAQ documentation
+
 # multibias 1.7.1
 
 * Updated code with dynamic formula construction so that there is no limit

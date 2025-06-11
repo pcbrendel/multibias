@@ -6,6 +6,8 @@ navbar:
   left:
     - text: "Get Started"
       href: articles/multibias.html
+    - text: "FAQ"
+      href: articles/faq.html
     - text: "Vignettes"
       menu:
         - text: NHANES Example
@@ -24,6 +26,7 @@ reference:
 - title: Functions
   contents:
   - multibias_adjust
+  - multibias_plot
 
 - title: Classes
   contents:

@@ -79,11 +79,15 @@ adjust_uc_val <- function(
   )
 
   u_mod_coefs <- coef(u_mod)
-  u_pred <- u_mod_coefs[1]
+  u_mod_se <- sqrt(diag(vcov(u_mod)))
 
-  for (i in 2:length(u_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  u_mod_coefs_sampled <- rnorm(length(u_mod_coefs), u_mod_coefs, u_mod_se)
+  u_pred <- u_mod_coefs_sampled[1]
+
+  for (i in 2:length(u_mod_coefs_sampled)) {
     var_name <- names(u_mod_coefs)[i]
-    u_pred <- u_pred + df[[var_name]] * u_mod_coefs[i]
+    u_pred <- u_pred + df[[var_name]] * u_mod_coefs_sampled[i]
   }
 
   df$Upred <- rbinom(n, 1, plogis(u_pred))

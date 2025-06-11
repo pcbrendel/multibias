@@ -72,11 +72,15 @@ adjust_om_val <- function(
   )
 
   y_mod_coefs <- coef(y_mod)
-  y_pred <- y_mod_coefs[1]
+  y_mod_se <- sqrt(diag(vcov(y_mod)))
 
-  for (i in 2:length(y_mod_coefs)) {
+  # Sample coefficients independently using their standard errors
+  y_mod_coefs_sampled <- rnorm(length(y_mod_coefs), y_mod_coefs, y_mod_se)
+  y_pred <- y_mod_coefs_sampled[1]
+
+  for (i in 2:length(y_mod_coefs_sampled)) {
     var_name <- names(y_mod_coefs)[i]
-    y_pred <- y_pred + df[[var_name]] * y_mod_coefs[i]
+    y_pred <- y_pred + df[[var_name]] * y_mod_coefs_sampled[i]
   }
 
   df$Ypred <- rbinom(n, 1, plogis(y_pred))
