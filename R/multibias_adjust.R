@@ -115,12 +115,14 @@
 #' )
 #'
 #' # with bootstrapping
+#' \dontrun{
 #' multibias_adjust(
 #'   data_observed = df_observed,
 #'   bias_params = bp2,
 #'   bootstrap = TRUE,
-#'   bootstrap_reps = 10
+#'   bootstrap_reps = 1000
 #' )
+#' }
 #'
 #' @import dplyr
 #' @importFrom magrittr %>%
