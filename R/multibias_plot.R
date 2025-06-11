@@ -116,7 +116,7 @@ multibias_plot <- function(
     ggplot2::geom_point(color = "blue") +
     ggplot2::geom_errorbarh(
       ggplot2::aes(xmin = .data$ci_low, xmax = .data$ci_high),
-      size = .5,
+      linewidth = .5,
       height = .2,
       color = "gray50"
     ) +
