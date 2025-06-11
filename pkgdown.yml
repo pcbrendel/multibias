@@ -1,12 +1,13 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   evans_example: evans_example.html
+  faq: faq.html
   multibias_validation: multibias_validation.html
   multibias: multibias.html
   nhanes_example: nhanes_example.html
-last_built: 2025-05-11T01:52Z
+last_built: 2025-06-11T02:59Z
 urls:
   reference: http://www.paulbrendel.com/multibias/reference
   article: http://www.paulbrendel.com/multibias/articles

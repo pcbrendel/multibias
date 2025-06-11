@@ -19,7 +19,7 @@ that are missing in the observed data."><meta property="og:image" content="http:
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,7 @@ that are missing in the observed data."><meta property="og:image" content="http:
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/multibias.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><a class="dropdown-item" href="../articles/nhanes_example.html">NHANES Example</a></li>
@@ -47,7 +48,7 @@ that are missing in the observed data."><meta property="og:image" content="http:
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Represent validation causal data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.1/R/causal_data.R" class="external-link"><code>R/causal_data.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/R/causal_data.R" class="external-link"><code>R/causal_data.R</code></a></small>
       <div class="d-none name"><code>data_validation.Rd</code></div>
     </div>
 
@@ -112,6 +113,31 @@ corresponding to the misclassified outcome.</p></dd>
 selection indicator.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An object of class <code>data_validation</code> containing:</p>
+<dl><dt>data</dt>
+<dd><p>A dataframe with the selected columns</p></dd>
+
+<dt>true_exposure</dt>
+<dd><p>The name of the true exposure variable</p></dd>
+
+<dt>true_outcome</dt>
+<dd><p>The name of the true outcome variable</p></dd>
+
+<dt>confounders</dt>
+<dd><p>The name(s) of the confounder variable(s)</p></dd>
+
+<dt>misclassified_exposure</dt>
+<dd><p>The name of the misclassified exposure variable</p></dd>
+
+<dt>misclassified_outcome</dt>
+<dd><p>The name of the misclassified outcome variable</p></dd>
+
+<dt>selection</dt>
+<dd><p>The name of the selection indicator variable</p></dd>
+
+</dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -134,7 +160,7 @@ selection indicator.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

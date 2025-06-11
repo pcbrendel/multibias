@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/multibias.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
@@ -66,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to multibias</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.1/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/multibias.Rmd" class="external-link"><code>vignettes/multibias.Rmd</code></a></small>
       <div class="d-none name"><code>multibias.Rmd</code></div>
     </div>
 
@@ -113,6 +114,19 @@ missing confounder and subjects who were not selected).</p>
 <span>  outcome <span class="op">=</span> <span class="st">"Y"</span>,</span>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>Running the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method displays the generalized
+linear model results in tidy format.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">df_observed</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: Estimates are exponentiated (odds ratios) for binary outcomes</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt;   term        estimate std.error statistic   p.value conf.low conf.high</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> (Intercept)    0.172    0.021<span style="text-decoration: underline;">8</span>     -<span style="color: #BB0000;">80.8</span> 0   <span style="color: #949494;"> </span>        0.165     0.180</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> X              1.87     0.015<span style="text-decoration: underline;">5</span>      40.4 0   <span style="color: #949494;"> </span>        1.81      1.93 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> C1             1.47     0.015<span style="text-decoration: underline;">5</span>      24.7 6.99<span style="color: #949494;">e</span><span style="color: #BB0000;">-135</span>    1.42      1.51 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> C2             0.415    0.023<span style="text-decoration: underline;">7</span>     -<span style="color: #BB0000;">37.2</span> 3.56<span style="color: #949494;">e</span><span style="color: #BB0000;">-303</span>    0.396     0.434</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> C3             1.29     0.021<span style="text-decoration: underline;">2</span>      12.0 2.59<span style="color: #949494;">e</span><span style="color: #BB0000;">- 33</span>    1.24      1.34</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="create-source-for-bias-adjustment">2. Create source for bias adjustment<a class="anchor" aria-label="anchor" href="#create-source-for-bias-adjustment"></a>
@@ -129,7 +143,7 @@ can be derived using the methods outlined in the article <a href="https://doi.or
 have bias parameters to predict the missing binary confounder
 <code>U</code> (as the vector <code>u_coefs</code>) and study selection
 indicator <code>S</code> (as the vector <code>s_coefs</code>).</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bias_params.html">bias_params</a></span><span class="op">(</span></span>
 <span>  coef_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    u <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.19</span>, <span class="fl">0.61</span>, <span class="fl">0.72</span>, <span class="op">-</span><span class="fl">0.09</span>, <span class="fl">0.10</span>, <span class="op">-</span><span class="fl">0.15</span><span class="op">)</span>,</span>
@@ -146,7 +160,7 @@ bias, the validation data must have the corresonding missing data. In
 the example here, the validation data has additional columns for the
 missing binary confounder <code>U</code> and indicator <code>S</code>
 for whether a given individual was selected into the study.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_validation.html">data_validation</a></span><span class="op">(</span></span>
 <span>  <span class="va">df_uc_sel_source</span>,</span>
 <span>  true_exposure <span class="op">=</span> <span class="st">"X"</span>,</span>
@@ -163,7 +177,7 @@ for whether a given individual was selected into the study.</p>
 <div class="section level3">
 <h3 id="single-run">Single run<a class="anchor" aria-label="anchor" href="#single-run"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  bias_params <span class="op">=</span> <span class="va">bp</span></span>
@@ -171,19 +185,25 @@ for whether a given individual was selected into the study.</p>
 <span><span class="co">#&gt; $estimate</span></span>
 <span><span class="co">#&gt; [1] 2.001141</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.01361785</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
 <span><span class="co">#&gt; [1] 1.948436 2.055271</span></span></code></pre></div>
 <p>or</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  data_validation <span class="op">=</span> <span class="va">df_validation</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 2.001603</span></span>
+<span><span class="co">#&gt; [1] 2.0067</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.01362759</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.948854 2.055779</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.953812 2.061021</span></span></code></pre></div>
 <p>We observe that the bias-adjusted odds ratio of the effect of X on Y
 is approximately 2. This effect can be compared to the effect observed
 in the biased data to understand whether systematic error is bringing
@@ -197,18 +217,22 @@ random error and the systematic error, bootstrapping is advised. The
 <code><a href="../reference/multibias_adjust.html">multibias_adjust()</a></code> function comes with built-in parameters
 that make this simple. If improved computational performance is desired,
 users may want to incorporate parallelization.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">adjusted_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
 <span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
 <span>  data_validation <span class="op">=</span> <span class="va">df_validation</span>,</span>
 <span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  bootstrap_reps <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
+<span><span class="va">adjusted_results</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.994336</span></span>
+<span><span class="co">#&gt; [1] 1.991388</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.02292444</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.951153 2.028883</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.949916 2.017968</span></span></code></pre></div>
 <p>When adjusting via bias parameters, the user can alternatively
 provide each bias parameter value as a probability distribution. The
 resulting confidence interval from bootstrapping can then quantify
@@ -216,6 +240,20 @@ uncertainty in both the random error and the systematic error. Check out
 the vignette article “Multibias Validation” for a demonstration of this
 approach.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="visualize-results">4. Visualize results<a class="anchor" aria-label="anchor" href="#visualize-results"></a>
+</h2>
+<p>Data visualization of the sensitivity analysis can be performed using
+<code><a href="../reference/multibias_plot.html">multibias_plot()</a></code>. The <code>log_scale</code> parameter
+should be set to TRUE when dealing with binary outcomes.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_plot.html">multibias_plot</a></span><span class="op">(</span></span>
+<span>  data_observed <span class="op">=</span> <span class="va">df_observed</span>,</span>
+<span>  multibias_result_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Adjusted Estimate"</span> <span class="op">=</span> <span class="va">adjusted_results</span><span class="op">)</span>,</span>
+<span>  log_scale <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="multibias_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -228,7 +266,7 @@ approach.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

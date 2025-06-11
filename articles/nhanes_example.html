@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multibias</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/multibias.html">Get Started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/faq.html">FAQ</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
@@ -66,7 +67,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multibias example: NHANES</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.1/vignettes/nhanes_example.Rmd" class="external-link"><code>vignettes/nhanes_example.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/vignettes/nhanes_example.Rmd" class="external-link"><code>vignettes/nhanes_example.Rmd</code></a></small>
       <div class="d-none name"><code>nhanes_example.Rmd</code></div>
     </div>
 
@@ -109,7 +110,7 @@ of information including:</p>
 <code class="sourceCode R"><span><span class="va">nhanes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"nhanes.csv"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="data-preparation-and-initial-exploration">Data Preparation and Initial Exploration<a class="anchor" aria-label="anchor" href="#data-preparation-and-initial-exploration"></a>
+<h2 id="data-preparation-and-exploration">Data Preparation and Exploration<a class="anchor" aria-label="anchor" href="#data-preparation-and-exploration"></a>
 </h2>
 <p>We’ll be assessing the risk of alcohol intake on all-cause mortality,
 specifically comparing “extreme” drinkers to “non-extreme” drinkers.
@@ -183,41 +184,6 @@ drinking more than 1.5x these guidelines.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="base-model-analysis">Base Model Analysis<a class="anchor" aria-label="anchor" href="#base-model-analysis"></a>
-</h2>
-<p>Let’s start with a basic logistic regression model to estimate the
-association between extreme alcohol consumption and mortality, adjusting
-for age and gender. This will serve as our reference point for comparing
-bias-adjusted estimates.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">base_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span>
-<span>  <span class="va">mortstat</span> <span class="op">~</span> <span class="va">alcohol_extreme</span> <span class="op">+</span> <span class="va">gender_female</span> <span class="op">+</span> <span class="va">age</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
-<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">base_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Extreme Alcohol Use"</span>, <span class="st">"Female Gender"</span>, <span class="st">"Age"</span><span class="op">)</span>,</span>
-<span>  estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>  ci_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span>,</span>
-<span>  ci_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
-<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
-<span></span>
-<span><span class="co"># Base Model Results: Odds Ratios and 95% Confidence Intervals</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">base_results</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                term estimate ci_lower ci_upper</span></span>
-<span><span class="co">#&gt; alcohol_extreme Extreme Alcohol Use     1.56     1.10     2.17</span></span>
-<span><span class="co">#&gt; gender_female         Female Gender     0.68     0.54     0.86</span></span>
-<span><span class="co">#&gt; age                             Age     1.09     1.08     1.10</span></span></code></pre></div>
-<p>Our base model suggests that extreme alcohol consumption is
-associated with a 1.6-fold increase in mortality risk (95% CI: 1.1,
-2.2), after adjusting for age and gender. However, this estimate may be
-biased due to several factors that we’ll address in the following
-sections.</p>
-</div>
-<div class="section level2">
 <h2 id="multiple-bias-analysis">Multiple Bias Analysis<a class="anchor" aria-label="anchor" href="#multiple-bias-analysis"></a>
 </h2>
 <p>We’ll now progressively adjust for three types of bias:</p>
@@ -231,12 +197,9 @@ sections.</p>
 </h3>
 <p>Smoking is a strong confounder in the relationship between alcohol
 consumption and mortality. Smokers are more likely to be heavy drinkers,
-and smoking independently increases mortality risk. Our base model
-didn’t account for this, potentially leading to biased estimates.</p>
-<p>To adjust for the bias here, we’ll leverage a validation dataset; for
-a fraction of our cohort of patients, we have smoking information
-available.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+and smoking independently increases mortality risk. Our observed data
+doesn’t account for this, potentially leading to biased estimates.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create observed data object with uncontrolled confounding bias</span></span>
 <span><span class="va">df_obs1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/data_observed.html">data_observed</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">nhanes_filtered</span>,</span>
@@ -246,7 +209,28 @@ available.</p>
 <span>  confounders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"gender_female"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create validation data with smoking information</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">df_obs1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: Estimates are exponentiated (odds ratios) for binary outcomes</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 7</span></span></span>
+<span><span class="co">#&gt;   term            estimate std.error statistic   p.value conf.low conf.high</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> (Intercept)     0.000<span style="text-decoration: underline;">364</span>   0.309      -<span style="color: #BB0000;">25.6</span>  4.34<span style="color: #949494;">e</span><span style="color: #BB0000;">-145</span> 0.000<span style="text-decoration: underline;">195</span>  0.000<span style="text-decoration: underline;">655</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> alcohol_extreme 1.56       0.173        2.58 9.94<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 1.10      2.17    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> age             1.09       0.004<span style="text-decoration: underline;">52</span>     18.1  3.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 73</span> 1.08      1.10    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> gender_female   0.684      0.120       -<span style="color: #BB0000;">3.17</span> 1.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 0.539     0.864</span></span></code></pre></div>
+<p>Running the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method on our
+<code>data_observed</code> object prints the logistic regression results
+from the model estimating the association between extreme alcohol
+consumption and mortality, adjusting for age and gender. This will serve
+as our reference point for comparing bias-adjusted estimates. Our base
+model suggests that extreme alcohol consumption is associated with a
+1.6-fold increase in mortality risk (95% CI: 1.1, 2.17), after adjusting
+for age and gender.</p>
+<p>To adjust for the bias here, we’ll leverage a validation dataset; for
+a fraction of our cohort of patients, we have smoking information
+available.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create validation data with smoking information</span></span>
 <span><span class="va">df_temp1</span> <span class="op">&lt;-</span> <span class="va">nhanes_filtered</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">smoked_100cigs</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -259,15 +243,23 @@ available.</p>
 <span></span>
 <span><span class="co"># Perform bias adjustment</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">uc_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs1</span>, <span class="va">df_val1</span><span class="op">)</span></span>
+<span><span class="va">uc_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<span>  <span class="va">df_obs1</span>,</span>
+<span>  <span class="va">df_val1</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Uncontrolled Confounding Adjusted Results:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.411961</span></span>
+<span><span class="co">#&gt; [1] 1.382805</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.2386598</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 1.003703 1.986279</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1.032700 2.013323</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="adding-exposure-misclassification-adjustment">2. Adding Exposure Misclassification Adjustment<a class="anchor" aria-label="anchor" href="#adding-exposure-misclassification-adjustment"></a>
@@ -313,15 +305,23 @@ likely to under-report their alcohol consumption.</p>
 <span></span>
 <span><span class="co"># Perform bias adjustment</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">uc_em_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs2</span>, <span class="va">df_val2</span><span class="op">)</span></span>
+<span><span class="va">uc_em_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<span>  <span class="va">df_obs2</span>,</span>
+<span>  <span class="va">df_val2</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Exposure Misclassification &amp; Confounding Adjusted Results:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.139375</span></span>
+<span><span class="co">#&gt; [1] 1.066144</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.1963944</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 0.8177435 1.5875093</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.8050004 1.5324897</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="adding-selection-bias-adjustment">3. Adding Selection Bias Adjustment<a class="anchor" aria-label="anchor" href="#adding-selection-bias-adjustment"></a>
@@ -394,60 +394,41 @@ weights.</p>
 <span></span>
 <span><span class="co"># Perform final bias adjustment</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">final_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span><span class="va">df_obs3</span>, <span class="va">df_val3</span><span class="op">)</span></span>
+<span><span class="va">final_adjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multibias_adjust.html">multibias_adjust</a></span><span class="op">(</span></span>
+<span>  <span class="va">df_obs3</span>,</span>
+<span>  <span class="va">df_val3</span>,</span>
+<span>  bootstrap <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  bootstrap_reps <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Triple Bias Adjusted Results:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $estimate</span></span>
-<span><span class="co">#&gt; [1] 1.178683</span></span>
+<span><span class="co">#&gt; [1] 1.082248</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $std.error</span></span>
+<span><span class="co">#&gt; [1] 0.1913425</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ci</span></span>
-<span><span class="co">#&gt; [1] 0.9150851 1.5182133</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.7367791 1.6108455</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="comparing-results">Comparing Results<a class="anchor" aria-label="anchor" href="#comparing-results"></a>
+<h2 id="visualize-results">Visualize Results<a class="anchor" aria-label="anchor" href="#visualize-results"></a>
 </h2>
-<p>Let’s compare all our estimates to see how each bias adjustment
-affects our results:</p>
+<p>Let’s visualize the sensitivity analysis to observe how our estimates
+change with each bias adjustment:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create comparison table</span></span>
-<span><span class="va">comparison_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  Model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Base Model"</span>,</span>
-<span>    <span class="st">"Adjusted - Single Bias"</span>,</span>
-<span>    <span class="st">"Adjusted - Double Biases"</span>,</span>
-<span>    <span class="st">"Adjusted - Triple Biases"</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/multibias_plot.html">multibias_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">df_obs1</span>,</span>
+<span>  multibias_result_list <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Adjusted - Single Bias"</span> <span class="op">=</span> <span class="va">uc_adjusted</span>,</span>
+<span>    <span class="st">"Adjusted - Double Biases"</span> <span class="op">=</span> <span class="va">uc_em_adjusted</span>,</span>
+<span>    <span class="st">"Adjusted - Triple Biases"</span> <span class="op">=</span> <span class="va">final_adjusted</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  OR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">estimate</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  CI_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  CI_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">base_mod</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="st">"alcohol_extreme"</span>, <span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">uc_em_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">final_adjusted</span><span class="op">$</span><span class="va">ci</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
-<span><span class="co">#&gt; Waiting for profiling to be done...</span></span>
-<span></span>
-<span><span class="co"># Comparison of Bias-Adjusted Estimates:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">comparison_table</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                      Model   OR CI_lower CI_upper</span></span>
-<span><span class="co">#&gt; 1               Base Model 1.56     1.10     2.17</span></span>
-<span><span class="co">#&gt; 2   Adjusted - Single Bias 1.41     1.00     1.99</span></span>
-<span><span class="co">#&gt; 3 Adjusted - Double Biases 1.14     0.82     1.59</span></span>
-<span><span class="co">#&gt; 4 Adjusted - Triple Biases 1.18     0.92     1.52</span></span></code></pre></div>
+<span>  log_scale <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="nhanes_example_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="discussion">Discussion<a class="anchor" aria-label="anchor" href="#discussion"></a>
@@ -457,12 +438,12 @@ the estimated relationship between alcohol consumption and
 mortality:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Uncontrolled Confounding</strong>: Adjusting for smoking
-status reduced the odds ratio from 1.56 to 1.41, suggesting that part of
+status reduced the odds ratio from 1.56 to 1.38, suggesting that part of
 the observed association was due to the confounding effect of
 smoking.</p></li>
 <li><p><strong>Exposure Misclassification</strong>: Further adjustment
 for potential underreporting of alcohol consumption reduced the odds
-ratio to 1.14, indicating that measurement error may have led to an
+ratio to 1.07, indicating that measurement error may have led to an
 overestimate of the true effect.</p></li>
 <li><p><strong>Selection Bias</strong>: The final adjustment for NHANES
 sampling weights had minimal impact on the estimate, suggesting that
@@ -485,7 +466,7 @@ impact on study results.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
