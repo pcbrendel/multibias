@@ -2,7 +2,7 @@ Package: multibias
 Type: Package
 Title: Multiple Bias Analysis in Causal Inference
 Version: 1.7.2
-Date: 2025-06-10
+Date: 2025-06-11
 Authors@R: person("Paul", "Brendel", email = "pcbrendel@gmail.com",
     role = c("aut", "cre", "cph"))
 Maintainer: Paul Brendel <pcbrendel@gmail.com>
@@ -19,7 +19,7 @@ Description: Quantify the causal effect of a binary exposure on a binary
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.2.0)
 RoxygenNote: 7.3.2
 Imports:
     dplyr (>= 1.1.3),
