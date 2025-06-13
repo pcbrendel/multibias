@@ -127,5 +127,6 @@ plot <- multibias_plot(
 )
 
 test_that("Plot output", {
+  skip_on_cran() # Skip test for CRAN submission
   expect_doppelganger("multibias_plot", plot)
 })
