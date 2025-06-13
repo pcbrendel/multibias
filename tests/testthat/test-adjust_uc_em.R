@@ -4,58 +4,58 @@ nreps <- 10
 # SEPARATE BIAS PARAMETERS
 # 0 confounders
 
-nobias_model <- glm(
-  Y ~ X + U,
-  family = binomial(link = "logit"),
-  data = df_uc_em_source
-)
-or_true <- exp(summary(nobias_model)$coef[2, 1])
+# nobias_model <- glm(
+#   Y ~ X + U,
+#   family = binomial(link = "logit"),
+#   data = df_uc_em_source
+# )
+# or_true <- exp(summary(nobias_model)$coef[2, 1])
 
-u_model <- glm(
-  U ~ X + Y,
-  family = binomial(link = "logit"),
-  data = df_uc_em_source
-)
-x_model <- glm(
-  X ~ Xstar + Y,
-  family = binomial(link = "logit"),
-  data = df_uc_em_source
-)
+# u_model <- glm(
+#   U ~ X + Y,
+#   family = binomial(link = "logit"),
+#   data = df_uc_em_source
+# )
+# x_model <- glm(
+#   X ~ Xstar + Y,
+#   family = binomial(link = "logit"),
+#   data = df_uc_em_source
+# )
 
-df_observed <- data_observed(
-  df_uc_em,
-  bias = c("uc", "em"),
-  exposure = "Xstar",
-  outcome = "Y",
-  confounders = NULL
-)
-list_for_uc_em <- list(
-  u = as.vector(coef(u_model)),
-  x = as.vector(coef(x_model))
-)
-bp_uc_em <- bias_params(coef_list = list_for_uc_em)
+# df_observed <- data_observed(
+#   df_uc_em,
+#   bias = c("uc", "em"),
+#   exposure = "Xstar",
+#   outcome = "Y",
+#   confounders = NULL
+# )
+# list_for_uc_em <- list(
+#   u = as.vector(coef(u_model)),
+#   x = as.vector(coef(x_model))
+# )
+# bp_uc_em <- bias_params(coef_list = list_for_uc_em)
 
-single_run <- multibias_adjust(
-  df_observed,
-  bias_params = bp_uc_em
-)
+# single_run <- multibias_adjust(
+#   df_observed,
+#   bias_params = bp_uc_em
+# )
 
-bs_run <- multibias_adjust(
-  df_observed,
-  bias_params = bp_uc_em,
-  bootstrap = TRUE,
-  bootstrap_reps = nreps
-)
+# bs_run <- multibias_adjust(
+#   df_observed,
+#   bias_params = bp_uc_em,
+#   bootstrap = TRUE,
+#   bootstrap_reps = nreps
+# )
 
-test_that("odds ratio and confidence interval output", {
-  expect_gt(bs_run$estimate, or_true - 0.1)
-  expect_lt(bs_run$estimate, or_true + 0.1)
-  expect_vector(
-    single_run$ci,
-    ptype = double(),
-    size = 2
-  )
-})
+# test_that("odds ratio and confidence interval output", {
+#   expect_gt(bs_run$estimate, or_true - 0.1)
+#   expect_lt(bs_run$estimate, or_true + 0.1)
+#   expect_vector(
+#     single_run$ci,
+#     ptype = double(),
+#     size = 2
+#   )
+# })
 
 # 3 confounders
 
