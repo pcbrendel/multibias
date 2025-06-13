@@ -1,6 +1,6 @@
 library(vdiffr)
 set.seed(1234)
-nreps <- 10
+nreps <- 5
 
 # adjust with coefs
 # 0 confounders

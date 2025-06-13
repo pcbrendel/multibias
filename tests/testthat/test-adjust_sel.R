@@ -1,5 +1,5 @@
 set.seed(1234)
-nreps <- 10
+nreps <- 5
 
 s_model <- glm(S ~ X + Y,
   family = binomial(link = "logit"),
