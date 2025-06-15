@@ -2,7 +2,7 @@ Package: multibias
 Type: Package
 Title: Multiple Bias Analysis in Causal Inference
 Version: 1.7.2
-Date: 2025-06-13
+Date: 2025-06-15
 Authors@R: person("Paul", "Brendel", email = "pcbrendel@gmail.com",
     role = c("aut", "cre", "cph"))
 Maintainer: Paul Brendel <pcbrendel@gmail.com>

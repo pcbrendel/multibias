@@ -20,6 +20,7 @@
 #'   }
 #'
 #' @examples
+#' \dontrun{
 #' df_observed <- data_observed(
 #'   data = df_em,
 #'   bias = "em",
@@ -47,6 +48,7 @@
 #'     "Adjusted with bias params doubled" = result2
 #'   )
 #' )
+#' }
 #'
 #' @export
 

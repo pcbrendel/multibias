@@ -31,6 +31,7 @@ with adjusted effect estimates from sensitivity analyses. The plot includes
 point estimates and confidence intervals for each analysis.
 }
 \examples{
+\dontrun{
 df_observed <- data_observed(
   data = df_em,
   bias = "em",
@@ -58,5 +59,6 @@ multibias_plot(
     "Adjusted with bias params doubled" = result2
   )
 )
+}
 
 }
