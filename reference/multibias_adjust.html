@@ -38,7 +38,7 @@ interval, adjusted for one or more biases."><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Simultaneously adjust for multiple biases</h1>
-      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/v1.7.2/R/multibias_adjust.R" class="external-link"><code>R/multibias_adjust.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pcbrendel/multibias/blob/master/R/multibias_adjust.R" class="external-link"><code>R/multibias_adjust.R</code></a></small>
       <div class="d-none name"><code>multibias_adjust.Rd</code></div>
     </div>
 
@@ -142,13 +142,13 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span>  data_validation <span class="op">=</span> <span class="va">df_validation</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.999976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.986994</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $std.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02019541</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02013439</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.922358 2.080727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.910109 2.066974</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using bias_params</span></span></span>
@@ -159,13 +159,13 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span>  bias_params <span class="op">=</span> <span class="va">bp</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.068321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.049787</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $std.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02009335</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02009471</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.988449 2.151402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.970625 2.132128</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Adjust for three biases ---------------------------------------------------</span></span></span>
@@ -192,13 +192,13 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span>  data_validation <span class="op">=</span> <span class="va">df_validation</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.040529</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.918728</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $std.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01343686</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01312593</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.987492 2.094982</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.869995 1.968730</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using bias_params</span></span></span>
@@ -215,13 +215,13 @@ of the distribution of odds ratio estimates.</p>
 <span class="r-in"><span>  bias_params <span class="op">=</span> <span class="va">bp1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $estimate</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.034682</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.041024</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $std.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01333342</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01334177</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ci</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.982199 2.088556</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.988344 2.095099</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">bp2</span> <span class="op">&lt;-</span> <span class="fu"><a href="bias_params.html">bias_params</a></span><span class="op">(</span></span></span>
@@ -254,7 +254,7 @@ of the distribution of odds ratio estimates.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

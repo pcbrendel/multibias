@@ -1,0 +1,109 @@
+# Frequently Asked Questions
+
+## How does `multibias` fit into the causal inference workflow?
+
+If the causal analysis process involves the following general steps:
+
+1.  Specify a causal question
+2.  Graph the causal assumptions (via a DAG)
+3.  Apply confounder balancing (matching, weighting, etc.)
+4.  Assess confounder balance
+5.  Estimate the causal effect
+6.  Perform sensitivity analysis of the effect estimate
+
+Then `multibias` plugs into the final step of running sensitivity
+analyses. Traditionally, the sensitivity analyses involve re-estimating
+results under different assumptions related to the specified or
+unspecified confounders via technique such as E-values and tipping point
+analyses. However, we know that confounding is just one of several
+different types of biases that may impact causal estimates, and
+`multibias` helps fill this void. It does so by allowing for the
+simultaneous adjustment of a variety of biases: uncontrolled
+confounding, exposure misclassification, outcome misclassification, and
+selection bias. This allows for a more transparent and complete
+understanding of how **all** potential sources of systematic error may
+be impacting the analysis.
+
+## My causal analysis leveraged propensity scores - how does that fit into a multibias analysis?
+
+While propensity score methods are valuable for handling confounding by
+measured variables, they don’t address all potential sources of bias.
+This is where multibias analysis becomes a crucial next step.
+
+A limitation of propensity scores is that they can only balance
+covariates that were actually measured and included in the propensity
+score model. A multibias analysis allows you to quantitatively assess
+the potential impact of such unmeasured confounding on top of the
+propensity score-adjusted analysis. In addition, propensity scores are
+designed specifically for confounding control. They do not inherently
+address other types of systematic error, such as selection bias and
+misclassification.
+
+In practice, you would first conduct your primary analysis using
+propensity scores to control for **measured** confounders. You would
+then use `multibias` to perform a sensitivity analysis for
+**unmeasured** confounders and other potential sources of bias.
+
+## What is bootstrapping and how is it relevant here?
+
+Bootstrapping is a statistical technique used to estimate the
+uncertainty around an estimate. Instead of analyzing your study data
+once, bootstrapping involves repeatedly drawing random samples with
+replacement from your original data. Each of these samples is the same
+size as the original data. For each bootstrap sample, you then calculate
+the statistic of interest - a bias-adjusted estimate in the context of
+`multibias`. By repeating this resampling, you end up with a
+distribution of the statistic. From this distribution you can derive the
+confidence interval and standard error.
+
+When `multibias` adjusts the data’s exposure-outcome effect for
+potential biases, the adjusted estimate has uncertainty. This
+uncertainty comes not only from the original random (sampling) error in
+the data, but also from the uncertainty in the bias parameters
+(systematic error). **Bootstrapping is particularly important for
+`multibias` because it allows for confidence intervals that incorporate
+two sources of uncertainty: uncertainty due to random error and
+uncertainty due to systematic error.**
+
+This exercise of performing bias analysis with uncertainty in the bias
+parameters is called probabilistic bias analysis. When running
+[`multibias_adjust()`](http://www.paulbrendel.com/multibias/reference/multibias_adjust.md)
+with validation data (a `data_validation` object) across bootstrap
+samples, the function automatically resamples from the Normal
+distribution bias parameters (estimate and standard error) inferred from
+the validation data. When running
+[`multibias_adjust()`](http://www.paulbrendel.com/multibias/reference/multibias_adjust.md)
+with specified bias parameters (a `bias_params` object) across bootstrap
+samples, you must input the parameter values as statistical
+distributions (e.g., by using the
+[`rnorm()`](https://rdrr.io/r/stats/Normal.html) or
+[`runif()`](https://rdrr.io/r/stats/Uniform.html) function).
+
+## How do I cite `multibias`?
+
+To get the most up-to-date citation information, please use the built-in
+[`citation()`](https://rdrr.io/r/utils/citation.html) command in R.
+
+``` r
+citation("multibias")
+```
+
+    ## To cite package 'multibias' in publications use:
+    ## 
+    ##   Brendel P (2025). _multibias: Multiple Bias Analysis in Causal
+    ##   Inference_. R package version 1.7.2,
+    ##   <https://github.com/pcbrendel/multibias>.
+    ## 
+    ## A BibTeX entry for LaTeX users is
+    ## 
+    ##   @Manual{,
+    ##     title = {multibias: Multiple Bias Analysis in Causal Inference},
+    ##     author = {Paul Brendel},
+    ##     year = {2025},
+    ##     note = {R package version 1.7.2},
+    ##     url = {https://github.com/pcbrendel/multibias},
+    ##   }
+
+## Does `multibias` support time-to-event data and analyses?
+
+Not currently
