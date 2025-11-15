@@ -65,30 +65,16 @@ devtools::install_github("pcbrendel/multibias")
 
 ### Possible bias adjustments
 
-**Single Bias**
+<img src="man/figures/bias_combos_table.png" align="center" width="80%" />
 
-- exposure misclassification
-- outcome misclassification
-- selection bias
-- uncontrolled confounding
-
-**Multiple Biases**
-
-- exposure misclassification & selection bias
-- exposure misclassification & outcome misclassification
-- outcome misclassification & selection bias
-- uncontrolled confounding & exposure misclassificaiton
-- uncontrolled confounding & outcome misclassification
-- uncontrolled confounding & selection bias
-- uncontrolled confounding, exposure misclassification, & selection bias
-- uncontrolled confounding, outcome misclassification, & selection bias
-
-## Resources
+## References
 
 - Brendel PB, Torres AZ, Arah OA, Simultaneous adjustment of
   uncontrolled confounding, selection bias and misclassification in
   multiple-bias modelling, *International Journal of Epidemiology*,
   Volume 52, Issue 4, Pages 1220–1230.
   <https://doi.org/10.1093/ije/dyad001>
-- [Applying Quantitative Bias Analysis to Epidemiologic
-  Data](https://link.springer.com/book/10.1007/978-0-387-87959-8)
+- Wood CJC, Tilling K, Bartlett JW, Hughes RA. Quantitative bias
+  analysis for mismeasured variables in health research: a review of
+  software tools. *BMC Med Res Methodol.* 2025 Aug 1;25(1):187.
+  [https://doi.org/10.1186/s12874-025-02635-w](https://pmc.ncbi.nlm.nih.gov/articles/PMC12317562/)
