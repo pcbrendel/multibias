@@ -128,7 +128,7 @@ for Americans (USDGA) suggested limit:</p>
 drinking more than 1.5x these guidelines.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nhanes_filtered</span> <span class="op">&lt;-</span> <span class="va">nhanes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="va">alcohol_day_total</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    <span class="va">alcohol_day_total</span> <span class="op">&gt;</span> <span class="fl">28</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
@@ -147,8 +147,12 @@ drinking more than 1.5x these guidelines.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>proportion <span class="op">=</span> <span class="va">count</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `summarise()` has grouped output by 'alcohol_extreme'. You can override using</span></span>
-<span><span class="co">#&gt; the `.groups` argument.</span></span>
+<span><span class="co">#&gt; `summarise()` has regrouped the output.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summaries were computed grouped by <span style="color: #0000BB;">alcohol_extreme</span> and <span style="color: #0000BB;">mortstat</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Output is grouped by <span style="color: #0000BB;">alcohol_extreme</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `summarise(.groups = "drop_last")` to silence this message.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `summarise(.by = c(alcohol_extreme, mortstat))` for per-operation</span></span>
+<span><span class="co">#&gt;   grouping (`?dplyr::dplyr_by`) instead.</span></span>
 <span></span>
 <span><span class="co"># Distribution of Exposure and Outcome:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exposure_outcome_table</span><span class="op">)</span></span>
@@ -289,7 +293,7 @@ likely to under-report their alcohol consumption.</p>
 <span>      <span class="va">alcohol_day_total</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">28</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
@@ -350,7 +354,7 @@ weights.</p>
 <span>      <span class="va">alcohol_day_total</span> <span class="op">*</span> <span class="fl">1.5</span>,</span>
 <span>      <span class="va">alcohol_day_total</span></span>
 <span>    <span class="op">)</span>,</span>
-<span>    alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    alcohol_extreme_adj <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>      <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">14</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>      <span class="va">alcohol_adj</span> <span class="op">&gt;</span> <span class="fl">28</span> <span class="op">*</span> <span class="fl">1.5</span> <span class="op">&amp;</span> <span class="va">gender_female</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">~</span> <span class="fl">1</span>,</span>
 <span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="fl">0</span></span>
@@ -429,7 +433,7 @@ change with each bias adjustment:</p>
 <span>  log_scale <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; `height` was translated to `width`.</span></span></code></pre></div>
-<p><img src="nhanes_example_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="700"></p>
+<p><img src="nhanes_example_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="discussion">Discussion<a class="anchor" aria-label="anchor" href="#discussion"></a>

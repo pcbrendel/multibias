@@ -79,8 +79,12 @@ exposure_outcome_table <- nhanes_filtered |>
   summarize(count = n()) |>
   ungroup() |>
   mutate(proportion = count / sum(count))
-#> `summarise()` has grouped output by 'alcohol_extreme'. You can override using
-#> the `.groups` argument.
+#> `summarise()` has regrouped the output.
+#> ℹ Summaries were computed grouped by alcohol_extreme and mortstat.
+#> ℹ Output is grouped by alcohol_extreme.
+#> ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+#> ℹ Use `summarise(.by = c(alcohol_extreme, mortstat))` for per-operation
+#>   grouping (`?dplyr::dplyr_by`) instead.
 
 # Distribution of Exposure and Outcome:
 print(exposure_outcome_table)
