@@ -116,11 +116,12 @@ multibias_plot <- function(
   ) +
     ggplot2::geom_vline(ggplot2::aes(xintercept = 1), linetype = "dashed") +
     ggplot2::geom_point(color = "blue") +
-    ggplot2::geom_errorbarh(
+    ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_low, xmax = .data$ci_high),
       linewidth = .5,
-      height = .2,
-      color = "gray50"
+      width = .2,
+      color = "gray50",
+      orientation = "y"
     ) +
     ggplot2::labs(
       title = "Observed vs. Adjusted Effect Estimates",
