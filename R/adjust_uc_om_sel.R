@@ -205,12 +205,12 @@ adjust_uc_om_sel_coef_single <- function(
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
-  y_coefs_c <- y_model_coefs[4:len_y_coefs]
+  y1_c <- y_model_coefs[4:len_y_coefs]
 
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_ystar <- s_model_coefs[3]
-  s_coefs_c <- s_model_coefs[4:len_s_coefs]
+  s1_c <- s_model_coefs[4:len_s_coefs]
 
   # Create base dataframe
   df <- data.frame(X = x, Ystar = ystar)
@@ -222,31 +222,28 @@ adjust_uc_om_sel_coef_single <- function(
     }
   }
 
-  # Construct Y prediction formula dynamically
-  y_formula <- "y1_0 + y1_x * df$X + y1_ystar * df$Ystar"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate Y predictions
-  df$Ypred <- rbinom(n, 1, plogis(eval(parse(text = y_formula))))
-
-  # Construct U prediction formula
-  u_formula <- "u1_0 + u1_x * df$X + u1_y * df$Ypred"
-  df$Upred <- rbinom(n, 1, plogis(eval(parse(text = u_formula))))
-
-  # Construct S prediction formula dynamically
-  s_formula <- "s1_0 + s1_x * df$X + s1_ystar * df$Ystar"
+  y_lp <- y1_0 + y1_x * df$X + y1_ystar * df$Ystar
   if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      s_formula <- paste0(s_formula, " + s_coefs_c[", i, "] * df$C", i)
-    }
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    y_lp <- y_lp + C_matrix %*% y1_c
   }
+  df$Ypred <- rbinom(n, 1, plogis(y_lp))
+
+  # Calculate U predictions
+  df$Upred <- rbinom(n, 1, plogis(u1_0 + u1_x * df$X + u1_y * df$Ypred))
 
   # Calculate S predictions
-  df$pS <- plogis(eval(parse(text = s_formula)))
+  s_lp <- s1_0 + s1_x * df$X + s1_ystar * df$Ystar
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    s_lp <- s_lp + C_matrix %*% s1_c
+  }
+  df$pS <- plogis(s_lp)
 
   # Construct final model formula
   model_terms <- c("X", "Upred")
@@ -319,22 +316,22 @@ adjust_uc_om_sel_coef_multinom <- function(
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_ystar <- s_model_coefs[3]
-  s_coefs_c <- s_model_coefs[4:len_s_coefs]
+  s1_c <- s_model_coefs[4:len_s_coefs]
 
   u0y1_0 <- u0y1_model_coefs[1]
   u0y1_x <- u0y1_model_coefs[2]
   u0y1_ystar <- u0y1_model_coefs[3]
-  u0y1_coefs_c <- u0y1_model_coefs[4:len_u0y1_coefs]
+  u0y1_c <- u0y1_model_coefs[4:len_u0y1_coefs]
 
   u1y0_0 <- u1y0_model_coefs[1]
   u1y0_x <- u1y0_model_coefs[2]
   u1y0_ystar <- u1y0_model_coefs[3]
-  u1y0_coefs_c <- u1y0_model_coefs[4:len_u1y0_coefs]
+  u1y0_c <- u1y0_model_coefs[4:len_u1y0_coefs]
 
   u1y1_0 <- u1y1_model_coefs[1]
   u1y1_x <- u1y1_model_coefs[2]
   u1y1_ystar <- u1y1_model_coefs[3]
-  u1y1_coefs_c <- u1y1_model_coefs[4:len_u1y1_coefs]
+  u1y1_c <- u1y1_model_coefs[4:len_u1y1_coefs]
 
   # Create base dataframe
   df <- data.frame(X = x, Ystar = ystar)
@@ -346,23 +343,23 @@ adjust_uc_om_sel_coef_multinom <- function(
     }
   }
 
-  # Construct prediction formulas dynamically
-  u0y1_formula <- "u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar"
-  u1y0_formula <- "u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar"
-  u1y1_formula <- "u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar"
+  # Calculate predictions
+  u0y1_lp <- u0y1_0 + u0y1_x * df$X + u0y1_ystar * df$Ystar
+  u1y0_lp <- u1y0_0 + u1y0_x * df$X + u1y0_ystar * df$Ystar
+  u1y1_lp <- u1y1_0 + u1y1_x * df$X + u1y1_ystar * df$Ystar
 
   if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      u0y1_formula <- paste0(u0y1_formula, " + u0y1_coefs_c[", i, "] * df$C", i)
-      u1y0_formula <- paste0(u1y0_formula, " + u1y0_coefs_c[", i, "] * df$C", i)
-      u1y1_formula <- paste0(u1y1_formula, " + u1y1_coefs_c[", i, "] * df$C", i)
-    }
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    u0y1_lp <- u0y1_lp + C_matrix %*% u0y1_c
+    u1y0_lp <- u1y0_lp + C_matrix %*% u1y0_c
+    u1y1_lp <- u1y1_lp + C_matrix %*% u1y1_c
   }
 
-  # Calculate predictions
-  p_u0y1 <- exp(eval(parse(text = u0y1_formula)))
-  p_u1y0 <- exp(eval(parse(text = u1y0_formula)))
-  p_u1y1 <- exp(eval(parse(text = u1y1_formula)))
+  p_u0y1 <- exp(u0y1_lp)
+  p_u1y0 <- exp(u1y0_lp)
+  p_u1y1 <- exp(u1y1_lp)
 
   denom <- (1 + p_u0y1 + p_u1y0 + p_u1y1)
 
@@ -394,16 +391,15 @@ adjust_uc_om_sel_coef_multinom <- function(
       )
     )
 
-  # Construct S prediction formula dynamically
-  s_formula <- "s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      s_formula <- paste0(s_formula, " + s_coefs_c[", i, "] * combined$C", i)
-    }
-  }
-
   # Calculate S predictions
-  combined$pS <- plogis(eval(parse(text = s_formula)))
+  s_lp <- s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar
+  if (!is.null(confounders)) {
+    C_matrix_combined <- as.matrix(
+      combined[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    s_lp <- s_lp + C_matrix_combined %*% s1_c
+  }
+  combined$pS <- plogis(s_lp)
 
   # Construct final model formula
   model_terms <- c("X", "Ubar")

@@ -161,12 +161,12 @@ adjust_om_sel_coef <- function(
   s1_0 <- s_model_coefs[1]
   s1_x <- s_model_coefs[2]
   s1_ystar <- s_model_coefs[3]
-  s_coefs_c <- s_model_coefs[4:len_s_coefs]
+  s1_c <- s_model_coefs[4:len_s_coefs]
 
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
-  y_coefs_c <- y_model_coefs[4:len_y_coefs]
+  y1_c <- y_model_coefs[4:len_y_coefs]
 
   # Create base dataframe
   df <- data.frame(X = x, Ystar = ystar)
@@ -178,16 +178,15 @@ adjust_om_sel_coef <- function(
     }
   }
 
-  # Construct Y prediction formula dynamically
-  y_formula <- "y1_0 + y1_x * df$X + y1_ystar * df$Ystar"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate Y predictions
-  y1_pred <- plogis(eval(parse(text = y_formula)))
+  y_lp <- y1_0 + y1_x * df$X + y1_ystar * df$Ystar
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    y_lp <- y_lp + C_matrix %*% y1_c
+  }
+  y1_pred <- plogis(y_lp)
   y1_pred <- rep(y1_pred, times = 2)
 
   # Create combined dataframe with both Y=0 and Y=1 scenarios
@@ -200,18 +199,15 @@ adjust_om_sel_coef <- function(
       )
     )
 
-  # Calculate selection probabilities with all confounders
-  if (is.null(confounders)) {
-    # No confounders case
-    combined$pS <- plogis(s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar)
-  } else {
-    # With confounders - construct the full formula
-    s_terms <- paste0("s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar")
-    for (i in seq_along(confounders)) {
-      s_terms <- paste0(s_terms, " + s_coefs_c[", i, "] * combined$C", i)
-    }
-    combined$pS <- plogis(eval(parse(text = s_terms)))
+  # Calculate selection probabilities
+  s_lp <- s1_0 + s1_x * combined$X + s1_ystar * combined$Ystar
+  if (!is.null(confounders)) {
+    C_matrix_combined <- as.matrix(
+      combined[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    s_lp <- s_lp + C_matrix_combined %*% s1_c
   }
+  combined$pS <- plogis(s_lp)
 
   # Construct final model formula
   model_terms <- c("X")
