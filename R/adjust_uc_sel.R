@@ -185,7 +185,7 @@ adjust_uc_sel_coef <- function(
   u1_0 <- u_model_coefs[1]
   u1_x <- u_model_coefs[2]
   u1_y <- u_model_coefs[3]
-  u_coefs_c <- u_model_coefs[4:len_u_coefs]
+  u1_c <- u_model_coefs[4:len_u_coefs]
 
   # Create base dataframe
   df <- data.frame(X = x, Y = y)
@@ -197,16 +197,15 @@ adjust_uc_sel_coef <- function(
     }
   }
 
-  # Construct U prediction formula dynamically
-  u_formula <- "u1_0 + u1_x * df$X + u1_y * df$Y"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      u_formula <- paste0(u_formula, " + u_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate U predictions
-  u1_pred <- plogis(eval(parse(text = u_formula)))
+  u_lp <- u1_0 + u1_x * df$X + u1_y * df$Y
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    u_lp <- u_lp + C_matrix %*% u1_c
+  }
+  u1_pred <- plogis(u_lp)
   u1_pred <- rep(u1_pred, times = 2)
 
   # Create combined dataframe with both U=0 and U=1 scenarios
