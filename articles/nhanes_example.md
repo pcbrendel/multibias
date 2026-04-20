@@ -369,7 +369,6 @@ multibias_plot(
   ),
   log_scale = TRUE
 )
-#> `height` was translated to `width`.
 ```
 
 ![](nhanes_example_files/figure-html/unnamed-chunk-9-1.png)

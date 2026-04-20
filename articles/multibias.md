@@ -191,7 +191,6 @@ multibias_plot(
   multibias_result_list = list("Adjusted Estimate" = adjusted_results),
   log_scale = TRUE
 )
-#> `height` was translated to `width`.
 ```
 
 ![](multibias_files/figure-html/unnamed-chunk-9-1.png)

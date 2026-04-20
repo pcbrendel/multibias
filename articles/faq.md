@@ -90,8 +90,8 @@ citation("multibias")
 
     ## To cite package 'multibias' in publications use:
     ## 
-    ##   Brendel P (2025). _multibias: Multiple Bias Analysis in Causal
-    ##   Inference_. R package version 1.7.2,
+    ##   Brendel P (2026). _multibias: Multiple Bias Analysis in Causal
+    ##   Inference_. R package version 1.7.3,
     ##   <https://github.com/pcbrendel/multibias>.
     ## 
     ## A BibTeX entry for LaTeX users is
@@ -99,8 +99,8 @@ citation("multibias")
     ##   @Manual{,
     ##     title = {multibias: Multiple Bias Analysis in Causal Inference},
     ##     author = {Paul Brendel},
-    ##     year = {2025},
-    ##     note = {R package version 1.7.2},
+    ##     year = {2026},
+    ##     note = {R package version 1.7.3},
     ##     url = {https://github.com/pcbrendel/multibias},
     ##   }
 
