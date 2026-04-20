@@ -29,8 +29,8 @@
 #' df <- data_observed(
 #'   data = df_uc,
 #'   bias = "uc",
-#'   exposure = "X",
-#'   outcome = "Y",
+#'   exposure = "X_bi",
+#'   outcome = "Y_bi",
 #'   confounders = c("C1", "C2", "C3")
 #' )
 #'
