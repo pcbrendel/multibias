@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' df <- data_observed(
-#'   data = df_sel,
+#'   data = df_uc,
 #'   bias = "uc",
 #'   exposure = "X",
 #'   outcome = "Y",
