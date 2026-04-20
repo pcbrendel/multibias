@@ -111,10 +111,15 @@ multibias_plot <- function(
   # Set factor levels to control y-axis order
   df$type <- factor(df$type, levels = rev(c("Observed", list_names)))
 
+  y_binary <- is_binary(data_observed$data[, data_observed$outcome])
+  null_value <- if (y_binary) 1 else 0
+
   final <- ggplot2::ggplot(
     data = df, ggplot2::aes(x = .data$est, y = .data$type)
   ) +
-    ggplot2::geom_vline(ggplot2::aes(xintercept = 1), linetype = "dashed") +
+    ggplot2::geom_vline(
+      ggplot2::aes(xintercept = null_value), linetype = "dashed"
+    ) +
     ggplot2::geom_point(color = "blue") +
     ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_low, xmax = .data$ci_high),
