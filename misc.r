@@ -79,13 +79,22 @@ git_sitrep()
 #   confounders = "C1"
 # )
 
-# print(df_observed)
-# summary(df_observed)
+# bp1 <- bias_params(coef_list = list(x = c(-2.10, 1.62, 0.63, 0.35)))
+# bp2 <- bias_params(coef_list = list(x = c(-2.10 * 2, 1.62 * 2, 0.63 * 2, 0.35 * 2)))
 
-# df_validation <- data_validation(
-#   data = df_em_source,
-#   true_exposure = "X",
-#   true_outcome = "Y",
-#   confounders = "C1",
-#   misclassified_exposure = "Xstar"
+# result1 <- multibias_adjust(
+#   data_observed = df_observed,
+#   bias_params = bp1
+# )
+# result2 <- multibias_adjust(
+#   data_observed = df_observed,
+#   bias_params = bp2
+# )
+
+# multibias_plot(
+#   data_observed = df_observed,
+#   multibias_result_list = list(
+#     "Adjusted with bias params" = result1,
+#     "Adjusted with bias params doubled" = result2
+#   )
 # )
