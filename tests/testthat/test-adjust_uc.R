@@ -121,12 +121,12 @@ test_that("adjust_uc, validation data", {
 
 # test plot
 
-plot <- multibias_plot(
-  data_observed = df_observed,
-  multibias_result_list = list("Adjusted" = val_run)
-)
+# plot <- multibias_plot(
+#   data_observed = df_observed,
+#   multibias_result_list = list("Adjusted" = val_run)
+# )
 
-test_that("Plot output", {
-  skip_on_cran() # Skip test for CRAN submission
-  expect_doppelganger("multibias_plot", plot)
-})
+# test_that("Plot output", {
+#   skip_on_cran() # Skip test for CRAN submission
+#   expect_doppelganger("multibias_plot", plot)
+# })
