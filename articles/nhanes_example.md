@@ -26,9 +26,9 @@ library(dplyr)
 For this demonstration, we’ll use the 2013-2018 [National Health and
 Nutrition Examination
 Survey](https://www.cdc.gov/nchs/nhanes/about/index.html) (NHANES) data
-linked to the [CDC’s 2019 public-use mortality
-data](https://www.cdc.gov/nchs/data-linkage/mortality-public.htm). This
-dataset provides a rich source of information including:
+linked to the [CDC’s 2019 National Death Index
+data](https://www.cdc.gov/nchs/linked-data/mortality-files/?CDC_AAref_Val=https://www.cdc.gov/nchs/data-linkage/mortality-public.htm).
+This dataset provides a rich source of information including:
 
 - Demographics
 - 24-hour dietary recall
