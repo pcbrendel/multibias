@@ -162,12 +162,12 @@ adjust_em_om_coef_single <- function(
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
   x1_ystar <- x_model_coefs[3]
-  x_coefs_c <- x_model_coefs[4:len_x_coefs]
+  x1_c <- x_model_coefs[4:len_x_coefs]
 
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
-  y_coefs_c <- y_model_coefs[4:len_y_coefs]
+  y1_c <- y_model_coefs[4:len_y_coefs]
 
   # Create base dataframe
   df <- data.frame(Xstar = xstar, Ystar = ystar)
@@ -179,27 +179,25 @@ adjust_em_om_coef_single <- function(
     }
   }
 
-  # Construct X prediction formula dynamically
-  x_formula <- "x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      x_formula <- paste0(x_formula, " + x_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate X predictions
-  df$Xpred <- rbinom(n, 1, plogis(eval(parse(text = x_formula))))
-
-  # Construct Y prediction formula dynamically
-  y_formula <- "y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar"
+  x_lp <- x1_0 + x1_xstar * df$Xstar + x1_ystar * df$Ystar
   if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
-    }
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    x_lp <- x_lp + C_matrix %*% x1_c
   }
+  df$Xpred <- rbinom(n, 1, plogis(x_lp))
 
   # Calculate Y predictions
-  df$Ypred <- rbinom(n, 1, plogis(eval(parse(text = y_formula))))
+  y_lp <- y1_0 + y1_x * df$Xpred + y1_ystar * df$Ystar
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    y_lp <- y_lp + C_matrix %*% y1_c
+  }
+  df$Ypred <- rbinom(n, 1, plogis(y_lp))
 
   # Construct final model formula
   model_terms <- c("Xpred")
@@ -268,17 +266,17 @@ adjust_em_om_coef_multinom <- function(
   x1y0_0 <- x1y0_model_coefs[1]
   x1y0_xstar <- x1y0_model_coefs[2]
   x1y0_ystar <- x1y0_model_coefs[3]
-  x1y0_coefs_c <- x1y0_model_coefs[4:len_x1y0_coefs]
+  x1y0_c <- x1y0_model_coefs[4:len_x1y0_coefs]
 
   x0y1_0 <- x0y1_model_coefs[1]
   x0y1_xstar <- x0y1_model_coefs[2]
   x0y1_ystar <- x0y1_model_coefs[3]
-  x0y1_coefs_c <- x0y1_model_coefs[4:len_x0y1_coefs]
+  x0y1_c <- x0y1_model_coefs[4:len_x0y1_coefs]
 
   x1y1_0 <- x1y1_model_coefs[1]
   x1y1_xstar <- x1y1_model_coefs[2]
   x1y1_ystar <- x1y1_model_coefs[3]
-  x1y1_coefs_c <- x1y1_model_coefs[4:len_x1y1_coefs]
+  x1y1_c <- x1y1_model_coefs[4:len_x1y1_coefs]
 
   # Create base dataframe
   df <- data.frame(Xstar = xstar, Ystar = ystar)
@@ -290,23 +288,23 @@ adjust_em_om_coef_multinom <- function(
     }
   }
 
-  # Construct prediction formulas dynamically
-  x1y0_formula <- "x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar"
-  x0y1_formula <- "x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar"
-  x1y1_formula <- "x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar"
+  # Calculate predictions
+  x1y0_lp <- x1y0_0 + x1y0_xstar * df$Xstar + x1y0_ystar * df$Ystar
+  x0y1_lp <- x0y1_0 + x0y1_xstar * df$Xstar + x0y1_ystar * df$Ystar
+  x1y1_lp <- x1y1_0 + x1y1_xstar * df$Xstar + x1y1_ystar * df$Ystar
 
   if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      x1y0_formula <- paste0(x1y0_formula, " + x1y0_coefs_c[", i, "] * df$C", i)
-      x0y1_formula <- paste0(x0y1_formula, " + x0y1_coefs_c[", i, "] * df$C", i)
-      x1y1_formula <- paste0(x1y1_formula, " + x1y1_coefs_c[", i, "] * df$C", i)
-    }
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    x1y0_lp <- x1y0_lp + C_matrix %*% x1y0_c
+    x0y1_lp <- x0y1_lp + C_matrix %*% x0y1_c
+    x1y1_lp <- x1y1_lp + C_matrix %*% x1y1_c
   }
 
-  # Calculate predictions
-  p_x1y0 <- exp(eval(parse(text = x1y0_formula)))
-  p_x0y1 <- exp(eval(parse(text = x0y1_formula)))
-  p_x1y1 <- exp(eval(parse(text = x1y1_formula)))
+  p_x1y0 <- exp(x1y0_lp)
+  p_x0y1 <- exp(x0y1_lp)
+  p_x1y1 <- exp(x1y1_lp)
 
   denom <- (1 + p_x1y0 + p_x0y1 + p_x1y1)
 

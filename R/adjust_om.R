@@ -121,7 +121,7 @@ adjust_om_coef <- function(
   y1_0 <- y_model_coefs[1]
   y1_x <- y_model_coefs[2]
   y1_ystar <- y_model_coefs[3]
-  y_coefs_c <- y_model_coefs[4:len_y_coefs]
+  y1_c <- y_model_coefs[4:len_y_coefs]
 
   # Create base dataframe
   df <- data.frame(X = x, Ystar = ystar)
@@ -133,16 +133,15 @@ adjust_om_coef <- function(
     }
   }
 
-  # Construct Y prediction formula dynamically
-  y_formula <- "y1_0 + y1_x * df$X + y1_ystar * df$Ystar"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      y_formula <- paste0(y_formula, " + y_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate Y predictions
-  df$Ypred <- rbinom(n, 1, plogis(eval(parse(text = y_formula))))
+  y_lp <- y1_0 + y1_x * df$X + y1_ystar * df$Ystar
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    y_lp <- y_lp + C_matrix %*% y1_c
+  }
+  df$Ypred <- rbinom(n, 1, plogis(y_lp))
 
   # Construct final model formula
   model_terms <- c("X")

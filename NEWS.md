@@ -1,3 +1,6 @@
+# multibias 1.7.3
+* All `adjust()` functions - remove `eval(parse())` and switch to matrix multiplication for better efficiency
+
 # multibias 1.7.2
 
 * Added `multibias_plot()` to visualize sensitivity analysis results

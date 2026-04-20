@@ -140,7 +140,7 @@ adjust_em_coef <- function(
   x1_0 <- x_model_coefs[1]
   x1_xstar <- x_model_coefs[2]
   x1_y <- x_model_coefs[3]
-  x_coefs_c <- x_model_coefs[4:len_x_coefs]
+  x1_c <- x_model_coefs[4:len_x_coefs]
 
   # Create base dataframe
   df <- data.frame(Xstar = xstar, Y = y)
@@ -152,16 +152,15 @@ adjust_em_coef <- function(
     }
   }
 
-  # Construct X prediction formula dynamically
-  x_formula <- "x1_0 + x1_xstar * df$Xstar + x1_y * df$Y"
-  if (!is.null(confounders)) {
-    for (i in seq_along(confounders)) {
-      x_formula <- paste0(x_formula, " + x_coefs_c[", i, "] * df$C", i)
-    }
-  }
-
   # Calculate X predictions
-  df$Xpred <- rbinom(n, 1, plogis(eval(parse(text = x_formula))))
+  x_lp <- x1_0 + x1_xstar * df$Xstar + x1_y * df$Y
+  if (!is.null(confounders)) {
+    C_matrix <- as.matrix(
+      df[, paste0("C", seq_along(confounders)), drop = FALSE]
+    )
+    x_lp <- x_lp + C_matrix %*% x1_c
+  }
+  df$Xpred <- rbinom(n, 1, plogis(x_lp))
 
   # Construct final model formula
   model_terms <- c("Xpred")
