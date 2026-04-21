@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/pcbrendel/multibias/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/pcbrendel/multibias/blob/v1.7.3/DESCRIPTION)
 
 Brendel P (2026). *multibias: Multiple Bias Analysis in Causal
 Inference*. R package version 1.7.3,

@@ -2,6 +2,8 @@
 
 ## multibias 1.7.3
 
+CRAN release: 2026-04-20
+
 - All `adjust()` functions - remove `eval(parse())` and switch to matrix
   multiplication for better efficiency
 
